@@ -4,100 +4,462 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>spesso · cucina italiana</title>
-<meta name="description" content="Mangia bene, ridi Spesso, ama molto! Nascemos do amor pela gastronomia italiana e do desejo de criar um refúgio urbano. Botafogo Praia Shopping e Edifício Argentina — Rio de Janeiro."/>
+<meta name="description" content="Mangia bene, ridi Spesso, ama molto! Cozinha italiana no Rio de Janeiro — Botafogo Praia Shopping e Edifício Argentina. Conheça o cardápio Resumo do Mostarda."/>
 <meta property="og:title" content="spesso · cucina italiana"/>
 <meta property="og:description" content="Mangia bene, ridi Spesso, ama molto! 🍋 Cozinha italiana no Rio — Botafogo Praia Shopping e Edifício Argentina."/>
-<meta name="theme-color" content="#1E3A2F"/>
+<meta name="theme-color" content="#14264D"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍋</text></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&family=Permanent+Marker&display=swap" rel="stylesheet"/>
 <style>
-:root{--verde:#1E3A2F;--verde-claro:#2E5744;--creme:#FAF6EF;--limao:#E8C547;--tinta:#22271F;--sub:#6B7265;}
+:root{
+  --navy:#14264D; --navy-deep:#0D1A38; --navy-line:#1E3563;
+  --paper:#F6F0E1; --paper-hi:#FBF7EC; --cream:#EFE6CE;
+  --tile:#2B58A8; --ink:#1B2437; --sub:#5C6373; --veg:#3E7A46;
+}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Open Sans',sans-serif;background:var(--creme);color:var(--tinta);line-height:1.6;}
-.hero{min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
-  background:linear-gradient(180deg,var(--verde) 0%,var(--verde-claro) 100%);color:#fff;padding:48px 24px;}
-.hero .marca{font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(44px,9vw,84px);letter-spacing:.02em;}
-.hero .marca span{color:var(--limao);}
-.hero .cucina{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(16px,3vw,22px);opacity:.85;margin-top:4px;letter-spacing:.28em;text-transform:lowercase;}
-.hero .slogan{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(19px,3.6vw,28px);margin:26px auto 8px;max-width:620px;color:#F4EDD8;}
-.hero .cta{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:34px;}
-.btn{display:inline-block;padding:14px 26px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;transition:transform .15s ease;}
+html{scroll-behavior:smooth;}
+body{font-family:'Montserrat',sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;}
+a{color:inherit;}
+
+/* ---------- NAV ---------- */
+nav{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;
+  padding:22px clamp(18px,4vw,48px);color:var(--cream);}
+nav .logo{font-family:'Permanent Marker',cursive;font-size:22px;letter-spacing:.06em;text-decoration:none;}
+nav .logo small{font-family:'Playfair Display',serif;font-size:10px;letter-spacing:.42em;display:block;margin-top:-4px;text-transform:lowercase;opacity:.8;}
+nav ul{display:flex;gap:26px;list-style:none;font-size:12.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;}
+nav ul a{text-decoration:none;opacity:.85;}
+nav ul a:hover{opacity:1;color:#fff;}
+@media(max-width:760px){nav ul{display:none;}}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;background:var(--navy);color:var(--cream);min-height:92vh;
+  display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;padding:110px 20px 150px;}
+.hero .frame{position:absolute;inset:clamp(14px,3vw,34px);border:1.5px solid rgba(239,230,206,.65);pointer-events:none;}
+.hero .frame::after{content:"";position:absolute;inset:6px;border:.75px solid rgba(239,230,206,.4);}
+.corner{position:absolute;width:54px;height:54px;color:rgba(239,230,206,.8);}
+.corner.tl{top:14px;left:14px;} .corner.tr{top:14px;right:14px;transform:scaleX(-1);}
+.corner.bl{bottom:14px;left:14px;transform:scaleY(-1);} .corner.br{bottom:14px;right:14px;transform:scale(-1);}
+.hero-inner{position:relative;max-width:760px;}
+.apresenta{font-family:'Playfair Display',serif;font-size:clamp(12px,2vw,15px);letter-spacing:.5em;text-transform:uppercase;opacity:.85;margin-bottom:26px;}
+.wordmark{font-family:'Permanent Marker',cursive;font-size:clamp(64px,13vw,124px);line-height:.95;letter-spacing:.04em;color:#F4EDD8;text-shadow:0 2px 0 rgba(0,0,0,.12);}
+.wordmark-sub{font-family:'Playfair Display',serif;font-size:clamp(13px,2.4vw,18px);letter-spacing:.55em;text-transform:uppercase;margin-top:14px;opacity:.9;}
+.slogan{font-family:'Permanent Marker',cursive;font-size:clamp(17px,3vw,24px);margin:34px auto 0;max-width:520px;color:#E9DFC2;transform:rotate(-1.2deg);}
+.hero .cta{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:40px;}
+.btn{display:inline-block;padding:14px 28px;border-radius:999px;font-weight:700;font-size:14px;letter-spacing:.06em;text-decoration:none;transition:transform .15s ease, background .15s ease;}
 .btn:hover{transform:translateY(-2px);}
-.btn-limao{background:var(--limao);color:var(--verde);}
-.btn-borda{border:2px solid rgba(255,255,255,.55);color:#fff;}
-section{max-width:980px;margin:0 auto;padding:72px 24px;}
-h2{font-family:'Playfair Display',serif;font-size:clamp(26px,4.5vw,36px);color:var(--verde);margin-bottom:18px;}
-.sobre p{font-size:17px;max-width:720px;margin-bottom:14px;}
-.unidades{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;margin-top:10px;}
-.unidade{background:#fff;border:1px solid #E7E0D2;border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(30,58,47,.06);}
-.unidade h3{font-family:'Playfair Display',serif;color:var(--verde);font-size:21px;margin-bottom:10px;}
-.unidade .linha{display:flex;gap:10px;align-items:flex-start;margin:8px 0;font-size:15px;color:var(--tinta);}
-.unidade .linha b{color:var(--verde);}
-.unidade .acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
-.btn-verde{background:var(--verde);color:#fff;font-size:13.5px;padding:11px 18px;}
-.btn-suave{background:#F0EADB;color:var(--verde);font-size:13.5px;padding:11px 18px;}
-.faixa{background:var(--verde);color:#F4EDD8;text-align:center;padding:54px 24px;}
-.faixa .frase{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(20px,3.6vw,30px);max-width:700px;margin:0 auto;}
-footer{background:#17281F;color:rgba(255,255,255,.75);text-align:center;padding:34px 24px;font-size:13.5px;}
-footer a{color:var(--limao);text-decoration:none;}
-footer .equipe{display:block;margin-top:14px;font-size:11px;opacity:.5;}
+.btn-cream{background:var(--cream);color:var(--navy);}
+.btn-line{border:1.5px solid rgba(239,230,206,.6);color:var(--cream);}
+.btn-line:hover{background:rgba(239,230,206,.12);}
+.coast{position:absolute;bottom:0;right:0;width:min(680px,88vw);opacity:.55;pointer-events:none;}
+
+/* ---------- ORNAMENT BAND ---------- */
+.band{background:var(--paper);display:flex;justify-content:center;gap:38px;padding:26px 0;overflow:hidden;color:var(--navy);}
+.band svg{flex:none;opacity:.8;}
+
+/* ---------- SOBRE ---------- */
+section{padding:clamp(56px,9vw,100px) 24px;}
+.wrap{max-width:1060px;margin:0 auto;}
+.kicker{font-family:'Playfair Display',serif;font-size:13px;letter-spacing:.45em;text-transform:uppercase;color:var(--tile);margin-bottom:14px;}
+h2{font-family:'Playfair Display',serif;font-size:clamp(30px,5vw,44px);color:var(--navy);margin-bottom:20px;font-weight:600;}
+.sobre-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(30px,6vw,70px);align-items:center;}
+@media(max-width:820px){.sobre-grid{grid-template-columns:1fr;}}
+.sobre p{font-size:16.5px;margin-bottom:14px;color:#333B4E;}
+.stamp{justify-self:center;width:190px;height:190px;border-radius:50%;border:2px solid var(--navy);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;gap:6px;color:var(--navy);position:relative;transform:rotate(-7deg);}
+.stamp::after{content:"";position:absolute;inset:7px;border:.9px solid var(--navy);border-radius:50%;}
+.stamp b{font-size:12.5px;letter-spacing:.14em;line-height:1.5;}
+.stamp .it{font-size:22px;letter-spacing:.1em;}
+.stamp span{font-family:'Playfair Display',serif;font-style:italic;font-size:11px;opacity:.75;}
+
+/* ---------- CARDÁPIO ---------- */
+.menu-sec{background:var(--navy);color:var(--cream);position:relative;}
+.menu-head{text-align:center;margin-bottom:clamp(36px,6vw,64px);}
+.menu-head .apresenta{margin-bottom:30px;}
+.badge{width:min(300px,74vw);margin:0 auto;display:block;}
+.menu-head .card-lbl{font-family:'Playfair Display',serif;letter-spacing:.5em;text-transform:uppercase;font-size:clamp(14px,2.4vw,19px);margin-top:30px;}
+.menu-head .card-lbl::before,.menu-head .card-lbl::after{content:"—";margin:0 14px;opacity:.6;}
+.paper-panel{background:var(--paper-hi);color:var(--ink);border-radius:6px;padding:clamp(28px,5vw,58px);
+  box-shadow:0 24px 70px rgba(0,0,0,.35);max-width:1120px;margin:0 auto;}
+.mcols{column-count:3;column-gap:44px;}
+@media(max-width:1000px){.mcols{column-count:2;}}
+@media(max-width:660px){.mcols{column-count:1;}}
+.mcat{break-inside:avoid;margin-bottom:34px;}
+.mcat h3{font-family:'Playfair Display',serif;font-size:21px;letter-spacing:.16em;color:var(--navy);border-bottom:2px solid var(--navy);
+  padding-bottom:8px;margin-bottom:16px;text-transform:uppercase;}
+.item{break-inside:avoid;margin-bottom:15px;}
+.item .nm{font-weight:700;font-size:14.5px;color:var(--navy);}
+.item .nm .pr{font-weight:700;color:var(--tile);white-space:nowrap;}
+.item .ds{font-size:12.5px;font-style:italic;color:var(--sub);margin-top:2px;}
+.tag-veg{display:inline-block;background:var(--veg);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.06em;
+  padding:2px 9px;border-radius:999px;margin-bottom:3px;text-transform:capitalize;}
+.paisagem{display:block;width:min(340px,70%);margin:6px auto 0;opacity:.9;}
+
+/* navy drinks panel */
+.navy-panel{max-width:1120px;margin:26px auto 0;border:1.5px solid rgba(239,230,206,.5);border-radius:6px;
+  padding:clamp(28px,5vw,58px);position:relative;}
+.navy-panel::after{content:"";position:absolute;inset:7px;border:.75px solid rgba(239,230,206,.28);border-radius:4px;pointer-events:none;}
+.navy-panel .mcat h3{color:var(--cream);border-color:rgba(239,230,206,.6);}
+.navy-panel .item .nm{color:#fff;}
+.navy-panel .item .nm .pr{color:#E8C547;}
+.navy-panel .item .ds{color:rgba(239,230,206,.72);}
+.menu-note{max-width:1120px;margin:30px auto 0;display:flex;gap:16px;align-items:center;justify-content:center;
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.8;text-align:center;flex-wrap:wrap;}
+
+/* ---------- UNIDADES ---------- */
+.unidades{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px;margin-top:10px;}
+.unidade{background:#fff;border:1px solid #E5DEC9;border-radius:16px;padding:32px;box-shadow:0 14px 38px rgba(20,38,77,.08);}
+.unidade h3{font-family:'Playfair Display',serif;color:var(--navy);font-size:22px;margin-bottom:12px;}
+.unidade .linha{display:flex;gap:10px;margin:7px 0;font-size:15px;}
+.unidade .linha b{color:var(--navy);min-width:74px;}
+.unidade .acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+.btn-navy{background:var(--navy);color:#fff;font-size:13.5px;padding:12px 20px;}
+.btn-soft{background:var(--paper);color:var(--navy);font-size:13.5px;padding:12px 20px;border:1px solid #E0D8C2;}
+
+/* ---------- FAIXA ---------- */
+.faixa{background:var(--navy);color:#F4EDD8;text-align:center;padding:clamp(50px,8vw,80px) 24px;position:relative;overflow:hidden;}
+.faixa .frase{font-family:'Permanent Marker',cursive;font-size:clamp(22px,4.4vw,38px);max-width:760px;margin:0 auto;transform:rotate(-1deg);}
+.faixa .sotto{font-family:'Playfair Display',serif;font-style:italic;font-size:15px;opacity:.75;margin-top:16px;}
+
+/* ---------- FOOTER ---------- */
+footer{background:var(--navy-deep);color:rgba(239,230,206,.78);text-align:center;padding:40px 24px;font-size:13.5px;}
+footer .fm{font-family:'Permanent Marker',cursive;font-size:19px;color:var(--cream);margin-bottom:8px;}
+footer a{color:#E8C547;text-decoration:none;}
+footer .equipe{display:block;margin-top:18px;font-size:11px;opacity:.45;}
 footer .equipe a{color:inherit;}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;}}
 </style>
 </head>
 <body>
 
-<div class="hero">
-  <div class="marca">spesso<span>.</span></div>
-  <div class="cucina">cucina italiana</div>
-  <p class="slogan">"Mangia bene, ridi Spesso, ama molto!" 🍋</p>
-  <div class="cta">
-    <a class="btn btn-limao" href="https://wa.me/5521972802207" rel="noopener">Reservas & Cardápio · Botafogo</a>
-    <a class="btn btn-borda" href="https://instagram.com/spesso.rio" rel="noopener">@spesso.rio</a>
+<!-- ============ NAV ============ -->
+<nav>
+  <a class="logo" href="#">SPESSO<small>cucina italiana</small></a>
+  <ul>
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#cardapio">Cardápio</a></li>
+    <li><a href="#cantina">Cantina</a></li>
+    <li><a href="#unidades">Unidades</a></li>
+    <li><a href="https://instagram.com/spesso.rio" rel="noopener">Instagram</a></li>
+  </ul>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="frame"></div>
+  <svg class="corner tl" viewBox="0 0 54 54" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+    <path d="M6 30 C6 16 16 6 30 6"/>
+    <path d="M10 40 C10 22 22 10 40 10" opacity=".55"/>
+    <path d="M20 20 c4 -6 12 -6 14 -1 c-6 1 -10 4 -14 1z" fill="currentColor" stroke="none"/>
+    <circle cx="42" cy="20" r="1.6" fill="currentColor" stroke="none"/>
+    <circle cx="20" cy="42" r="1.6" fill="currentColor" stroke="none"/>
+  </svg>
+  <svg class="corner tr" viewBox="0 0 54 54" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+    <path d="M6 30 C6 16 16 6 30 6"/>
+    <path d="M10 40 C10 22 22 10 40 10" opacity=".55"/>
+    <path d="M20 20 c4 -6 12 -6 14 -1 c-6 1 -10 4 -14 1z" fill="currentColor" stroke="none"/>
+    <circle cx="42" cy="20" r="1.6" fill="currentColor" stroke="none"/>
+    <circle cx="20" cy="42" r="1.6" fill="currentColor" stroke="none"/>
+  </svg>
+  <svg class="corner bl" viewBox="0 0 54 54" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+    <path d="M6 30 C6 16 16 6 30 6"/>
+    <path d="M10 40 C10 22 22 10 40 10" opacity=".55"/>
+    <path d="M20 20 c4 -6 12 -6 14 -1 c-6 1 -10 4 -14 1z" fill="currentColor" stroke="none"/>
+    <circle cx="42" cy="20" r="1.6" fill="currentColor" stroke="none"/>
+    <circle cx="20" cy="42" r="1.6" fill="currentColor" stroke="none"/>
+  </svg>
+  <svg class="corner br" viewBox="0 0 54 54" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+    <path d="M6 30 C6 16 16 6 30 6"/>
+    <path d="M10 40 C10 22 22 10 40 10" opacity=".55"/>
+    <path d="M20 20 c4 -6 12 -6 14 -1 c-6 1 -10 4 -14 1z" fill="currentColor" stroke="none"/>
+    <circle cx="42" cy="20" r="1.6" fill="currentColor" stroke="none"/>
+    <circle cx="20" cy="42" r="1.6" fill="currentColor" stroke="none"/>
+  </svg>
+
+  <div class="hero-inner">
+    <div class="apresenta">Spesso apresenta</div>
+    <div class="wordmark">SPESSO</div>
+    <div class="wordmark-sub">cucina italiana</div>
+    <p class="slogan">"Mangia bene, ridi Spesso, ama molto!"</p>
+    <div class="cta">
+      <a class="btn btn-cream" href="#cardapio">Ver o cardápio</a>
+      <a class="btn btn-line" href="https://wa.me/5521972802207" rel="noopener">Reservas · WhatsApp</a>
+    </div>
   </div>
+
+  <!-- costa italiana em traço -->
+  <svg class="coast" viewBox="0 0 680 190" fill="none" stroke="#EFE6CE" stroke-width="1.1" stroke-linecap="round">
+    <path d="M0 188 L680 188" stroke-width="1.4"/>
+    <path d="M680 188 V60 C640 48 620 26 596 20 C570 12 540 34 520 52 C495 74 470 82 448 96 C420 112 396 128 360 140 C320 152 270 166 210 176 C150 184 60 188 0 188"/>
+    <path d="M596 34 c-8 6 -14 10 -20 18 M560 40 c-6 8 -10 14 -18 22 M620 44 c-8 4 -16 10 -22 16" opacity=".7"/>
+    <g opacity=".9">
+      <rect x="478" y="92" width="26" height="22" rx="1"/><rect x="484" y="98" width="5" height="6"/><rect x="494" y="98" width="5" height="6"/>
+      <rect x="510" y="78" width="30" height="30" rx="1"/><rect x="516" y="85" width="6" height="7"/><rect x="527" y="85" width="6" height="7"/><rect x="521" y="98" width="7" height="10"/>
+      <rect x="548" y="62" width="26" height="26" rx="1"/><rect x="554" y="68" width="5" height="6"/><rect x="564" y="68" width="5" height="6"/>
+      <rect x="580" y="50" width="22" height="24" rx="1"/><rect x="585" y="56" width="4" height="5"/><rect x="593" y="56" width="4" height="5"/>
+      <rect x="606" y="66" width="28" height="26" rx="1"/><rect x="612" y="72" width="5" height="6"/><rect x="622" y="72" width="5" height="6"/>
+      <rect x="640" y="84" width="24" height="24" rx="1"/><rect x="646" y="90" width="5" height="6"/><rect x="655" y="90" width="5" height="6"/>
+      <rect x="446" y="112" width="24" height="18" rx="1"/><rect x="452" y="117" width="5" height="5"/><rect x="461" y="117" width="5" height="5"/>
+      <rect x="412" y="126" width="26" height="16" rx="1"/><rect x="418" y="130" width="5" height="5"/><rect x="428" y="130" width="5" height="5"/>
+      <path d="M488 92 l9 -8 9 8 M516 78 l12 -10 12 10 M556 62 l9 -8 9 8 M586 50 l8 -7 8 7 M612 66 l11 -9 11 9 M646 84 l9 -7 9 7 M452 112 l9 -7 9 7 M418 126 l10 -7 10 7"/>
+    </g>
+    <g opacity=".85">
+      <path d="M430 156 h130 M438 142 h116" stroke-width="1"/>
+      <path d="M440 156 c0 -10 6 -14 12 -14 M466 156 c0 -10 6 -14 12 -14 M492 156 c0 -10 6 -14 12 -14 M518 156 c0 -10 6 -14 12 -14 M544 156 c0 -10 5 -14 11 -14" />
+      <path d="M452 142 v14 M478 142 v14 M504 142 v14 M530 142 v14"/>
+    </g>
+    <g opacity=".75">
+      <path d="M300 152 c2 -16 8 -22 8 -34 c0 12 6 18 8 34 c-3 4 -13 4 -16 0z"/>
+      <path d="M336 148 c2 -13 6 -18 6 -28 c0 10 5 15 7 28 c-3 3 -10 3 -13 0z"/>
+    </g>
+    <path d="M10 176 c20 2 40 2 60 0 M120 172 c24 2 44 2 66 -2 M240 164 c18 2 34 0 50 -4" opacity=".5"/>
+    <path d="M540 176 c14 -3 26 -3 40 0 M600 172 c12 -2 24 -2 36 2" opacity=".5"/>
+  </svg>
+</header>
+
+<!-- ============ ORNAMENT BAND ============ -->
+<div class="band" aria-hidden="true">
+  <svg width="120" height="26" viewBox="0 0 120 26" fill="currentColor"><path d="M60 3 c5 6 12 8 20 8 c-8 2 -15 5 -20 12 c-5 -7 -12 -10 -20 -12 c8 0 15 -2 20 -8z"/><circle cx="14" cy="13" r="2"/><circle cx="106" cy="13" r="2"/><path d="M22 13 h26 M72 13 h26" stroke="currentColor" stroke-width="1"/></svg>
+  <svg width="120" height="26" viewBox="0 0 120 26" fill="currentColor"><path d="M60 3 c5 6 12 8 20 8 c-8 2 -15 5 -20 12 c-5 -7 -12 -10 -20 -12 c8 0 15 -2 20 -8z"/><circle cx="14" cy="13" r="2"/><circle cx="106" cy="13" r="2"/><path d="M22 13 h26 M72 13 h26" stroke="currentColor" stroke-width="1"/></svg>
+  <svg width="120" height="26" viewBox="0 0 120 26" fill="currentColor"><path d="M60 3 c5 6 12 8 20 8 c-8 2 -15 5 -20 12 c-5 -7 -12 -10 -20 -12 c8 0 15 -2 20 -8z"/><circle cx="14" cy="13" r="2"/><circle cx="106" cy="13" r="2"/><path d="M22 13 h26 M72 13 h26" stroke="currentColor" stroke-width="1"/></svg>
 </div>
 
-<section class="sobre">
-  <h2>Sobre nós</h2>
-  <p>Nascemos do amor pela gastronomia italiana e do desejo de criar um refúgio urbano onde você possa escapar da agitação da vida cotidiana. 🤗</p>
-  <p>Acreditamos que o prazer da vida está em saborear o momento, rir com frequência e celebrar a felicidade. 😊💛</p>
-  <p>Nosso compromisso é transformar cada visita em uma experiência memorável, baseada na excelência gastronômica e na conexão humana que promovemos diariamente no Spesso.</p>
+<!-- ============ SOBRE ============ -->
+<section id="sobre">
+  <div class="wrap sobre-grid">
+    <div>
+      <div class="kicker">La nostra storia</div>
+      <h2>Sobre nós</h2>
+      <p>Nascemos do amor pela gastronomia italiana e do desejo de criar um refúgio urbano onde você possa escapar da agitação da vida cotidiana.</p>
+      <p>Acreditamos que o prazer da vida está em saborear o momento, rir com frequência e celebrar a felicidade.</p>
+      <p>Nosso compromisso é transformar cada visita em uma experiência memorável, baseada na excelência gastronômica e na conexão humana que promovemos diariamente no Spesso.</p>
+    </div>
+    <div class="stamp">
+      <b>PANIFICADO COM<br/>FARINHA ITALIANA</b>
+      <div class="it">🇮🇹</div>
+      <span>fermentação longa · tempo como ingrediente essencial</span>
+    </div>
+  </div>
 </section>
 
-<section>
-  <h2>Nossas unidades</h2>
-  <div class="unidades">
-    <div class="unidade">
-      <h3>Botafogo Praia Shopping</h3>
-      <div class="linha"><b>Horário</b></div>
-      <div class="linha">Segunda a Sábado · 10h às 22h<br/>Domingo e feriados · 12h às 21h</div>
-      <div class="linha"><b>Contato</b>&nbsp;+55 (21) 97280-2207</div>
-      <div class="acoes">
-        <a class="btn btn-verde" href="https://wa.me/5521972802207" rel="noopener">WhatsApp</a>
-        <a class="btn btn-suave" href="https://wa.me/5521972802207?text=Ol%C3%A1!%20Quero%20ver%20o%20card%C3%A1pio%20%F0%9F%98%8A" rel="noopener">Cardápio</a>
+<!-- ============ CARDÁPIO ============ -->
+<section class="menu-sec" id="cardapio">
+  <div class="menu-head">
+    <div class="apresenta">Spesso apresenta</div>
+    <svg class="badge" viewBox="0 0 300 190" fill="none">
+      <circle cx="150" cy="88" r="72" stroke="#EFE6CE" stroke-width="2.4"/>
+      <circle cx="150" cy="88" r="64" stroke="#EFE6CE" stroke-width="1"/>
+      <text x="150" y="66" text-anchor="middle" fill="#EFE6CE" font-family="Montserrat,sans-serif" font-size="13" letter-spacing="2">RESUMO DO</text>
+      <polygon points="52,76 96,80 96,102 52,106 62,91" fill="#EFE6CE"/>
+      <polygon points="248,76 204,80 204,102 248,106 238,91" fill="#EFE6CE"/>
+      <rect x="88" y="76" width="124" height="30" fill="#14264D" stroke="#EFE6CE" stroke-width="2"/>
+      <text x="150" y="97" text-anchor="middle" fill="#EFE6CE" font-family="Montserrat,sans-serif" font-weight="700" font-size="19" letter-spacing="2.5">MOSTARDA</text>
+      <text x="150" y="124" text-anchor="middle" fill="#EFE6CE" font-family="Montserrat,sans-serif" font-size="10.5" letter-spacing="1.5">ANOS 80, 90 e 2000</text>
+      <text x="150" y="180" text-anchor="middle" fill="#EFE6CE" font-family="Playfair Display,serif" font-size="17" letter-spacing="8">— CARDÁPIO —</text>
+    </svg>
+  </div>
+
+  <div class="paper-panel">
+    <div class="mcols">
+
+      <div class="mcat">
+        <h3>Entradas</h3>
+        <div class="item"><div class="nm">Coppia di Arancini <span class="pr">| R$ 36,90</span></div>
+          <div class="ds">Cada porção vem com dois arancini do mesmo sabor. Flor de Latti: recheados com fior di latte, acompanhados de geleia de mel e mostarda · Rabada: recheados com rabada, acompanhados de molho de pomodoro pelati levemente picante</div></div>
+        <div class="item"><div class="nm">Giro delle Pizzette <span class="pr">| R$ 49,90</span></div>
+          <div class="ds">Quarteto de pizzette: Maiale Reale, Resumo do Mostarda, Calabresa e 4 Formaggi</div></div>
+        <div class="item"><div class="nm">Sanduíche Ciabatta di Coppa <span class="pr">| R$ 42,90</span></div>
+          <div class="ds">Pão ciabatta artesanal recheado com lombo desfiado, cebola roxa, aioli defumado, parmesão e salada de repolho roxo</div></div>
+        <div class="item"><span class="tag-veg">Vegetariano</span><div class="nm">Tris di Bruschette <span class="pr">| R$ 39,90</span></div>
+          <div class="ds">Trio de bruschettas: tradicional, funghi e caponata</div></div>
+        <div class="item"><div class="nm">Sardella con Caponata di Melanzane <span class="pr">| R$ 39,90</span></div>
+          <div class="ds">Sardela com caponata de berinjela, cebola roxa, alho, pimentões, maracujá, alcaparras e passas. Acompanha cesta de pães</div></div>
+        <div class="item"><div class="nm">Carpaccio di Salmone Affumicato <span class="pr">| R$ 59,90</span></div>
+          <div class="ds">Carpaccio de salmão defumado, azeite extravirgem e alcaparras</div></div>
       </div>
+
+      <div class="mcat">
+        <h3>Insalate</h3>
+        <div class="item"><span class="tag-veg">Vegetariano</span><div class="nm">Insalata di Foglie, Rucola, Pere, Gorgonzola e Noci <span class="pr">| R$ 54,90</span></div>
+          <div class="ds">Salada de folhas, rúcula, pera, gorgonzola e nozes</div></div>
+        <div class="item"><div class="nm">Insalata di Salmone Affumicato <span class="pr">| R$ 68,90</span></div>
+          <div class="ds">Salada com lascas de salmão defumado, folhas verdes, tomates-cereja, cebola roxa e molho de limão siciliano</div></div>
+        <div class="item"><div class="nm">Insalata di Polvo, Patate e Limone Siciliano <span class="pr">| R$ 74,90</span></div>
+          <div class="ds">Salada de polvo macio com batatas, tomates confit, azeitonas azapa, pesto fresco, limão siciliano, dill e salsinha</div></div>
+      </div>
+
+      <div class="mcat">
+        <h3>Piatti Principali</h3>
+        <div class="item"><span class="tag-veg">Vegetariano</span><div class="nm">Rosetta di Ricotta e Spinaci al Burro e Salvia <span class="pr">| R$ 74,90</span></div>
+          <div class="ds">Rosetta de ricota e espinafre com molho de manteiga e sálvia</div></div>
+        <div class="item"><div class="nm">Gnocchi della Fortuna <span class="pr">| R$ 69,90</span></div>
+          <div class="ds">Nhoque com linguiça, mix de cogumelos e tomates pelati</div></div>
+        <div class="item"><div class="nm">Fettuccine alla Fiorentina <span class="pr">| R$ 82,90</span></div>
+          <div class="ds">Fettuccine com molho roti, iscas de filé mignon e espinafre</div></div>
+        <div class="item"><div class="nm">Fettuccine Neri al Polvo Mediterraneo <span class="pr">| R$ 89,90</span></div>
+          <div class="ds">Massa fresca de tinta de lula com polvo macio, limão siciliano e pesto</div></div>
+        <div class="item"><div class="nm">Risotto ai Gamberi con Peperoncino <span class="pr">| R$ 89,90</span></div>
+          <div class="ds">Risoto de camarões salteados, pimenta dedo-de-moça e vinho branco</div></div>
+        <div class="item"><div class="nm">Risotto di Coda alla Vaccinara con Crescione <span class="pr">| R$ 86,90</span></div>
+          <div class="ds">Risoto de rabada com agrião</div></div>
+        <div class="item"><div class="nm">Risotto di Baccalà e Arancia Cristallizzata <span class="pr">| R$ 89,90</span></div>
+          <div class="ds">Risoto de bacalhau com laranja cristalizada</div></div>
+      </div>
+
+      <div class="mcat">
+        <h3>Pizze</h3>
+        <div class="item"><span class="tag-veg">Vegetariano</span><div class="nm">Resumo do Mostarda <span class="pr">| R$ 74,90</span></div>
+          <div class="ds">Fior di latte, gorgonzola dolce, pera caramelizada, nozes quebradas, mel, mostarda e parmesão</div></div>
+        <div class="item"><div class="nm">Maiale Reale <span class="pr">| R$ 76,90</span></div>
+          <div class="ds">Lombo suíno desfiado lentamente, picles de cebola roxa, parmesão, repolho roxo, aioli defumado e finalização de mostarda antiga</div></div>
+        <div class="item"><span class="tag-veg">Vegetariano</span><div class="nm">Margherita Speciale <span class="pr">| R$ 69,90</span></div>
+          <div class="ds">Massa madre, tomate pelati italiano, mussarela e manjericão fresco</div></div>
+        <div class="item"><div class="nm">Parma e Rúcula <span class="pr">| R$ 74,90</span></div>
+          <div class="ds">Mussarela, Parma, rúcula fresca e creme balsâmico</div></div>
+        <div class="item"><div class="nm">Calabresa <span class="pr">| R$ 72,90</span></div>
+          <div class="ds">Mussarela, calabresa curada fatiada e tapenade de azeitonas</div></div>
+        <div class="item"><span class="tag-veg">Vegetariano</span><div class="nm">Pizza 4 Formaggi <span class="pr">| R$ 72,90</span></div>
+          <div class="ds">Mussarela, gorgonzola, grana padano, mel trufado e borda recheada com cream cheese</div></div>
+      </div>
+
+      <div class="mcat">
+        <h3>Dolci</h3>
+        <div class="item"><div class="nm">Tiramisù Tradizionale <span class="pr">| R$ 38,90</span></div>
+          <div class="ds">Tiramisù tradicional</div></div>
+        <div class="item"><div class="nm">Panna Cotta ai Frutti di Bosco <span class="pr">| R$ 29,90</span></div>
+          <div class="ds">Panna cotta com frutas do bosque</div></div>
+        <div class="item"><div class="nm">Semifreddo <span class="pr">| R$ 34,90</span></div>
+          <div class="ds">Sobremesa gelada com doce de leite, castanhas caramelizadas e caramelo salgado</div></div>
+        <svg class="paisagem" viewBox="0 0 340 110" fill="none" stroke="#2B58A8" stroke-width="1.2" stroke-linecap="round">
+          <path d="M6 92 C70 82 150 80 200 84 C260 88 300 90 334 88" stroke-width="1.4"/>
+          <path d="M20 92 c10 -3 24 -4 36 -3 M240 88 c16 -2 40 -2 60 0" opacity=".6"/>
+          <path d="M60 88 c0 -26 4 -40 6 -48 c2 8 6 22 6 48z" fill="#2B58A8" opacity=".85"/>
+          <path d="M84 88 c0 -22 3 -34 5 -41 c2 7 5 19 5 41z" fill="#2B58A8" opacity=".7"/>
+          <path d="M108 86 c0 -18 3 -28 4 -34 c2 6 4 16 4 34z" fill="#2B58A8" opacity=".85"/>
+          <rect x="150" y="58" width="44" height="28" rx="1"/>
+          <path d="M148 58 l24 -14 26 14"/>
+          <rect x="160" y="68" width="8" height="9"/><rect x="176" y="68" width="8" height="9"/>
+          <path d="M220 84 c0 -14 2 -22 3 -27 c2 5 4 13 4 27z" fill="#2B58A8" opacity=".7"/>
+          <path d="M244 86 c0 -18 3 -27 4 -33 c2 6 4 15 4 33z" fill="#2B58A8" opacity=".85"/>
+          <path d="M30 96 c40 4 90 6 140 5 c60 -1 110 -3 140 -5" opacity=".4"/>
+        </svg>
+      </div>
+
     </div>
-    <div class="unidade">
-      <h3>Edifício Argentina</h3>
-      <div class="linha"><b>Horário</b></div>
-      <div class="linha">Domingo a Sábado · 8h às 17h</div>
-      <div class="linha"><b>Contato</b>&nbsp;+55 (21) 96883-1580</div>
-      <div class="acoes">
-        <a class="btn btn-verde" href="https://wa.me/5521968831580" rel="noopener">WhatsApp</a>
-        <a class="btn btn-suave" href="https://wa.me/5521968831580?text=Ol%C3%A1!%20Quero%20ver%20o%20card%C3%A1pio%20%F0%9F%98%8A" rel="noopener">Cardápio</a>
+  </div>
+
+  <!-- CANTINA -->
+  <div class="navy-panel" id="cantina">
+    <div class="mcols">
+
+      <div class="mcat">
+        <h3>Cocktails</h3>
+        <div class="item"><div class="nm">Mostarda Spritz <span class="pr">| R$ 42,90</span></div>
+          <div class="ds">Vodka, Limoncello, mostarda em grãos, soda e limão siciliano</div></div>
+        <div class="item"><div class="nm">Resumo do Rio <span class="pr">| R$ 42,90</span></div>
+          <div class="ds">Cachaça, maracujá, mel, mostarda e manjericão</div></div>
+        <div class="item"><div class="nm">Aperol Spritz <span class="pr">| R$ 42,90</span></div>
+          <div class="ds">Aperol, espumante brut e água com gás</div></div>
+        <div class="item"><div class="nm">Gin Tônica <span class="pr">| R$ 42,90</span></div>
+          <div class="ds">Gin premium, água tônica e finalização cítrica</div></div>
+        <div class="item"><div class="nm">Caipirinha <span class="pr">| R$ 39,90</span></div>
+          <div class="ds">Cachaça artesanal, limão fresco e açúcar</div></div>
+        <div class="item"><div class="nm">Caipvodka <span class="pr">| R$ 42,90</span></div>
+          <div class="ds">Vodka premium, limão fresco e açúcar</div></div>
+        <div class="item"><div class="nm">Chopp Estrella Galicia <span class="pr">| R$ 16,90</span></div></div>
+        <div class="item"><div class="nm">Long Neck <span class="pr">| R$ 16,90</span></div>
+          <div class="ds">Consultar disponibilidade</div></div>
+        <div class="item"><div class="nm">Balde com 6 Long Necks <span class="pr">| R$ 99,90</span></div>
+          <div class="ds">Seis garrafas servidas em balde com gelo</div></div>
+      </div>
+
+      <div class="mcat">
+        <h3>Bevande</h3>
+        <div class="item"><div class="nm">Acqua Frizzante o Naturale <span class="pr">| R$ 9,90</span></div>
+          <div class="ds">Água mineral com ou sem gás</div></div>
+        <div class="item"><div class="nm">Refrigerante <span class="pr">| R$ 12,90</span></div>
+          <div class="ds">Consulte os sabores disponíveis</div></div>
+        <div class="item"><div class="nm">Suco Naturale <span class="pr">| R$ 19,90</span></div>
+          <div class="ds">Preparado com frutas frescas selecionadas</div></div>
+        <div class="item"><div class="nm">Mate della Casa <span class="pr">| R$ 16,90</span></div>
+          <div class="ds">Mate artesanal servido com ou sem limão</div></div>
+        <div class="item"><div class="nm">Soda Italiana <span class="pr">| R$ 18,90</span></div>
+          <div class="ds">Consulte os sabores disponíveis</div></div>
+      </div>
+
+      <div class="mcat">
+        <h3>Vini Bianchi</h3>
+        <div class="item"><div class="nm">Pinot Grigio Arcaia Terre Siciliane IGT <span class="pr">| R$ 42,90</span></div>
+          <div class="ds">Leve e refrescante, com notas cítricas e minerais</div></div>
+        <div class="item"><div class="nm">Chardonnay DOC Venezia Ciari <span class="pr">| R$ 42,90</span></div>
+          <div class="ds">Estruturado e elegante, com notas de frutas maduras e leve tostado</div></div>
+      </div>
+
+      <div class="mcat">
+        <h3>Vini Rossi</h3>
+        <div class="item"><div class="nm">Barbera d'Asti DOCG Borgo Lame <span class="pr">| R$ 42,90</span></div>
+          <div class="ds">Corpo médio, alta acidez e grande capacidade gastronômica</div></div>
+        <div class="item"><div class="nm">Primitivo Burdizzo Puglia IGT <span class="pr">| R$ 159,90</span></div>
+          <div class="ds">Encorpado e macio, com notas de frutas maduras e especiarias</div></div>
+        <div class="item"><div class="nm">Cabernet Sauvignon Scuri DOC Venezia <span class="pr">| R$ 219,90</span></div>
+          <div class="ds">Estruturado, com taninos firmes e notas de frutas escuras</div></div>
+      </div>
+
+      <div class="mcat">
+        <h3>Spumanti</h3>
+        <div class="item"><div class="nm">Prosecco Borgo Molino DOC Treviso Brut <span class="pr">| R$ 249,90</span></div>
+          <div class="ds">Leve, fresco e aromático, com notas de maçã verde e pera</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="menu-note">
+    <span>Siga-nos no Instagram · poste suas fotos nos marcando para compartilharmos juntos esse momento! · <a href="https://instagram.com/spesso.rio" rel="noopener" style="color:#E8C547;text-decoration:none;">@spesso.rio</a></span>
+  </div>
+</section>
+
+<!-- ============ UNIDADES ============ -->
+<section id="unidades">
+  <div class="wrap">
+    <div class="kicker">Dove siamo</div>
+    <h2>Nossas unidades</h2>
+    <div class="unidades">
+      <div class="unidade">
+        <h3>Botafogo Praia Shopping</h3>
+        <div class="linha"><b>Horário</b><span>Segunda a Sábado · 10h às 22h<br/>Domingo e feriados · 12h às 21h</span></div>
+        <div class="linha"><b>Contato</b><span>+55 (21) 97280-2207</span></div>
+        <div class="acoes">
+          <a class="btn btn-navy" href="https://wa.me/5521972802207" rel="noopener">WhatsApp</a>
+          <a class="btn btn-soft" href="https://wa.me/5521972802207?text=Ol%C3%A1!%20Quero%20ver%20o%20card%C3%A1pio%20%F0%9F%98%8A" rel="noopener">Reservas</a>
+        </div>
+      </div>
+      <div class="unidade">
+        <h3>Edifício Argentina</h3>
+        <div class="linha"><b>Horário</b><span>Domingo a Sábado · 8h às 17h</span></div>
+        <div class="linha"><b>Contato</b><span>+55 (21) 96883-1580</span></div>
+        <div class="acoes">
+          <a class="btn btn-navy" href="https://wa.me/5521968831580" rel="noopener">WhatsApp</a>
+          <a class="btn btn-soft" href="https://wa.me/5521968831580?text=Ol%C3%A1!%20Quero%20ver%20o%20card%C3%A1pio%20%F0%9F%98%8A" rel="noopener">Reservas</a>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
+<!-- ============ FAIXA ============ -->
 <div class="faixa">
-  <p class="frase">O prazer da vida está em saborear o momento — ridi spesso, ama molto. ✨</p>
+  <p class="frase">Mangia bene, ridi Spesso, ama molto!</p>
+  <p class="sotto">Una storia di origine · dal nostro forno a casa tua</p>
 </div>
 
+<!-- ============ FOOTER ============ -->
 <footer>
-  <div>spesso · cucina italiana — Rio de Janeiro</div>
-  <div style="margin-top:6px;"><a href="https://instagram.com/spesso.rio" rel="noopener">Instagram @spesso.rio</a></div>
-  <span class="equipe"><a href="https://skaive.spesso.com.br" rel="noopener">acesso equipe</a></span>
+  <div class="fm">SPESSO</div>
+  <div>cucina italiana — Rio de Janeiro</div>
+  <div style="margin-top:8px;"><a href="https://instagram.com/spesso.rio" rel="noopener">Instagram @spesso.rio</a></div>
+  <span class="equipe"><a href="https://skaive.spesso.com.br" rel="noopener">acesso equipe</a> · skv-versao site-v2 02/08/2026</span>
 </footer>
 
 </body>
