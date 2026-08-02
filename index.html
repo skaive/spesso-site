@@ -12,6 +12,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&family=Permanent+Marker&display=swap" rel="stylesheet"/>
+<script>
+/* Ponte para o app da equipe: ícones do SKAIVE instalados na época em que o
+   app vivia em spesso.com.br abrem este domínio em janela standalone — manda
+   direto para o endereço atual do app, preservando rota e parâmetros. */
+if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) {
+  location.replace('https://skaive.spesso.com.br' + location.pathname + location.search + location.hash);
+} else if ('serviceWorker' in navigator) {
+  /* limpa o service worker herdado da época em que o app vivia neste domínio */
+  navigator.serviceWorker.getRegistrations().then(function(rs){ rs.forEach(function(r){ r.unregister(); }); });
+}
+</script>
 <style>
 :root{
   --navy:#1C2749; --navy-deep:#12172E; --navy-line:#28345C;
@@ -624,7 +635,7 @@ footer .equipe a{color:inherit;}
   <div class="fm"><img src="logo-cream.png" alt="Spesso · Cucina italiana"/></div>
   <div>Rio de Janeiro</div>
   <div style="margin-top:8px;"><a href="https://instagram.com/spesso.rio" rel="noopener">Instagram @spesso.rio</a></div>
-  <span class="equipe"><a href="https://skaive.spesso.com.br" rel="noopener">acesso equipe</a> · skv-versao site-v4 02/08/2026</span>
+  <span class="equipe"><a href="https://skaive.spesso.com.br" rel="noopener">acesso equipe</a> · skv-versao site-v5 02/08/2026</span>
 </footer>
 
 </body>
