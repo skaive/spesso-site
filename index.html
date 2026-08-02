@@ -7,16 +7,16 @@
 <meta name="description" content="Mangia bene, ridi Spesso, ama molto! Cozinha italiana no Rio de Janeiro — Botafogo Praia Shopping e Edifício Argentina. Conheça o cardápio Resumo do Mostarda."/>
 <meta property="og:title" content="spesso · cucina italiana"/>
 <meta property="og:description" content="Mangia bene, ridi Spesso, ama molto! 🍋 Cozinha italiana no Rio — Botafogo Praia Shopping e Edifício Argentina."/>
-<meta name="theme-color" content="#14264D"/>
+<meta name="theme-color" content="#1C2749"/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍋</text></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&family=Permanent+Marker&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --navy:#14264D; --navy-deep:#0D1A38; --navy-line:#1E3563;
+  --navy:#1C2749; --navy-deep:#12172E; --navy-line:#28345C;
   --paper:#F6F0E1; --paper-hi:#FBF7EC; --cream:#EFE6CE;
-  --tile:#2B58A8; --ink:#1B2437; --sub:#5C6373; --veg:#3E7A46;
+  --tile:#2E4F97; --ink:#1B2437; --sub:#5C6373; --veg:#3E7A46;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -26,8 +26,7 @@ a{color:inherit;}
 /* ---------- NAV ---------- */
 nav{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;
   padding:22px clamp(18px,4vw,48px);color:var(--cream);}
-nav .logo{font-family:'Permanent Marker',cursive;font-size:22px;letter-spacing:.06em;text-decoration:none;}
-nav .logo small{font-family:'Playfair Display',serif;font-size:10px;letter-spacing:.42em;display:block;margin-top:-4px;text-transform:lowercase;opacity:.8;}
+nav .logo img{height:44px;display:block;}
 nav ul{display:flex;gap:26px;list-style:none;font-size:12.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;}
 nav ul a{text-decoration:none;opacity:.85;}
 nav ul a:hover{opacity:1;color:#fff;}
@@ -43,8 +42,7 @@ nav ul a:hover{opacity:1;color:#fff;}
 .corner.bl{bottom:14px;left:14px;transform:scaleY(-1);} .corner.br{bottom:14px;right:14px;transform:scale(-1);}
 .hero-inner{position:relative;max-width:760px;}
 .apresenta{font-family:'Playfair Display',serif;font-size:clamp(12px,2vw,15px);letter-spacing:.5em;text-transform:uppercase;opacity:.85;margin-bottom:26px;}
-.wordmark{font-family:'Permanent Marker',cursive;font-size:clamp(64px,13vw,124px);line-height:.95;letter-spacing:.04em;color:#F4EDD8;text-shadow:0 2px 0 rgba(0,0,0,.12);}
-.wordmark-sub{font-family:'Playfair Display',serif;font-size:clamp(13px,2.4vw,18px);letter-spacing:.55em;text-transform:uppercase;margin-top:14px;opacity:.9;}
+.wordmark{width:min(560px,82vw);margin:0 auto;display:block;}
 .slogan{font-family:'Permanent Marker',cursive;font-size:clamp(17px,3vw,24px);margin:34px auto 0;max-width:520px;color:#E9DFC2;transform:rotate(-1.2deg);}
 .hero .cta{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:40px;}
 .btn{display:inline-block;padding:14px 28px;border-radius:999px;font-weight:700;font-size:14px;letter-spacing:.06em;text-decoration:none;transition:transform .15s ease, background .15s ease;}
@@ -124,7 +122,7 @@ h2{font-family:'Playfair Display',serif;font-size:clamp(30px,5vw,44px);color:var
 
 /* ---------- FOOTER ---------- */
 footer{background:var(--navy-deep);color:rgba(239,230,206,.78);text-align:center;padding:40px 24px;font-size:13.5px;}
-footer .fm{font-family:'Permanent Marker',cursive;font-size:19px;color:var(--cream);margin-bottom:8px;}
+footer .fm img{height:52px;margin:0 auto 10px;display:block;}
 footer a{color:#E8C547;text-decoration:none;}
 footer .equipe{display:block;margin-top:18px;font-size:11px;opacity:.45;}
 footer .equipe a{color:inherit;}
@@ -135,7 +133,7 @@ footer .equipe a{color:inherit;}
 
 <!-- ============ NAV ============ -->
 <nav>
-  <a class="logo" href="#">SPESSO<small>cucina italiana</small></a>
+  <a class="logo" href="#"><img src="logo-cream.png" alt="Spesso · Cucina italiana"/></a>
   <ul>
     <li><a href="#sobre">Sobre</a></li>
     <li><a href="#cardapio">Cardápio</a></li>
@@ -178,9 +176,7 @@ footer .equipe a{color:inherit;}
   </svg>
 
   <div class="hero-inner">
-    <div class="apresenta">Spesso apresenta</div>
-    <div class="wordmark">SPESSO</div>
-    <div class="wordmark-sub">cucina italiana</div>
+    <img class="wordmark" src="logo-cream.png" alt="SPESSO · Cucina italiana"/>
     <p class="slogan">"Mangia bene, ridi Spesso, ama molto!"</p>
     <div class="cta">
       <a class="btn btn-cream" href="#cardapio">Ver o cardápio</a>
@@ -253,7 +249,7 @@ footer .equipe a{color:inherit;}
       <text x="150" y="66" text-anchor="middle" fill="#EFE6CE" font-family="Montserrat,sans-serif" font-size="13" letter-spacing="2">RESUMO DO</text>
       <polygon points="52,76 96,80 96,102 52,106 62,91" fill="#EFE6CE"/>
       <polygon points="248,76 204,80 204,102 248,106 238,91" fill="#EFE6CE"/>
-      <rect x="88" y="76" width="124" height="30" fill="#14264D" stroke="#EFE6CE" stroke-width="2"/>
+      <rect x="88" y="76" width="124" height="30" fill="#1C2749" stroke="#EFE6CE" stroke-width="2"/>
       <text x="150" y="97" text-anchor="middle" fill="#EFE6CE" font-family="Montserrat,sans-serif" font-weight="700" font-size="19" letter-spacing="2.5">MOSTARDA</text>
       <text x="150" y="124" text-anchor="middle" fill="#EFE6CE" font-family="Montserrat,sans-serif" font-size="10.5" letter-spacing="1.5">ANOS 80, 90 e 2000</text>
       <text x="150" y="180" text-anchor="middle" fill="#EFE6CE" font-family="Playfair Display,serif" font-size="17" letter-spacing="8">— CARDÁPIO —</text>
@@ -456,10 +452,10 @@ footer .equipe a{color:inherit;}
 
 <!-- ============ FOOTER ============ -->
 <footer>
-  <div class="fm">SPESSO</div>
-  <div>cucina italiana — Rio de Janeiro</div>
+  <div class="fm"><img src="logo-cream.png" alt="Spesso · Cucina italiana"/></div>
+  <div>Rio de Janeiro</div>
   <div style="margin-top:8px;"><a href="https://instagram.com/spesso.rio" rel="noopener">Instagram @spesso.rio</a></div>
-  <span class="equipe"><a href="https://skaive.spesso.com.br" rel="noopener">acesso equipe</a> · skv-versao site-v2 02/08/2026</span>
+  <span class="equipe"><a href="https://skaive.spesso.com.br" rel="noopener">acesso equipe</a> · skv-versao site-v3 02/08/2026</span>
 </footer>
 
 </body>
