@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spesso Cucina · Fichas do Buffet Mediterrâneo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,700;6..96,800&family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1C2749;
+    --cream: #f6f3ec;
+    --paper: #f8f6f0;
+    --ink: #23232a;
+    --grey: #6d6d66;
+    --line: #cfc9b8;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#dcd7ca; color:var(--ink); font-family:'Jost', 'Segoe UI', sans-serif; line-height:1.5; }
+
+  header.topo { background:var(--navy); color:var(--cream); text-align:center; padding:30px 20px 22px; }
+  header.topo .logo-spesso { font-family:'Permanent Marker', cursive; font-size:2.3rem; letter-spacing:.06em; }
+  header.topo .logo-cucina { letter-spacing:.55em; font-size:.72rem; color:#aab3cf; margin-top:-4px; }
+  header.topo p { margin-top:10px; font-style:italic; color:#c3cadd; font-size:.9rem; font-weight:300; }
+
+  nav.abas { position:sticky; top:0; z-index:10; background:var(--cream); border-bottom:3px solid var(--navy); padding:10px 12px; display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+  nav.abas button { font-family:'Jost', sans-serif; font-size:.82rem; padding:6px 14px; border:1px solid var(--navy); background:transparent; color:var(--navy); border-radius:999px; cursor:pointer; letter-spacing:.02em; }
+  nav.abas button:hover { background:#e7e1cf; }
+  nav.abas button.ativa { background:var(--navy); color:#fff; }
+  nav.abas button .n { opacity:.6; font-size:.72rem; }
+  nav.abas button.especial { border-style:dashed; }
+
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 26px 16px 90px; }
+
+  h2.grupo { text-align:center; color:var(--navy); font-family:'Playfair Display', serif; font-size:1.6rem; letter-spacing:.12em; text-transform:uppercase; margin:46px 0 4px; }
+  h2.grupo:first-child { margin-top:8px; }
+  p.grupo-sub { text-align:center; color:var(--grey); font-style:italic; font-size:.9rem; margin-bottom:20px; font-weight:300; }
+  .regua { display:flex; align-items:center; gap:12px; margin:0 auto 20px; max-width:400px; }
+  .regua::before, .regua::after { content:''; flex:1; border-top:1px solid var(--line); }
+  .regua span { color:var(--navy); font-size:.95rem; }
+
+  .vazio { background:var(--paper); border:1px dashed var(--line); border-radius:10px; padding:22px 26px; font-size:.94rem; max-width:740px; margin:0 auto; font-weight:300; }
+  .vazio b { color:var(--navy); font-weight:600; }
+  .vazio li { margin-left:20px; }
+
+  /* ════════ FICHA — réplica do modelo impresso ════════ */
+  .ficha { background:var(--paper); border:1px solid #3c3c38; box-shadow:0 4px 18px rgba(0,0,0,.18); margin:0 auto 40px; max-width:900px; padding:34px 40px 26px; position:relative; }
+  .ficha .btn-estado { position:absolute; top:14px; right:14px; border:1px solid #8c2f2f; background:transparent; color:#8c2f2f; border-radius:999px; font-size:.7rem; padding:3px 12px; cursor:pointer; font-family:'Jost', sans-serif; letter-spacing:.04em; opacity:.45; z-index:2; }
+  .ficha .btn-estado:hover { opacity:1; background:#8c2f2f; color:#fff; }
+  .ficha .btn-estado.reativar { border-color:#3c6b3c; color:#3c6b3c; }
+  .ficha .btn-estado.reativar:hover { background:#3c6b3c; color:#fff; }
+  .ficha .badge-origem { position:absolute; top:14px; left:14px; background:var(--navy); color:#fff; font-size:.68rem; padding:3px 12px; border-radius:999px; opacity:.85; z-index:2; }
+  .ficha.inativa { filter:grayscale(.55); }
+  .ficha.inativa::after { content:'DESATIVADA'; position:absolute; top:42%; left:50%; transform:translate(-50%,-50%) rotate(-18deg); font-family:'Playfair Display', serif; font-size:3.2rem; color:rgba(140,47,47,.22); letter-spacing:.2em; pointer-events:none; }
+  .ficha .btn-editar { position:absolute; top:14px; right:112px; border:1px solid var(--navy); background:#fff; color:var(--navy); border-radius:999px; font-size:.7rem; padding:3px 12px; cursor:pointer; font-family:inherit; letter-spacing:.04em; z-index:3; }
+  .ficha .btn-editar:hover { background:var(--navy); color:#fff; }
+  .editor-acoes { display:none; gap:7px; align-items:center; margin:8px 0 12px; }
+  .ficha.editando .editor-acoes { display:flex; }
+  .editor-acoes button,.btn-add-ingr,.btn-remover-ingr { border:1px solid var(--navy); background:#fff; color:var(--navy); border-radius:999px; padding:4px 11px; cursor:pointer; font-family:inherit; font-size:.72rem; font-weight:600; }
+  .editor-acoes .salvar { background:var(--navy); color:#fff; }
+  .btn-add-ingr { display:none; margin:5px 0 10px 13px; }
+  .ficha.editando .btn-add-ingr { display:inline-block; }
+  .btn-remover-ingr { display:none; flex:none; width:20px; height:20px; padding:0; color:#8c2f2f; border-color:#8c2f2f; line-height:17px; }
+  .ficha.editando .btn-remover-ingr { display:inline-block; }
+  .ficha.editando .ingr h5[contenteditable="true"],.ficha.editando .texto-ingr[contenteditable="true"] { outline:1px dashed #7382ad; background:#fff; border-radius:3px; padding:2px 4px; }
+  .ficha.editando .ingr li { display:flex; align-items:flex-start; gap:5px; }
+  .ficha.editando .ingr li::before { top:3px; }
+  .texto-ingr { min-width:0; }
+
+  .ficha h3.titulo { text-align:center; color:var(--navy); font-family:'Playfair Display', serif; font-weight:800; font-size:2.45rem; letter-spacing:.015em; text-transform:uppercase; line-height:1.05; }
+  .ficha .orn { display:flex; align-items:center; gap:10px; max-width:170px; margin:4px auto 6px; color:var(--navy); }
+  .ficha .orn::before, .ficha .orn::after { content:''; flex:1; border-top:1.4px solid var(--navy); }
+  .ficha .orn span { font-size:.85rem; line-height:1; }
+  .ficha .subtitulo { display:flex; align-items:center; gap:12px; margin:0 auto 22px; max-width:680px; }
+  .ficha .subtitulo::before, .ficha .subtitulo::after { content:''; flex:1; border-top:1.6px solid var(--navy); }
+  .ficha .subtitulo span { color:var(--navy); font-size:.83rem; letter-spacing:.16em; text-transform:uppercase; text-align:center; font-weight:500; white-space:normal; }
+
+  .colunas { display:grid; grid-template-columns: 42% 1fr; gap:28px; align-items:start; }
+  @media (max-width:720px){ .colunas { grid-template-columns:1fr; } }
+
+  h4.bloco { color:var(--navy); font-family:'Playfair Display', serif; font-weight:700; font-size:1.08rem; letter-spacing:.05em; text-transform:uppercase; border-bottom:1.6px solid var(--navy); padding-bottom:3px; margin-bottom:12px; display:block; width:88%; }
+
+  .ft { list-style:none; font-size:.86rem; margin-bottom:22px; }
+  .ft li { margin:8px 0; display:flex; gap:10px; align-items:flex-start; font-weight:300; }
+  .ft svg { width:17px; height:17px; flex:none; stroke:var(--navy); fill:none; stroke-width:1.5; margin-top:2px; }
+  .ft b { font-weight:600; color:var(--ink); }
+
+  .ingr h5 { font-size:.76rem; letter-spacing:.14em; color:var(--ink); margin:12px 0 5px; text-transform:uppercase; font-weight:600; }
+  .ingr ul { list-style:none; font-size:.85rem; }
+  .ingr li { padding-left:15px; position:relative; margin:4px 0; font-weight:300; }
+  .ingr li::before { content:'•'; position:absolute; left:2px; color:var(--navy); }
+
+  .fotobox img { width:100%; border-radius:6px; display:block; box-shadow:0 2px 10px rgba(0,0,0,.22); }
+  .fotobox .credito { font-size:.66rem; color:#8f8a79; text-align:right; margin-top:5px; font-style:italic; font-weight:300; }
+
+  .dicas { border:1.6px solid var(--navy); border-radius:14px; padding:16px 18px 14px; margin-top:18px; }
+  .dicas .dicas-head { display:flex; align-items:center; justify-content:center; gap:8px; color:var(--navy); margin-bottom:10px; }
+  .dicas .dicas-head svg { width:22px; height:22px; stroke:var(--navy); fill:none; stroke-width:1.5; }
+  .dicas .dicas-head span { font-family:'Playfair Display', serif; font-weight:700; font-size:.95rem; letter-spacing:.08em; text-transform:uppercase; }
+  .dicas ul { list-style:none; font-size:.83rem; }
+  .dicas li { padding-left:14px; position:relative; margin:7px 0; font-weight:300; }
+  .dicas li::before { content:'•'; position:absolute; left:2px; color:var(--navy); }
+
+  .preparo { margin-top:24px; }
+  .preparo ol { list-style:none; counter-reset:passo; }
+  .preparo li { counter-increment:passo; display:flex; gap:14px; margin:0; font-size:.86rem; border-bottom:1px dashed #b9b2a0; padding:10px 0; }
+  .preparo li:last-child { border-bottom:none; }
+  .preparo li::before { content:counter(passo); flex:none; width:25px; height:25px; border-radius:50%; background:var(--navy); color:#fff; font-size:.82rem; display:flex; align-items:center; justify-content:center; font-weight:600; margin-top:1px; }
+  .preparo b.passo-titulo { display:block; letter-spacing:.14em; text-transform:uppercase; font-size:.76rem; color:var(--ink); font-weight:600; margin-bottom:1px; }
+  .preparo li > div { font-weight:300; }
+
+  .assinatura { margin-top:22px; display:flex; align-items:center; gap:18px; }
+  .assinatura .fio { flex:1; border-top:2.4px solid var(--navy); border-bottom:1px solid var(--navy); height:5px; }
+  .assinatura .marca { text-align:center; }
+  .assinatura .marca .spesso { font-family:'Permanent Marker', cursive; color:var(--navy); font-size:1.7rem; line-height:1; letter-spacing:.04em; }
+  .assinatura .marca .cuc { color:var(--navy); font-size:.6rem; letter-spacing:.6em; margin-top:-2px; font-weight:500; }
+
+  /* fichas enviadas (imagens prontas da Érica) */
+  .ficha-upload { background:var(--paper); border:1px solid #3c3c38; box-shadow:0 4px 18px rgba(0,0,0,.18); margin:0 auto 40px; max-width:900px; padding:12px; position:relative; }
+  .ficha-upload img { width:100%; display:block; }
+  .ficha-upload .rotulo-up { position:absolute; top:20px; right:20px; background:var(--navy); color:#fff; font-size:.7rem; padding:4px 12px; border-radius:999px; letter-spacing:.08em; opacity:.92; }
+  .ficha-upload button.rm { position:absolute; top:20px; left:20px; border:none; background:#8c2f2f; color:#fff; border-radius:999px; font-size:.7rem; padding:4px 12px; cursor:pointer; opacity:.55; }
+  .ficha-upload button.rm:hover { opacity:1; }
+
+  /* montagem */
+  .galeria { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; }
+  .gfoto { background:var(--paper); border:1px solid #3c3c38; box-shadow:0 3px 12px rgba(0,0,0,.16); padding:10px 10px 6px; position:relative; }
+  .gfoto img { width:100%; height:300px; object-fit:cover; display:block; }
+  .gfoto p { font-size:.78rem; padding:8px 4px 4px; font-weight:300; }
+  .gfoto p b { color:var(--navy); font-weight:600; }
+  .gfoto button.rm { position:absolute; top:16px; right:16px; border:none; background:#8c2f2f; color:#fff; border-radius:999px; font-size:.68rem; padding:3px 10px; cursor:pointer; opacity:.55; }
+  .gfoto button.rm:hover { opacity:1; }
+
+  /* upload */
+  .upload-box { background:var(--paper); border:2px dashed var(--navy); border-radius:14px; padding:30px; max-width:640px; margin:0 auto 30px; text-align:center; }
+  .upload-box h3 { font-family:'Playfair Display', serif; color:var(--navy); margin-bottom:14px; font-size:1.2rem; }
+  .upload-box label { display:block; font-size:.85rem; margin:14px 0 4px; color:var(--grey); letter-spacing:.06em; text-transform:uppercase; }
+  .upload-box select, .upload-box input[type=file] { font-family:'Jost', sans-serif; font-size:.92rem; padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:#fff; width:100%; max-width:380px; }
+  .upload-box button.enviar { margin-top:18px; font-family:'Jost', sans-serif; font-size:.95rem; letter-spacing:.06em; background:var(--navy); color:#fff; border:none; border-radius:999px; padding:10px 34px; cursor:pointer; }
+  .upload-box button.enviar:hover { background:#2e3d6b; }
+  .upload-box .msg { margin-top:12px; font-size:.85rem; color:#3c6b3c; min-height:1.2em; }
+  .upload-nota { max-width:640px; margin:0 auto; font-size:.8rem; color:var(--grey); font-weight:300; text-align:center; }
+
+  footer { text-align:center; color:#7a745f; font-size:.78rem; padding:30px 20px 60px; font-style:italic; font-weight:300; }
+
+  /* Replica fiel das fichas impressas de referencia */
+  body { font-family:'Roboto Condensed','Arial Narrow',sans-serif; background:#d8d6d0; }
+  header.topo { padding:18px 20px 15px; }
+  header.topo .logo-oficial { display:block; width:210px; height:72px; object-fit:contain; margin:-5px auto; filter:brightness(0) saturate(100%) invert(100%); transform:scale(1.65); }
+  header.topo p { margin-top:4px; }
+  .wrap { max-width:920px; padding:24px 10px 80px; }
+  .ficha { width:100%; max-width:850px; background:#fbfaf7; border:2px solid #292929; box-shadow:0 3px 14px rgba(0,0,0,.16); padding:35px 33px 17px; margin-bottom:38px; }
+  .ficha h3.titulo { font-family:'Bodoni Moda','Times New Roman',serif; font-size:3.12rem; font-weight:700; letter-spacing:-.045em; line-height:.94; white-space:nowrap; transform:scaleX(.79); transform-origin:center; }
+  .ficha .orn { width:42px; height:20px; margin:0 auto -1px; max-width:none; background:url('ficha-modelo-referencia.jpeg') -407px -105px/851px 1280px no-repeat; }
+  .ficha .orn::before,.ficha .orn::after { display:none; }
+  .ficha .orn svg { display:none; }
+  .ficha .subtitulo { max-width:none; margin:0 0 17px; gap:10px; }
+  .ficha .subtitulo span { font-size:.82rem; font-weight:700; letter-spacing:.13em; white-space:nowrap; }
+  .principal { display:grid; grid-template-columns:34% 66%; gap:0; align-items:start; }
+  .principal-esq { padding-right:27px; }
+  h4.bloco { width:100%; font-family:'Bodoni Moda','Times New Roman',serif; font-size:1.14rem; font-weight:700; letter-spacing:-.025em; border-bottom:1px solid var(--navy); padding-bottom:2px; margin-bottom:9px; }
+  .ft { font-size:.78rem; margin-bottom:20px; }
+  .ft li { margin:9px 0; gap:9px; line-height:1.25; font-weight:400; }
+  .ft svg { width:18px; height:18px; stroke-width:1.9; }
+  .ft .ico-modelo { display:block; width:23px; height:23px; flex:none; background-image:url('ficha-modelo-referencia.jpeg'); background-size:851px 1280px; background-repeat:no-repeat; margin-top:-1px; }
+  .ft .ico-rendimento { background-position:-35px -210px; }
+  .ft .ico-porcao { background-position:-35px -245px; }
+  .ft .ico-categoria { background-position:-35px -280px; }
+  .ft .ico-origem { background-position:-35px -335px; }
+  .ft .ico-temperatura { background-position:-35px -369px; }
+  .ft .ico-conservacao { background-position:-35px -405px; }
+  .ft b { font-weight:700; }
+  .ingr h5 { font-size:.76rem; letter-spacing:.12em; margin:9px 0 3px; font-weight:700; }
+  .ingr ul { font-size:.77rem; line-height:1.22; }
+  .ingr li { margin:3px 0; padding-left:15px; font-weight:400; }
+  .fotobox img { width:100%; height:715px; object-fit:cover; border-radius:0; box-shadow:none; }
+  .fotobox .credito { display:none; }
+  .rodape-ficha { display:grid; grid-template-columns:66% 34%; gap:27px; margin-top:16px; align-items:start; }
+  .preparo { margin:0; }
+  .preparo h4.bloco { margin-bottom:2px; }
+  .preparo li { gap:11px; font-size:.73rem; line-height:1.18; padding:4px 0; border-bottom:1px dashed #8b8b88; }
+  .preparo li::before { width:22px; height:22px; font-size:.82rem; font-weight:700; margin-top:0; }
+  .preparo b.passo-titulo { font-size:.71rem; line-height:1.05; letter-spacing:.16em; font-weight:700; }
+  .preparo li > div { font-weight:400; }
+  .dicas { border:1px dashed var(--navy); border-radius:11px; padding:14px 15px 12px; margin:0; min-height:100%; }
+  .dicas .dicas-head { margin-bottom:10px; gap:9px; }
+  .dicas .dicas-head svg { width:28px; height:28px; stroke-width:1.8; }
+  .dicas .dicas-head .ico-chef-modelo { width:42px; height:42px; flex:none; background:url('ficha-modelo-referencia.jpeg') -580px -940px/851px 1280px no-repeat; margin:-7px -4px -7px -7px; }
+  .dicas .dicas-head span { font-family:'Bodoni Moda','Times New Roman',serif; font-size:1.02rem; letter-spacing:-.02em; }
+  .dicas ul { font-size:.74rem; line-height:1.35; }
+  .dicas li { margin:10px 0; padding-left:14px; font-weight:400; }
+  .assinatura { margin-top:9px; gap:24px; }
+  .assinatura .fio { border-top:1px solid var(--navy); border-bottom:0; height:1px; position:relative; }
+  .assinatura .fio::before { content:''; width:4px; height:4px; border-radius:50%; background:var(--navy); position:absolute; top:-2px; }
+  .assinatura .fio:first-child::before { left:0; }
+  .assinatura .fio:last-child::before { right:0; }
+  .assinatura .marca { width:170px; height:58px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .assinatura .marca img { display:block; width:170px; height:58px; object-fit:contain; transform:scale(1.75); filter:brightness(0) saturate(100%) invert(14%) sepia(27%) saturate(2125%) hue-rotate(190deg) brightness(88%) contrast(97%); }
+  @media (max-width:720px){
+    .ficha { padding:25px 18px 14px; }
+    .ficha h3.titulo { font-size:2.15rem; }
+    .ficha .subtitulo span { white-space:normal; font-size:.75rem; }
+    .principal,.rodape-ficha { grid-template-columns:1fr; gap:18px; }
+    .principal-esq { padding-right:0; }
+    .fotobox img { height:auto; max-height:620px; }
+  }
+  @media print {
+    body { background:#fff; }
+    header.topo,nav.abas,footer,h2.grupo,p.grupo-sub,.regua { display:none !important; }
+    .wrap { max-width:none; padding:0; }
+    .ficha { box-shadow:none; width:210mm; min-height:297mm; max-width:none; margin:0; page-break-after:always; }
+  }
+  .btn-nova { position:fixed; right:22px; bottom:22px; z-index:30; border:0; border-radius:999px; background:var(--navy); color:#fff; padding:13px 22px; font:700 .9rem inherit; box-shadow:0 4px 18px rgba(0,0,0,.28); cursor:pointer; }
+  .editor-modal { position:fixed; inset:0; z-index:100; background:rgba(15,20,38,.78); display:none; overflow:auto; padding:24px; }
+  .editor-modal.aberto { display:block; }
+  .editor-painel { max-width:920px; margin:0 auto; background:#fbfaf7; border:2px solid var(--navy); padding:24px; box-shadow:0 8px 35px rgba(0,0,0,.35); }
+  .editor-painel h2 { font-family:'Bodoni Moda',serif; color:var(--navy); margin-bottom:14px; }
+  .editor-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .editor-campo { display:flex; flex-direction:column; gap:4px; }
+  .editor-campo.largo { grid-column:1/-1; }
+  .editor-campo label { color:var(--navy); font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+  .editor-campo input,.editor-campo select,.editor-campo textarea { width:100%; border:1px solid #aaa89f; background:#fff; padding:8px 10px; font:400 .9rem inherit; border-radius:4px; }
+  .editor-campo textarea { min-height:68px; resize:vertical; }
+  .editor-secao { margin-top:18px; border-top:1px solid #bbb7aa; padding-top:13px; }
+  .editor-secao h3 { color:var(--navy); font-family:'Bodoni Moda',serif; margin-bottom:8px; }
+  .editor-linha { display:grid; grid-template-columns:1fr auto; gap:7px; margin:6px 0; }
+  .editor-linha.passo { grid-template-columns:30% 1fr auto; }
+  .editor-linha input,.editor-linha textarea { border:1px solid #aaa89f; padding:7px 9px; font:400 .86rem inherit; border-radius:4px; }
+  .editor-linha textarea { min-height:52px; resize:vertical; }
+  .editor-linha button,.editor-add,.editor-botoes button { border:1px solid var(--navy); background:#fff; color:var(--navy); border-radius:999px; padding:5px 11px; cursor:pointer; font:600 .75rem inherit; }
+  .editor-linha button { color:#8c2f2f; border-color:#8c2f2f; }
+  .editor-botoes { display:flex; justify-content:flex-end; gap:9px; margin-top:20px; position:sticky; bottom:0; padding:12px 0 0; background:#fbfaf7; }
+  .editor-botoes .salvar { background:var(--navy); color:#fff; }
+  .referencia-upload { max-width:360px; max-height:420px; object-fit:contain; border:1px solid #aaa; margin:8px 0; }
+  @media(max-width:720px){ .editor-grid{grid-template-columns:1fr}.editor-campo.largo{grid-column:auto}.editor-linha.passo{grid-template-columns:1fr}.editor-modal{padding:8px} }
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <img class="logo-oficial" src="logotipo-spesso.png" alt="Spesso Cucina italiana">
+  <p>Fichas do Buffet Mediterrâneo · referências do Pinterest "Medito", Instagram "Spesso Buffet" e pasta 4-Medito · quantidades estimadas para validação da cozinha</p>
+</header>
+
+<nav class="abas" id="abas"></nav>
+<div class="wrap" id="conteudo"></div>
+<button class="btn-nova" onclick="abrirEditorNovo()">＋ Nova ficha</button>
+<div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
+
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-08-12.1</span><br>Rendimento padrão 10 porções; pesos, tempos e conservação são estimativas iniciais. Fichas enviadas ficam guardadas neste navegador.</footer>
+
+<script>
+const PIN = 'pinterest-medito/produtos/';
+const IG  = 'instagram-buffet/';
+const MONTAGEM_KEY = 'Montagem de Buffet';
+
+const CATEGORIAS = [
+  'Assinaturas da Casa','Antepasti','Saladas','Legumes','Acompanhamentos',
+  'Massas','Carne Bovina','Frango','Peixe / Frutos do Mar','Especial do Dia','Sobremesas'
+];
+
+const PLANEJADOS = {
+  'Assinaturas da Casa': ['Caponata Siciliana','Arroz de Polvo','Farofa da Casa','Arroz com Brócolis'],
+  'Acompanhamentos': ['Torta de Espinafre com Ricota','Risoto com Mignon','Risoto de Cogumelos','Empadão / Quiche','Farofa','Arroz Branco','Feijão Preto'],
+  'Saladas': ['Caprese','Pepino com Iogurte (Tzatziki)','Salada de Polvo','Mix de Folhas','Salada de Repolho','Salada de Grão-de-Bico com Tomate','Couscous Salad','Salada de Vagem Francesa','Salada de Quinoa, Cenoura e Beterraba'],
+  'Sobremesas': ['Tiramisù','Panna Cotta','Brownie','Pudim de Leite','Iogurte com Granola (diário)','Salada de Frutas (diária)'],
+  'Massas': ['Rondelle de Presunto','Fettuccine','Rigatoni ao Parmesão e Nozes','Cannelloni de Frango','Gnocchi ao Molho Branco com Nozes'],
+  'Carne Bovina': ['Fraldinha Grelhada','Lasanha à Bolognesa'],
+  'Frango': ['Frango al Limone','Frango Empanado no Panko'],
+  'Peixe / Frutos do Mar': ['Filé de Pescada Grelhada','Bobó de Camarão','Bacalhau Cremoso','Filé de Tilápia com Molho à Parte','Salmão em Posta ao Molho Cremoso'],
+  'Legumes': ['Batatas Assadas com Ervas','Cenouras Assadas com Páprica','Abobrinha Grelhada com Parmesão','Lentilhas com Cebola e Abobrinha','Legumes no Vapor'],
+  'Especial do Dia': ['Gnocchi ao Molho de Frutos do Mar','Feijoada Completa (sexta)'],
+  'Antepasti': ['Carpaccio','Legumes Grelhados']
+};
+
+// Fotos de montagem/arrumação do buffet (Instagram "Spesso Buffet")
+const MONTAGENS = [
+  ['01_anjo_papudo_1.jpg','Ilha gastronômica artesanal','@anjo_papudo — abundância rústica com queijos e antepastos'],
+  ['03_anjo_papudo_3.jpg','Mesa posta interativa','@anjo_papudo — buffet para surpreender'],
+  ['04_anjo_papudo_4.jpg','Centro de mesa com velas','@anjo_papudo — detalhe da montagem'],
+  ['05_anjo_papudo_5.jpg','Ilha gastronômica & buffet artesanal','@anjo_papudo — serviço do chef'],
+  ['08_quintado.roseiral_1.jpg','Mesa longa no jardim','@quintado.roseiral — guarda-sóis e flores'],
+  ['09_quintado.roseiral_2.jpg','Mesa posta com limões e taças verdes','@quintado.roseiral'],
+  ['10_quintado.roseiral_3.jpg','Louça azul sobre linho claro','@quintado.roseiral'],
+  ['14_quintado.roseiral_7.jpg','Serviço no réchaud','@quintado.roseiral — reposição à vista'],
+  ['15_quintado.roseiral_8.jpg','Tábua com frutas cítricas','@quintado.roseiral — tema mediterrâneo'],
+  ['18_tableauxparis_capa-video_1.jpg','Mesa vermelha decorada','@tableauxparis (capa de vídeo)'],
+  ['19_dagiovannapanarea_capa-video_1.jpg','Jantar no jardim — Panarea','@dagiovannapanarea (capa de vídeo)'],
+  ['20_minguialichepizzaria_1.jpg','Balcão de buffet montado','referência de balcão'],
+  ['21_minguialichepizzaria_1.jpg','Balcão de buffet — vista geral','referência de balcão'],
+];
+
+/* ══════════ FICHAS GERADAS ══════════ */
+const FICHAS = [
+
+// ─────────── ANTEPASTI ───────────
+{t:'HUMMUS DEL SOLE', s:'Homus cremoso decorado com tomates, pepino, azeitonas e feta', cat:'Antepasti', org:'Levantina / Mediterrânea',
+ porc:'80 g', temp:'Ambiente', cons:'Base: até 3 dias (0–4°C); decorar no serviço',
+ ingr:[['Base',['Grão-de-bico cozido — 1 kg','Tahine — 200 g','Suco de limão — 120 ml','Alho — 20 g','Azeite extravirgem — 150 ml','Cominho — 8 g','Sal — 18 g','Água gelada — 150 ml']],
+       ['Decoração',['Tomate-cereja — 300 g','Pepino em cubos — 200 g','Azeitonas pretas — 150 g','Queijo feta — 150 g','Pinoli tostado — 40 g','Salsa fresca — 20 g','Azeite para regar — 60 ml']]],
+ prep:[['Cozimento','Cozinhe o grão-de-bico até muito macio (véspera, com bicarbonato).'],
+       ['Processamento','Bata o grão quente com tahine, limão, alho e cominho.'],
+       ['Ponto','Adicione água gelada em fio até obter creme liso e claro.'],
+       ['Montagem','Espalhe no prato raso criando um poço central com o dorso da concha.'],
+       ['Finalização','Encha o poço com azeite e monte a decoração em círculos coloridos.']],
+ dicas:['Água gelada no processamento é o segredo da textura aerada.','Sirva à temperatura ambiente — gelado perde aroma.','Redecore a cada reposição: o acabamento é o espetáculo do buffet.','Grão bem cozido dispensa pelar um a um.'],
+ foto:PIN+'19_1b83333b09efc58b917ff34d4336e22e.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'CREMA DI OLIVE VERDI', s:'Pasta rústica de azeitonas verdes com ervas, servida com pães', cat:'Antepasti', org:'Mediterrânea',
+ porc:'50 g + pães', temp:'Ambiente', cons:'Até 5 dias sob refrigeração (0–4°C)',
+ ingr:[['Base',['Azeitonas verdes sem caroço — 800 g','Alcaparras — 60 g','Alho — 15 g','Azeite extravirgem — 200 ml','Suco de limão — 40 ml','Salsa fresca — 40 g','Pimenta-do-reino — 4 g']],
+       ['Serviço',['Pão rústico fatiado — 600 g','Azeitonas inteiras marinadas — 200 g']]],
+ prep:[['Processamento','Pulse azeitonas, alcaparras e alho até obter pasta com textura (não purê).'],
+       ['Emulsão','Adicione o azeite em fio, pulsando, e finalize com limão e salsa.'],
+       ['Descanso','Deixe 2 h na geladeira para os sabores casarem.'],
+       ['Montagem','Sirva em bowl fundo com poço de azeite e azeitonas inteiras por cima.'],
+       ['Serviço','Acompanhe com pães tostados no momento da reposição.']],
+ dicas:['Textura grosseira é proposital — pasta lisa parece industrializada.','Prove antes de salgar: azeitona e alcaparra já carregam sal.','Cobrir com filme de azeite conserva a cor por mais tempo.'],
+ foto:PIN+'22_24ceb8ee0f26bfc23036e763ef296d64.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'TAPENADE RUSTICA', s:'Creme de azeitonas com azeite de ervas e pão de fermentação natural', cat:'Antepasti', org:'Provençal',
+ porc:'50 g + pães', temp:'Ambiente', cons:'Até 5 dias sob refrigeração (0–4°C)',
+ ingr:[['Base',['Azeitonas verdes e pretas — 700 g','Anchova (opcional) — 30 g','Alho assado — 25 g','Azeite extravirgem — 180 ml','Ervas frescas (tomilho, manjericão) — 30 g','Raspas de limão — 1 un.']],
+       ['Serviço',['Pão de fermentação natural — 600 g','Azeite para o poço — 50 ml']]],
+ prep:[['Processamento','Pulse as azeitonas com alho assado e anchova até pasta rústica.'],
+       ['Aroma','Incorpore azeite, ervas picadas e raspas de limão.'],
+       ['Montagem','Bowl escuro, superfície riscada com colher, poço generoso de azeite.'],
+       ['Serviço','Fatias de pão levemente tostadas ao lado, nunca sobre a pasta.']],
+ dicas:['Alho assado (não cru) dá doçura e evita ardência no buffet.','A anchova é invisível ao olho e dobra o umami — avise no rótulo de alergênicos.','Dupla perfeita com a Crema di Olive Verdi na ilha de antepastos.'],
+ foto:PIN+'42_bbe78aa355d5dfe40b185a5f8a9fcd60.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'CORONA DI BRUSCHETTE', s:'Coroa de bruschettas com tomate confitado, stracciatella e manjericão', cat:'Antepasti', org:'Italiana',
+ porc:'2 un.', temp:'Ambiente (montagem próxima ao serviço)', cons:'Montada: 2 h; componentes: 2 dias (0–4°C)',
+ ingr:[['Base',['Baguete ou filone — 3 un.','Azeite extravirgem — 120 ml','Alho — 20 g']],
+       ['Cobertura',['Tomate-cereja confitado — 800 g','Stracciatella ou burrata — 500 g','Manjericão fresco — 30 g','Flor de sal — 8 g','Redução de balsâmico — 60 ml']]],
+ prep:[['Croûtes','Fatie o pão, pincele azeite com alho e toste até dourar.'],
+       ['Confit','Asse os tomates com azeite, sal e açúcar a 140°C por 40 min.'],
+       ['Montagem','Espalhe stracciatella em cada fatia e coroe com tomates.'],
+       ['Composição','Disponha em círculo (coroa) numa tábua redonda, centro com manjericão.'],
+       ['Finalização','Flor de sal e fios de balsâmico na frente do cliente, se possível.']],
+ dicas:['Montar no máximo 2 h antes — pão úmido arruína a experiência.','O formato de coroa rende a foto do evento: reserve tábua giratória.','No verão, substitua stracciatella por ricota batida com limão.'],
+ foto:PIN+'29_e1783e56dfe0aa067421c8f5dc276e7b.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'TAVOLA MEDITERRANEA', s:'Tábua de mezze com homus, falafel, azeitonas, crudités e pães', cat:'Antepasti', org:'Mediterrânea / Levantina',
+ porc:'120 g (mesa compartilhada)', temp:'Ambiente', cons:'Montagem: 3 h; componentes: 2–3 dias (0–4°C)',
+ ingr:[['Pastas e proteínas',['Homus — 600 g','Falafel mini — 30 un.','Bolinhas de queijo (labneh) — 300 g','Azeitonas mistas — 300 g']],
+       ['Crudités e frescos',['Cenoura em bastões — 300 g','Pepino — 300 g','Rabanete e cebola roxa — 200 g','Tomate-cereja — 300 g','Mini pimentões — 200 g']],
+       ['Pães',['Pão pita — 8 un.','Crackers e lavash — 300 g']]],
+ prep:[['Mise en place','Prepare pastas e falafel na véspera; corte crudités no dia.'],
+       ['Base','Forre a tábua com folhas verdes e posicione bowls de pastas como âncoras.'],
+       ['Preenchimento','Distribua crudités em feixes de cor alternada, sem espaços vazios.'],
+       ['Camadas','Pães em leque nas bordas; azeitonas e falafel preenchendo caminhos.'],
+       ['Finalização','Azeite, sumagre e salsa sobre as pastas imediatamente antes de abrir.']],
+ dicas:['Abundância é a regra: tábua rala não existe no Mediterrâneo.','Reponha por blocos (metade da tábua), nunca item a item.','Identifique alergênicos com plaquinhas — gergelim e glúten escondidos.'],
+ foto:PIN+'30_304b7efbf8b249e380d9bdec33f9886a.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'BRIE IN CROSTA', s:'Brie folhado com figos, mel, presunto cru e tomilho', cat:'Antepasti', org:'Franco-mediterrânea',
+ porc:'60 g', temp:'Quente (servir morno)', cons:'Assar no serviço; montado cru: 24 h (0–4°C)',
+ ingr:[['Base',['Queijo brie inteiro — 1 kg (2 rodas)','Massa filo — 300 g','Manteiga derretida — 100 g']],
+       ['Cobertura',['Figos frescos — 6 un.','Mel — 120 ml','Presunto cru — 100 g','Tomilho fresco — 10 g','Nozes ou pistache — 80 g']]],
+ prep:[['Envolvimento','Envolva cada roda de brie em camadas de filo pinceladas com manteiga.'],
+       ['Forno','Asse a 200°C por 15–18 min até dourar e o centro amolecer.'],
+       ['Descanso','Aguarde 5 min antes de cortar a tampa — o queijo escorre no ponto.'],
+       ['Cobertura','Coroe com figos em quartos, presunto em véus e tomilho.'],
+       ['Finalização','Mel em fios generosos na frente do cliente.']],
+ dicas:['O corte da casca na mesa é o momento-espetáculo: faça à vista.','Não asse antes da hora — brie frio endurece e perde o caimento.','Versão vegetariana: troque presunto por nozes caramelizadas.'],
+ foto:PIN+'48_8f90f5a681967b583e18b418348d9078.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'TRONCHETTO DI FORMAGGIO', s:'Rocambole de queijo cremoso com figos secos, cranberries e pistache', cat:'Antepasti', org:'Mediterrânea contemporânea',
+ porc:'50 g', temp:'Fria (0–4°C)', cons:'Até 4 dias sob refrigeração; fatiar no serviço',
+ ingr:[['Massa de queijo',['Cream cheese — 800 g','Queijo de cabra — 300 g','Mel — 60 ml','Raspas de limão — 1 un.']],
+       ['Recheio e crosta',['Figos secos picados — 200 g','Cranberries — 120 g','Pistache picado — 180 g','Damasco picado — 100 g','Ervas frescas — 15 g']]],
+ prep:[['Massa','Bata os queijos com mel e raspas até cremoso e moldável.'],
+       ['Recheio','Sobre filme, abra a massa em retângulo e espalhe as frutas secas.'],
+       ['Modelagem','Enrole como rocambole apertado e leve 4 h ao frio.'],
+       ['Crosta','Desenforme e role sobre o pistache picado até cobrir.'],
+       ['Serviço','Fatie 1 cm com faca quente; sirva com crackers e mel.']],
+ dicas:['Massa bem gelada = fatias perfeitas; corte com faca aquecida.','Faça 2 rolos menores em vez de 1 grande: repõe sem quebrar o visual.','Combina com a estação de queijos em eventos.'],
+ foto:PIN+'49_c40184cc78083daf23931eeca7bcefd8.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'ROTOLO AL PISTACCHIO', s:'Rolo de queijo com crosta de pistache, frutas secas e mel', cat:'Antepasti', org:'Mediterrânea contemporânea',
+ porc:'50 g', temp:'Fria (0–4°C)', cons:'Até 4 dias sob refrigeração',
+ ingr:[['Base',['Cream cheese — 600 g','Gorgonzola suave — 200 g','Manteiga — 60 g']],
+       ['Crosta',['Pistache — 250 g','Cranberries — 100 g','Nozes — 100 g','Mel para regar — 80 ml']]],
+ prep:[['Mistura','Bata os queijos com manteiga até homogêneo; ajuste sal.'],
+       ['Modelagem','Modele em cilindro sobre filme e firme no frio por 4 h.'],
+       ['Crosta','Role sobre a mistura picada de pistache, nozes e cranberries.'],
+       ['Serviço','Sirva inteiro na tábua com faca de espátula e mel ao lado.']],
+ dicas:['O convidado corta — deixe faca própria e crackers firmes.','Gorgonzola suave dá profundidade sem dominar; prove a proporção.','Rende ótimo contraste ao lado do Tronchetto (um claro, um azul).'],
+ foto:PIN+'50_9e349a3a1ae7da96567e1cd120af183b.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'CORONA DI FORMAGGIO E FICHI', s:'Coroa de queijo fresco com figos, pistaches e mel de tomilho', cat:'Antepasti', org:'Mediterrânea contemporânea',
+ porc:'60 g', temp:'Fria (0–4°C)', cons:'Montar no dia; base: 3 dias (0–4°C)',
+ ingr:[['Base',['Ricota firme ou labneh — 1 kg','Cream cheese — 300 g','Mel — 80 ml']],
+       ['Cobertura',['Figos frescos — 8 un.','Pistache — 150 g','Romã (arilos) — 100 g','Mel de tomilho — 80 ml','Alecrim — 5 g']]],
+ prep:[['Base','Bata ricota e cream cheese; molde em anel (forma de coroa) e refrigere 6 h.'],
+       ['Desenforme','Desenforme sobre tábua de madeira escura (contraste).'],
+       ['Cobertura','Coroe com figos em quartos, pistache e romã.'],
+       ['Finalização','Mel em fios e alecrim; sirva com crackers neutros.']],
+ dicas:['É o centro de mesa natural da estação de queijos — posicione no ponto mais visível.','Figos maduros porém firmes: moles desmancham em 1 h de buffet.','Fora da época do figo: uvas roxas assadas funcionam.'],
+ foto:PIN+'51_7becd7dda0553378aab5c00dcda427d8.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'HUMMUS CON INSALATA TRITATA', s:'Homus com salada picada de tomate, pepino e romã por cima', cat:'Antepasti', org:'Israelense',
+ porc:'80 g', temp:'Ambiente / fria', cons:'Base: 3 dias; salada picada: no dia',
+ ingr:[['Homus',['Grão-de-bico cozido — 1 kg','Tahine — 200 g','Limão — 100 ml','Alho — 15 g','Azeite — 120 ml','Sal e cominho — q.b.']],
+       ['Salada tritata',['Tomate em cubos pequenos — 400 g','Pepino em cubos — 300 g','Pimentão vermelho — 150 g','Cebola roxa — 100 g','Romã — 80 g','Salsa e hortelã — 30 g','Limão e azeite — q.b.','Sumagre — 6 g']]],
+ prep:[['Homus','Prepare o homus liso conforme ficha Hummus del Sole.'],
+       ['Salada','Corte tudo em cubos regulares de 5 mm; tempere na hora.'],
+       ['Montagem','Prato raso, homus espalhado em espiral, salada no centro.'],
+       ['Finalização','Sumagre, romã e azeite por cima — cores vivas à vista.']],
+ dicas:['Corte pequeno e regular é o que diferencia do "vinagrete" — capriche na faca.','Escorra bem a salada antes de montar, ou o homus encharca.','Versão de verão do homus decorado: alterne os dois no buffet.'],
+ foto:PIN+'52_9b8b4025412fb90fdf9f4e17a25edc2b.jpg', cred:'Pinterest · pasta Medito (food52)'},
+
+{t:'PROSCIUTTO IN MOSTRA', s:'Presunto cru fatiado à vista com queijos e pães', cat:'Antepasti', org:'Italiana',
+ porc:'40 g', temp:'Ambiente (fatiar no serviço)', cons:'Peça fechada: conforme fabricante; aberta: 5 dias',
+ ingr:[['Charcutaria',['Presunto cru (peça com suporte) — 1 un.','Queijo brie ou camembert — 400 g','Grissini — 200 g']],
+       ['Apoio',['Pão rústico — 400 g','Uvas e figos — 400 g','Vinho tinto para a estação — opcional']]],
+ prep:[['Estação','Monte o suporte do presunto em ponto alto da ilha, com tábua própria.'],
+       ['Fatiamento','Fatie véus finos à vista do cliente, em pequenos lotes.'],
+       ['Composição','Disponha véus dobrados em ondas, nunca empilhados lisos.'],
+       ['Apoio','Queijos, grissini e frutas ao redor completam a estação.']],
+ dicas:['O fatiamento ao vivo é teatro puro — treine o corte em véu.','Nunca fatie tudo de uma vez: presunto resseca em 30 min exposto.','Referência direta da foto: suporte de madeira com véus pendurados.'],
+ foto:PIN+'58_13ba1fd869902294cc6fafa4d30a9458.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'OLIO AROMATICO DELLA CASA', s:'Azeite aromatizado com alho, ervas e pimenta para pães', cat:'Antepasti', org:'Mediterrânea',
+ porc:'20 ml + pães', temp:'Ambiente', cons:'Aromatizado a frio: 7 dias; coar após 48 h',
+ ingr:[['Azeite',['Azeite extravirgem — 1 L','Alho levemente esmagado — 40 g','Alecrim e tomilho — 20 g','Louro — 4 folhas','Pimenta calabresa em flocos — 8 g','Raspas de limão — 1 un.']],
+       ['Serviço',['Bowl de madeira ou cerâmica','Pães variados — 800 g','Flor de sal — q.b.']]],
+ prep:[['Infusão','Aqueça o azeite a 60°C, desligue e adicione aromáticos.'],
+       ['Descanso','Deixe em infusão por 24–48 h em vidro fechado, ao abrigo da luz.'],
+       ['Coagem','Coe para o recipiente de serviço (aromáticos frescos fermentam).'],
+       ['Serviço','Sirva em bowl raso com flor de sal, ao lado da cesta de pães.']],
+ dicas:['Ligação direta com o "Altar do Azeite" dos nichos gregos do salão.','Nunca deixe alho fresco imerso por dias — risco de botulismo; coe sempre.','Uma garrafa bonita à vista vende o azeite da casa como produto.'],
+ foto:PIN+'25_4acd1bb767d486b0fcd60dddb473161d.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'BOCCONCINI FIORITI', s:'Bolinhas de queijo decoradas com flores comestíveis', cat:'Antepasti', org:'Buffet artesanal',
+ porc:'2 un.', temp:'Fria (0–4°C)', cons:'Decoradas: 6 h; massa: 3 dias (0–4°C)',
+ ingr:[['Massa',['Labneh ou cream cheese firme — 800 g','Queijo de cabra — 200 g','Ervas picadas — 20 g','Raspas de limão — 1 un.']],
+       ['Decoração',['Flores comestíveis (amor-perfeito, capuchinha) — 40 un.','Pistache moído — 80 g','Azeite — 40 ml']]],
+ prep:[['Massa','Misture os queijos com ervas e raspas; refrigere até firmar.'],
+       ['Modelagem','Boleie porções de 25 g com as mãos untadas de azeite.'],
+       ['Decoração','Pressione delicadamente uma flor sobre cada bolinha.'],
+       ['Serviço','Disponha em bowl de cerâmica escura com fio de azeite.']],
+ dicas:['Flores compradas de fornecedor de comestíveis — nunca de floricultura (agrotóxico).','Referência da ilha gastronômica do @anjo_papudo: delicadeza em escala.','Monte no máximo 6 h antes; flores murcham.'],
+ foto:IG+'02_anjo_papudo_2.jpg', cred:'Instagram · @anjo_papudo'},
+
+{t:'TORRE DI ANTIPASTI', s:'Torre cênica de antepastos em camadas para eventos', cat:'Antepasti', org:'Buffet artesanal',
+ porc:'100 g (peça para 30–40 pessoas)', temp:'Ambiente', cons:'Montar 1 h antes do evento',
+ ingr:[['Estrutura',['Suporte de camadas ou queijos inteiros como base — 3 níveis','Queijo tipo grana (base) — 2 kg']],
+       ['Cobertura',['Frutas frescas e secas — 800 g','Charcutaria variada — 600 g','Antepastos (azeitonas, tomate seco) — 600 g','Geleias e mel — 200 g','Flores comestíveis e ervas — q.b.']]],
+ prep:[['Base','Posicione o nível mais pesado (queijos duros) embaixo.'],
+       ['Camadas','Alterne cores e alturas; charcutaria em ondas, frutas em cachos.'],
+       ['Cascata','Crie caimento visual: uvas e ervas escorrendo entre níveis.'],
+       ['Finalização','Flores e mel por último; reponha por quadrante durante o evento.']],
+ dicas:['É a peça-assinatura para eventos fechados — precifique como centro de mesa.','Fotografe a montagem pronta para o portfólio do buffet.','Estabilidade primeiro: teste o suporte antes de decorar.'],
+ foto:IG+'06_anjo_papudo_6.jpg', cred:'Instagram · @anjo_papudo'},
+
+// ─────────── SALADAS ───────────
+{t:'INSALATA DI CECI', s:'Salada de grão-de-bico com tomate, pimentão e ervas frescas', cat:'Saladas', org:'Levantina (balela)',
+ porc:'90 g', temp:'Fria (0–4°C)', cons:'Até 2 dias; ervas no dia',
+ ingr:[['Base',['Grão-de-bico cozido al dente — 1,2 kg','Tomate em cubos — 400 g','Pimentão vermelho e amarelo — 300 g','Cebola roxa — 150 g','Pepino — 300 g']],
+       ['Tempero',['Azeite extravirgem — 150 ml','Limão — 100 ml','Salsa e hortelã picadas — 50 g','Cominho — 5 g','Sal e pimenta — q.b.']]],
+ prep:[['Grão','Cozinhe o grão-de-bico al dente (inteiro, sem desmanchar); esfrie.'],
+       ['Corte','Corte os vegetais em cubos do tamanho do grão (uniformidade).'],
+       ['Tempero','Misture com azeite, limão e cominho 30 min antes de servir.'],
+       ['Finalização','Ervas frescas na hora de expor no buffet.']],
+ dicas:['Vegana, sem glúten e barata: a salada mais eficiente do cardápio.','Grão demolhado e cozido na casa tem textura muito superior ao de lata.','Não tempere com muita antecedência — o limão amolece o grão.'],
+ foto:PIN+'61_70482ca7e7834086b453e67dcfcfc82e.jpg', cred:'Pinterest · pasta Medito'},
+
+// ─────────── LEGUMES ───────────
+{t:'POMODORI RIPIENI', s:'Tomates recheados com arroz, ervas e azeite, assados lentamente', cat:'Legumes', org:'Grega (yemistá)',
+ porc:'1 un. (150 g)', temp:'Quente (mín. 65°C) ou ambiente', cons:'Até 3 dias sob refrigeração (0–4°C)',
+ ingr:[['Base',['Tomates grandes e firmes — 12 un.','Azeite extravirgem — 150 ml','Sal e açúcar — q.b.']],
+       ['Recheio',['Arroz parboilizado — 400 g','Polpa dos tomates picada','Cebola — 200 g','Alho — 20 g','Salsa, hortelã e endro — 50 g','Pinoli ou nozes — 60 g','Uvas-passas — 60 g']]],
+ prep:[['Preparo','Corte tampas dos tomates e esvazie com colher, reservando a polpa.'],
+       ['Recheio','Refogue cebola e alho, junte arroz, polpa e ervas; cozinhe parcialmente.'],
+       ['Montagem','Recheie os tomates a 3/4 (o arroz cresce), tampe e regue com azeite.'],
+       ['Forno','Asse a 180°C por 45–60 min com um dedo de água na assadeira.'],
+       ['Serviço','Sirva na própria travessa rústica, mornos ou à temperatura ambiente.']],
+ dicas:['Pitada de açúcar dentro de cada tomate corrige acidez.','Na Grécia se come morno — aguenta muito bem o buffet.','Passas e pinoli são a assinatura do Egeu: não pule.'],
+ foto:PIN+'20_9640e44be682d116163311af1d4e7b7a.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'PARMIGIANA DI MELANZANE', s:'Berinjelas em camadas com molho de tomate, muçarela e manjericão', cat:'Legumes', org:'Italiana',
+ porc:'220 g', temp:'Quente (mín. 65°C)', cons:'Até 3 dias sob refrigeração (0–4°C)',
+ ingr:[['Base',['Berinjelas — 3 kg','Azeite para grelhar — 200 ml','Sal — q.b.']],
+       ['Camadas',['Molho de tomate rústico — 1,5 L','Muçarela — 800 g','Parmesão ralado — 200 g','Manjericão fresco — 40 g']]],
+ prep:[['Berinjelas','Fatie a 1 cm, salgue e deixe 30 min; seque e grelhe até marcar.'],
+       ['Montagem','Alterne camadas de berinjela, molho, muçarela e manjericão.'],
+       ['Cobertura','Finalize com molho, muçarela e parmesão por cima.'],
+       ['Forno','Asse a 190°C por 30–35 min até borbulhar e dourar.'],
+       ['Descanso','Aguarde 15 min antes de porcionar — as camadas se firmam.']],
+ dicas:['Grelhar (não fritar) deixa mais leve e alinhado às Blue Zones.','No réchaud, mantenha coberta até a reposição para não ressecar a borda.','Irmã da Melanzane Ripiene da Érica — alternar as duas na semana.'],
+ foto:PIN+'21_c3214bfc556eac0ddfc9dff6f9a4d122.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'FUNGHI CROCCANTI', s:'Cogumelos empanados crocantes com molho de iogurte e ervas', cat:'Legumes', org:'Mediterrânea contemporânea',
+ porc:'80 g + molho', temp:'Quente — consumo imediato', cons:'Fritar no serviço; empanados crus: 24 h (0–4°C)',
+ ingr:[['Cogumelos',['Cogumelos paris/shimeji — 1,5 kg','Farinha temperada — 200 g','Ovos — 4 un.','Panko com parmesão — 400 g','Óleo para fritura — q.b.']],
+       ['Molho',['Iogurte grego — 400 g','Limão — 40 ml','Alho — 10 g','Endro e cebolinha — 20 g','Sal e pimenta — q.b.']]],
+ prep:[['Empanamento','Passe os cogumelos por farinha, ovo e panko com parmesão.'],
+       ['Fritura','Frite a 175°C em lotes pequenos até dourar (2–3 min).'],
+       ['Escorrimento','Escorra sobre grade (não papel) para manter crocância.'],
+       ['Molho','Misture iogurte, limão, alho e ervas; sirva gelado ao lado.'],
+       ['Serviço','Reponha em lotes de 20–30 min; nunca cubra (murcham).']],
+ dicas:['Grade em vez de papel-toalha: o vapor é inimigo da crocância.','Petisco vegetariano que compete com qualquer fritura de carne.','No buffet, porções menores e mais frequentes vencem travessa cheia.'],
+ foto:PIN+'38_b787f003d694385502fffeeb6a21223e.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'CAROTE ARROSTO CON NOCCIOLE', s:'Cenouras coloridas assadas com avelãs, iogurte e hortelã', cat:'Legumes', org:'Mediterrânea contemporânea',
+ porc:'90 g', temp:'Quente ou ambiente', cons:'Até 3 dias sob refrigeração (0–4°C)',
+ ingr:[['Base',['Cenouras coloridas com rama — 2 kg','Azeite — 120 ml','Mel — 40 ml','Cominho e páprica — 10 g','Sal — q.b.']],
+       ['Finalização',['Iogurte grego — 300 g','Avelãs tostadas — 120 g','Hortelã fresca — 20 g','Limão — 40 ml']]],
+ prep:[['Preparo','Lave bem as cenouras (com casca) e corte ao meio no comprimento.'],
+       ['Marinada','Envolva com azeite, mel, cominho, páprica e sal.'],
+       ['Forno','Asse a 200°C por 25–30 min até caramelizar as bordas.'],
+       ['Montagem','Travessa com base de iogurte, cenouras por cima.'],
+       ['Finalização','Avelãs, hortelã rasgada e limão na hora de expor.']],
+ dicas:['Cenouras coloridas fazem o prato "Blue Zones" mais fotogênico do buffet.','A base de iogurte embaixo (não por cima) mantém o visual limpo.','Funciona fria: ótima válvula de escape se o réchaud lotar.'],
+ foto:PIN+'53_c08788897992beabfb169a9d0fa29b26.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'CAVOLFIORE SU HUMMUS', s:'Couve-flor assada com lentilhas especiadas sobre creme de homus', cat:'Legumes', org:'Levantina contemporânea',
+ porc:'120 g', temp:'Quente ou ambiente', cons:'Componentes: 3 dias (0–4°C); montar no serviço',
+ ingr:[['Legumes',['Couve-flor em floretes grandes — 2 kg','Lentilhas cozidas — 500 g','Azeite — 120 ml','Cominho, cúrcuma, páprica — 15 g','Cranberries — 80 g']],
+       ['Base e finalização',['Homus — 800 g','Endro fresco — 15 g','Dukkah ou gergelim tostado — 40 g']]],
+ prep:[['Assado','Asse a couve-flor com azeite e especiarias a 210°C até tostar as pontas.'],
+       ['Lentilhas','Salteie as lentilhas cozidas com azeite e cominho.'],
+       ['Montagem','Espelho de homus na travessa, lentilhas e couve-flor por cima.'],
+       ['Finalização','Cranberries, endro e dukkah — contraste doce-especiado.']],
+ dicas:['Pontas bem tostadas (quase queimadas) = sabor; couve-flor pálida = buffet triste.','Prato vegano completo: proteína + legume + creme numa travessa só.','Montar em camadas na reposição, nunca misturar tudo.'],
+ foto:PIN+'55_82dc64914363bb09de53774c9b1bcf5a.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'HUMMUS DI CAROTE', s:'Homus de cenoura assada com lentilhas e couve-flor crocante', cat:'Legumes', org:'Levantina contemporânea',
+ porc:'110 g', temp:'Ambiente', cons:'Base: 3 dias (0–4°C); montar no serviço',
+ ingr:[['Homus de cenoura',['Cenoura assada — 800 g','Grão-de-bico cozido — 400 g','Tahine — 120 g','Alho assado — 20 g','Limão — 60 ml','Azeite — 100 ml','Cominho e páprica defumada — 10 g']],
+       ['Cobertura',['Lentilhas salteadas — 400 g','Floretes de couve-flor assada — 400 g','Cranberries e endro — 60 g']]],
+ prep:[['Assado','Asse cenouras com azeite até muito macias e adocicadas.'],
+       ['Processamento','Bata com grão-de-bico, tahine, alho assado e limão até aveludado.'],
+       ['Montagem','Espelho laranja na travessa, cobertura rústica por cima.'],
+       ['Finalização','Azeite, endro e cranberries para o contraste de cor.']],
+ dicas:['O laranja vibrante cumpre o lema do conceito: "cor é sinônimo de saúde".','Par visual do Cavolfiore su Hummus — servir lado a lado impressiona.','Cenoura assada (não cozida) concentra açúcar e cor.'],
+ foto:PIN+'56_b49dd9b6bf98ca9a3f1c29c1f2de9ca6.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'VERDURE ARROSTO AL TAHINI', s:'Legumes assados com grão-de-bico crocante e molho tahine', cat:'Legumes', org:'Levantina contemporânea',
+ porc:'120 g', temp:'Quente ou ambiente', cons:'Até 3 dias sob refrigeração (0–4°C)',
+ ingr:[['Legumes',['Cenoura — 600 g','Brócolis — 600 g','Cebola roxa — 300 g','Damasco ou abricó — 150 g','Grão-de-bico cozido — 500 g','Azeite — 150 ml','Za\'atar e cominho — 15 g']],
+       ['Molho',['Tahine — 150 g','Limão — 60 ml','Água gelada — 100 ml','Alho — 10 g','Gergelim preto — 15 g']]],
+ prep:[['Assado','Asse os legumes em tabuleiro único a 210°C, sem amontoar.'],
+       ['Grão crocante','Asse o grão-de-bico com azeite até estalar (20 min).'],
+       ['Molho','Emulsione tahine, limão, alho e água gelada até nappé claro.'],
+       ['Montagem','Bowl fundo, legumes em cores alternadas, grão por cima.'],
+       ['Finalização','Fios de tahine e gergelim preto na hora de expor.']],
+ dicas:['Tabuleiro lotado cozinha no vapor: asse em 2 fornadas se preciso.','Molho tahine engrossa parado — afine com água antes de cada reposição.','Bowl vegano âncora da linha almoço saudável.'],
+ foto:PIN+'57_ea6ffc848b79fefd206a82925e05d187.jpg', cred:'Pinterest · pasta Medito'},
+
+// ─────────── MASSAS ───────────
+{t:'SPAGHETTI AL PESTO CON GAMBERI', s:'Espaguete ao pesto de manjericão com camarões grelhados', cat:'Massas', org:'Italiana (Ligúria)',
+ porc:'180 g', temp:'Quente (mín. 65°C) — finalização na hora', cons:'Pesto: 3 dias (0–4°C) coberto de azeite',
+ ingr:[['Massa',['Spaghetti — 1 kg','Sal grosso para a água — 30 g']],
+       ['Pesto',['Manjericão fresco — 150 g','Pinoli ou castanha — 80 g','Parmesão — 120 g','Alho — 10 g','Azeite extravirgem — 250 ml']],
+       ['Camarões',['Camarões grandes limpos — 800 g','Azeite, alho e páprica — q.b.','Limão — 1 un.']]],
+ prep:[['Pesto','Bata manjericão, pinoli, parmesão, alho e azeite pulsando (não aquecer).'],
+       ['Camarões','Grelhe os camarões em chapa quente 1–2 min por lado.'],
+       ['Massa','Cozinhe o spaghetti al dente; reserve água do cozimento.'],
+       ['União','Fora do fogo, envolva a massa no pesto afinado com água da massa.'],
+       ['Serviço','Torre de massa com camarões coroando; sirva imediatamente.']],
+ dicas:['Pesto nunca vai ao fogo — o calor da massa basta (senão escurece).','Em buffet, salteie porções pequenas em rodadas anunciadas.','Ninho alto + camarões por cima: emprate como a foto, vende sozinho.'],
+ foto:PIN+'35_d662db66547a6b6071a0af2c63e0bb21.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'RIGATONI CON BURRATA', s:'Rigatoni ao tomate confitado com burrata cremosa e manjericão', cat:'Massas', org:'Italiana (Puglia)',
+ porc:'180 g', temp:'Quente — burrata fria por cima', cons:'Molho: 3 dias (0–4°C); montagem na hora',
+ ingr:[['Massa e molho',['Rigatoni — 1 kg','Tomate-cereja — 1 kg','Tomate seco — 150 g','Alho — 20 g','Azeite — 150 ml','Manjericão — 30 g','Pimenta calabresa — 5 g']],
+       ['Finalização',['Burrata — 5 un. (150 g cada)','Parmesão — 80 g','Azeite de manjericão — 50 ml']]],
+ prep:[['Confit','Asse os tomates-cereja com azeite e alho a 160°C até rebentar.'],
+       ['Molho','Junte tomate seco picado e calabresa; ajuste sal.'],
+       ['Massa','Cozinhe o rigatoni al dente e envolva no molho com água da massa.'],
+       ['Montagem','Porção no prato fundo, meia burrata por cima.'],
+       ['Finalização','Azeite de manjericão, pimenta moída e parmesão na frente do cliente.']],
+ dicas:['O contraste quente × burrata fria é o prato — nunca derreta a burrata antes.','Burrata inteira exposta em gelo na estação; corte na hora.','Massa curta e estriada segura molho e réchaud melhor que longa.'],
+ foto:PIN+'45_a6a38ede6644a2a6d82c47c0bfa73995.jpg', cred:'Pinterest · pasta Medito'},
+
+// ─────────── CARNE BOVINA ───────────
+{t:'SPIEDINI ALLA KAFTA', s:'Espetos de carne temperada com especiarias, servidos com homus e pães', cat:'Carne Bovina', org:'Libanesa',
+ porc:'2 espetos (110 g)', temp:'Quente (mín. 65°C) — da grelha', cons:'Crus moldados: 24 h (0–4°C); grelhar no serviço',
+ ingr:[['Kafta',['Carne bovina moída (ou mista com cordeiro) — 2 kg','Cebola ralada e espremida — 300 g','Salsa picada — 80 g','Hortelã — 30 g','Pimenta síria — 15 g','Sal — 24 g','Azeite — 60 ml']],
+       ['Acompanhamento na tábua',['Pão pita — 8 un.','Homus — 400 g','Salada de tomate picado — 400 g','Tabule — 300 g']]],
+ prep:[['Massa','Misture a carne com cebola espremida, ervas e especiarias; sove 2 min.'],
+       ['Moldagem','Molde nos espetos em formato de charuto; refrigere 2 h.'],
+       ['Grelha','Grelhe em fogo alto 3–4 min por lado, virando uma vez só.'],
+       ['Montagem','Sirva na tábua sobre pita, com homus e saladas ao redor.'],
+       ['Reposição','Grelhe em rodadas pequenas — kafta ressecada não perdoa.']],
+ dicas:['Cebola ralada e bem espremida: o suco deixa a kafta molenga.','A tábua completa (foto) é um "prato-evento": monte à vista.','Estação de grelha ao vivo transforma o espeto em espetáculo.'],
+ foto:PIN+'43_22919dab0518183e53ed3d22742335f5.jpg', cred:'Pinterest · pasta Medito'},
+
+// ─────────── FRANGO ───────────
+{t:'POLLO PICCANTE AL FORNO', s:'Sobrecoxas assadas em marinada de pimentões defumados e limão', cat:'Frango', org:'Mediterrâneo do norte da África',
+ porc:'180 g', temp:'Quente (mín. 65°C)', cons:'Até 3 dias sob refrigeração (0–4°C)',
+ ingr:[['Frango e marinada',['Sobrecoxas sem osso — 2,5 kg','Pasta de pimentão defumado (harissa suave) — 120 g','Alho — 30 g','Limão — 2 un.','Iogurte — 200 g','Páprica doce e cominho — 15 g','Azeite — 100 ml','Sal — 25 g']],
+       ['Finalização',['Coentro ou salsa — 30 g','Limão em meias-luas — 2 un.','Molho de iogurte — 300 g']]],
+ prep:[['Marinada','Misture harissa, iogurte, alho, especiarias e limão; envolva o frango.'],
+       ['Descanso','Marine por no mínimo 4 h (ideal: véspera).'],
+       ['Forno','Asse a 220°C em tabuleiro único por 25–30 min até caramelizar.'],
+       ['Serviço','Travessa rústica com limão grelhado e ervas por cima.'],
+       ['Molho','Iogurte temperado ao lado suaviza a picância.']],
+ dicas:['Iogurte na marinada = frango macio mesmo após 1 h de réchaud.','Picância suave: o público de buffet é amplo — a harissa entra no molho, não no susto.','Opção econômica de proteína com cara de prato-assinatura.'],
+ foto:PIN+'28_edf2b675def69ab71bf3f0e3715ef44e.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'TAGLIERE DI POLLO', s:'Tábua de frango grelhado fatiado com creme de abacate e legumes', cat:'Frango', org:'Mediterrânea contemporânea',
+ porc:'160 g', temp:'Quente + acompanhamentos frios', cons:'Frango: 3 dias (0–4°C); abacate: no serviço',
+ ingr:[['Frango',['Filés de peito ou coxa desossada — 2 kg','Azeite, alho e ervas — q.b.','Páprica defumada — 10 g','Limão — 2 un.','Sal — 22 g']],
+       ['Tábua',['Creme de abacate com limão — 500 g','Tortillas ou pães chatos — 8 un.','Pimentões grelhados — 300 g','Cebola roxa e jalapeño — 150 g','Coentro e limão — q.b.']]],
+ prep:[['Marinada','Tempere o frango com azeite, alho, páprica e limão por 2 h.'],
+       ['Grelha','Grelhe em chapa quente até marcar; termine no forno se preciso.'],
+       ['Descanso','Repouse 5 min e fatie em vieses largos.'],
+       ['Montagem','Tábua com frango ao centro, creme de abacate, legumes e pães ao redor.'],
+       ['Serviço','O cliente monta o próprio wrap — buffet interativo.']],
+ dicas:['Fatiado em viés mostra suculência — nunca sirva o filé inteiro fechado.','Creme de abacate escurece: prepare em lotes pequenos com bastante limão.','Formato "monte o seu" reduz porção média e aumenta percepção de variedade.'],
+ foto:PIN+'54_9475a3a9d4a8bf19145fa6e247213ce5.jpg', cred:'Pinterest · pasta Medito'},
+
+// ─────────── PEIXE / FRUTOS DO MAR ───────────
+{t:'SALMONE GLASSATO', s:'Salmão glaceado com ervas, limão e toque de mel', cat:'Peixe / Frutos do Mar', org:'Mediterrânea contemporânea',
+ porc:'160 g', temp:'Quente (mín. 65°C)', cons:'Até 2 dias sob refrigeração (0–4°C)',
+ ingr:[['Peixe',['Lombos de salmão — 2,2 kg','Sal e pimenta — q.b.']],
+       ['Glace',['Mel — 80 ml','Mostarda Dijon — 40 g','Shoyu claro — 60 ml','Limão — 60 ml','Alecrim e tomilho — 15 g','Azeite — 80 ml']]],
+ prep:[['Glace','Misture mel, mostarda, shoyu, limão e ervas.'],
+       ['Selagem','Sele o salmão pele para baixo em chapa quente.'],
+       ['Forno','Pincele o glace e finalize a 200°C por 8–10 min.'],
+       ['Ponto','Centro rosado e úmido (52–54°C) — o réchaud completa.'],
+       ['Serviço','Regue com o glace restante e ervas na travessa.']],
+ dicas:['Retire do forno "quase pronto": o réchaud termina o cozimento.','Peça postas altas e uniformes ao fornecedor — pontas finas ressecam.','Consta na linha contemporânea do PPT do Terrazza.'],
+ foto:PIN+'24_9ca374b33ae464cc8a658aef1d236fa9.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'PESCE AL LIMONE', s:'Postas de peixe branco ao limão, pimenta rosa e azeite de ervas', cat:'Peixe / Frutos do Mar', org:'Mediterrânea',
+ porc:'160 g', temp:'Quente (mín. 65°C)', cons:'Até 2 dias sob refrigeração (0–4°C)',
+ ingr:[['Peixe',['Filés altos de pescada/namorado — 2,2 kg','Sal — 22 g','Farinha (leve poeira) — 60 g']],
+       ['Molho',['Manteiga — 120 g','Azeite — 100 ml','Limão siciliano em rodelas — 3 un.','Pimenta rosa — 10 g','Pimenta calabresa — 5 g','Tomilho e salsa — 20 g','Vinho branco — 150 ml']]],
+ prep:[['Selagem','Sele os filés levemente enfarinhados no azeite até dourar.'],
+       ['Molho','Na mesma panela, manteiga, vinho, rodelas de limão e pimentas.'],
+       ['Cocção','Volte os filés e cozinhe em fogo baixo 5–6 min no molho.'],
+       ['Serviço','Travessa com rodelas de limão por cima e molho vertido.'],
+       ['Réchaud','Mantenha com molho abundante — é ele que protege o peixe.']],
+ dicas:['Molho generoso é o seguro de vida do peixe em réchaud.','Rodelas de limão assadas decoram e perfumam sem amargar (retire as sementes).','Filé alto e firme; filé fino vira farelo no buffet.'],
+ foto:PIN+'26_97b618220c96b149ccf566fb961dd17e.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'PESCIOLINI FRITTI', s:'Peixinhos fritos crocantes com limão e cebola roxa', cat:'Peixe / Frutos do Mar', org:'Mediterrânea (fritto di paranza)',
+ porc:'100 g', temp:'Quente — consumo imediato', cons:'Fritar no serviço; limpos: 24 h (0–4°C)',
+ ingr:[['Peixe',['Manjubas/aliche fresco limpo — 2 kg','Farinha de trigo e semolina (1:1) — 400 g','Sal — 20 g','Óleo para fritura — q.b.']],
+       ['Serviço',['Limão em quartos — 4 un.','Cebola roxa fatiada fina — 200 g','Salsa — 20 g','Flor de sal — q.b.']]],
+ prep:[['Preparo','Seque muito bem os peixinhos (umidade = fritura encharcada).'],
+       ['Empanamento','Passe pela mistura de farinha e semolina, sacudindo o excesso.'],
+       ['Fritura','Frite a 180°C em lotes pequenos por 2–3 min até dourar.'],
+       ['Tempero','Flor de sal ainda quente, direto da fritura.'],
+       ['Serviço','Prato com limão e cebola roxa; reponha em rodadas curtas.']],
+ dicas:['Semolina na farinha = crocância que dura mais no buffet.','Come-se inteiro, com espinha — informe na plaquinha para desarmar o susto.','Clássico de beira de mar: casa demais com Spritz no evento.'],
+ foto:PIN+'27_d4c7d08dade5da1f540238bb40287092.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'PESCE CROCCANTE CON PATATE', s:'Filé de peixe empanado crocante com batatas e molhos', cat:'Peixe / Frutos do Mar', org:'Costeira contemporânea',
+ porc:'180 g', temp:'Quente — consumo imediato', cons:'Fritar no serviço; empanado cru: 24 h (0–4°C)',
+ ingr:[['Peixe',['Filés de pescada/tilápia — 2 kg','Farinha temperada — 200 g','Massa de cerveja ou ovos+panko — 500 g','Óleo para fritura — q.b.']],
+       ['Acompanhamentos',['Batatas rústicas — 1,5 kg','Molho tártaro — 300 g','Molho de ervas (salsa verde) — 200 g','Limão — 3 un.']]],
+ prep:[['Batatas','Asse ou frite batatas em gomos rústicos com sal e páprica.'],
+       ['Empanamento','Mergulhe os filés na massa (ou ovo+panko) e frite a 180°C.'],
+       ['Escorrimento','Grade + sal imediato; nunca empilhe.'],
+       ['Montagem','Cestas ou papel encerado individual — formato "quiosque de porto".'],
+       ['Molhos','Tártaro, salsa verde e limão ao lado.']],
+ dicas:['Porções individuais em papel (foto) evitam o murchaço da travessa.','Filé + batatas na mesma cesta = prato completo de custo controlado.','Item mais "kids-friendly" do buffet — segura as famílias.'],
+ foto:PIN+'31_3fb9352b4faf42cea68ff0022f99c865.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'CALAMARI AGLI AGRUMI', s:'Lulas e vieiras grelhadas com molho cítrico apimentado', cat:'Peixe / Frutos do Mar', org:'Mediterrânea',
+ porc:'120 g', temp:'Quente — finalização na hora', cons:'Limpos: 24 h (0–4°C); grelhar no serviço',
+ ingr:[['Frutos do mar',['Lulas limpas em anéis/tubos — 1,5 kg','Vieiras (opcional) — 500 g','Azeite — 100 ml','Alho — 20 g','Sal — q.b.']],
+       ['Molho cítrico',['Limão siciliano e tahiti — 120 ml','Raspas — 2 un.','Pimenta dedo-de-moça — 30 g','Salsa e coentro — 30 g','Azeite — 100 ml','Mel — 20 ml']]],
+ prep:[['Molho','Misture sucos, raspas, pimenta, ervas, mel e azeite.'],
+       ['Grelha','Grelhe lulas e vieiras em chapa muito quente, 1–2 min por lado.'],
+       ['União','Envolva no molho cítrico ainda na chapa, fora do fogo direto.'],
+       ['Serviço','Travessa rasa com limão grelhado; sirva imediatamente.']],
+ dicas:['Lula: ou 2 minutos ou 40 — entre isso, borracha. No buffet, 2 minutos em rodadas.','Chapa à vista do salão: o aroma cítrico chama a fila.','Variação de rodízio para os dias sem paella.'],
+ foto:PIN+'32_f89a567177fe2972af1fd2da11594054.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'POLPO IN UMIDO', s:'Polvo guisado em molho de tomate com batatas e salsa', cat:'Peixe / Frutos do Mar', org:'Italiana (alla Luciana)',
+ porc:'150 g', temp:'Quente (mín. 65°C)', cons:'Até 3 dias sob refrigeração (0–4°C) — melhora no dia seguinte',
+ ingr:[['Polvo',['Polvo limpo — 3 kg','Louro — 3 folhas','Vinho branco — 200 ml']],
+       ['Guisado',['Tomate pelado — 1,2 kg','Batatas em cubos — 800 g','Cebola — 300 g','Alho — 30 g','Azeitonas pretas — 150 g','Alcaparras — 40 g','Pimenta calabresa — 5 g','Azeite — 150 ml','Salsa — 30 g']]],
+ prep:[['Pré-cozimento','Cozinhe o polvo com louro por 40–50 min até macio; corte em pedaços.'],
+       ['Refogado','Azeite, cebola e alho; junte tomate e deixe apurar.'],
+       ['Guisado','Adicione polvo, batatas, azeitonas e alcaparras; cozinhe 20 min.'],
+       ['Descanso','Apure e deixe descansar — reaquecer intensifica o molho.'],
+       ['Serviço','Réchaud fundo com molho abundante e salsa fresca.']],
+ dicas:['Prato que melhora no réchaud — raro e precioso em buffet.','Congele o polvo cru antes de cozinhar: amacia as fibras.','Tem parentesco com o "arroz de polvo" das Assinaturas: aproveite a mesma produção.'],
+ foto:PIN+'33_0ac10829d373c6d1fe4a1a6d0d556130.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'PAELLA DI MARE', s:'Arroz de açafrão com camarões, mexilhões e lula na paellera', cat:'Peixe / Frutos do Mar', org:'Espanhola (Valência)',
+ porc:'200 g', temp:'Quente (mín. 65°C)', cons:'Consumo no serviço (arroz não retorna)',
+ ingr:[['Base',['Arroz bomba ou arbóreo — 1,2 kg','Caldo de peixe/crustáceos — 3 L','Açafrão em pistilos — 1 g','Páprica doce — 10 g','Tomate ralado — 300 g','Cebola e alho — 300 g','Azeite — 150 ml']],
+       ['Mar',['Camarões grandes — 800 g','Mexilhões na casca — 800 g','Lula em anéis — 500 g','Pimentão vermelho — 300 g','Ervilhas — 200 g','Limão — 3 un.']]],
+ prep:[['Sofrito','Azeite, cebola, alho, tomate e páprica até apurar bem.'],
+       ['Arroz','Junte o arroz, nacarado; caldo quente com açafrão de uma vez.'],
+       ['Cocção','Não mexa mais: 10 min fogo alto + 8 min fogo baixo.'],
+       ['Mar','Nos últimos 8 min, acomode camarões, mexilhões e lula por cima.'],
+       ['Socarrat','1 min de fogo forte final para a crosta; descanse 5 min coberta.']],
+ dicas:['A paellera vai inteira para o buffet — nunca transfira para cuba.','Não mexer o arroz é lei: mexeu, virou risoto.','Anuncie horário da paella no salão: cria evento dentro do buffet.'],
+ foto:PIN+'34_247243863387cc26706a8475c109549a.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'PESCE ALLO ZAFFERANO', s:'Peixe em creme dourado de açafrão-da-terra com pimentões', cat:'Peixe / Frutos do Mar', org:'Mediterrâneo-brasileira',
+ porc:'170 g', temp:'Quente (mín. 65°C)', cons:'Até 2 dias sob refrigeração (0–4°C)',
+ ingr:[['Peixe',['Postas de peixe branco firme — 2,2 kg','Limão e sal — q.b.']],
+       ['Creme',['Cebola — 300 g','Alho — 30 g','Pimentão vermelho — 300 g','Tomate — 400 g','Leite de coco leve ou creme — 600 ml','Cúrcuma e açafrão — 12 g','Páprica — 8 g','Azeite — 120 ml','Coentro — 30 g']]],
+ prep:[['Base','Refogue cebola, alho, pimentão e tomate no azeite.'],
+       ['Creme','Junte cúrcuma, páprica e o leite de coco; apure 10 min.'],
+       ['Peixe','Acomode as postas no creme e cozinhe em fogo baixo 10–12 min.'],
+       ['Finalização','Tiras de pimentão e coentro por cima, na travessa de forno.'],
+       ['Réchaud','Sirva na própria travessa — o creme protege o peixe.']],
+ dicas:['Ponte perfeita entre o Mediterrâneo e o "bobó" do planejamento da Érica.','Cúrcuma fresca dá o dourado da foto sem amargar.','Travessa de vidro no réchaud: o cliente vê a cor antes do sabor.'],
+ foto:PIN+'36_4ecd475cffa9c654459b6522c84b50ec.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'PESCE ALLA GRIGLIA', s:'Peixe inteiro grelhado com limão queimado e azeite de ervas', cat:'Peixe / Frutos do Mar', org:'Mediterrânea',
+ porc:'180 g', temp:'Quente — da grelha', cons:'Grelhar no serviço; limpo: 24 h (0–4°C)',
+ ingr:[['Peixe',['Peixes inteiros (dourada/robalo 600 g) — 5 un.','Sal grosso — 40 g','Azeite — 120 ml','Limões — 4 un.']],
+       ['Azeite de ervas',['Azeite extravirgem — 150 ml','Salsa, orégano e tomilho — 40 g','Alho — 15 g','Raspas de limão — 1 un.']]],
+ prep:[['Preparo','Peixe seco, cortes na pele, sal por dentro e por fora.'],
+       ['Grelha','Grelha bem quente e untada: 6–8 min por lado sem mexer.'],
+       ['Limões','Grelhe as metades de limão com a polpa para baixo até marcar.'],
+       ['Azeite verde','Misture azeite, ervas picadas, alho e raspas.'],
+       ['Serviço','Travessa oval, azeite de ervas por cima, limões queimados ao lado.']],
+ dicas:['Peixe inteiro à vista = frescor comprovado; abra um na frente do cliente.','A pele só solta da grelha quando está pronta — não force a virada.','Limão grelhado espreme mais suco e perfuma o prato inteiro.'],
+ foto:PIN+'37_06438166baf507051f532d744bf231f7.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'GAMBERI IN CREMA', s:'Camarões ao creme leve de alho e páprica com arroz branco', cat:'Peixe / Frutos do Mar', org:'Costeira contemporânea',
+ porc:'160 g + arroz', temp:'Quente (mín. 65°C)', cons:'Até 2 dias sob refrigeração (0–4°C)',
+ ingr:[['Camarões',['Camarões médios limpos — 2 kg','Alho — 30 g','Azeite e manteiga — 120 g','Páprica doce — 10 g','Vinho branco — 150 ml']],
+       ['Creme e arroz',['Creme de leite fresco — 600 ml','Limão — 40 ml','Salsa — 30 g','Arroz branco soltinho — 1,5 kg']]],
+ prep:[['Salteado','Salteie os camarões no azeite com alho até rosar; reserve.'],
+       ['Creme','Deglaceie com vinho, junte creme e páprica; apure 5 min.'],
+       ['União','Volte os camarões ao creme por 1 min (não recozinhe).'],
+       ['Serviço','Cuba com arroz ao lado; creme com salsa por cima.']],
+ dicas:['Camarão entra no creme no fim — recozido encolhe e emborracha.','No réchaud, creme e camarão separados até a reposição prolongam a vida.','Prato "abraço": sempre tem público, equilibra os itens mais ousados.'],
+ foto:PIN+'40_f6325a011aba67aa514e820a4cbd7594.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'TAVOLA DEL PESCATORE', s:'Peixe grelhado servido com coalhada, tomates assados e pães', cat:'Peixe / Frutos do Mar', org:'Egeu / Levantina',
+ porc:'mesa para 4 (700 g)', temp:'Quente + frios', cons:'Montagem no serviço',
+ ingr:[['Peixe',['Peixe inteiro grelhado — 2 un. (600 g cada)','Azeite de ervas — 100 ml']],
+       ['Mesa',['Coalhada seca com azeite — 400 g','Tomates-cereja assados no cacho — 400 g','Pães chatos grelhados — 6 un.','Ovo cozido mollet — 4 un.','Azeitonas e picles — 200 g','Saladinha de folhas — 200 g']]],
+ prep:[['Componentes','Prepare coalhada, tomates assados e pães com antecedência.'],
+       ['Peixe','Grelhe o peixe inteiro conforme ficha Pesce alla Griglia.'],
+       ['Montagem','Tábua grande: peixe ao centro, satélites de acompanhamentos.'],
+       ['Serviço','Sirva como "mesa do pescador" para grupos — formato compartilhado.']],
+ dicas:['Formato de compartilhamento cumpre o pilar "Generosidade à Mesa".','Ótima peça para o centro do buffet aos sábados/eventos.','Cada satélite da tábua já existe como ficha — só orquestrar.'],
+ foto:PIN+'44_0aab67d3debf722891619419cb847171.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'SALMONE IN CREMA DI SPINACI', s:'Salmão grelhado sobre creme de espinafre e cogumelos', cat:'Peixe / Frutos do Mar', org:'Mediterrânea contemporânea',
+ porc:'170 g', temp:'Quente (mín. 65°C)', cons:'Até 2 dias sob refrigeração (0–4°C)',
+ ingr:[['Salmão',['Postas de salmão — 2,2 kg','Sal, pimenta e azeite — q.b.']],
+       ['Creme',['Espinafre — 600 g','Cogumelos paris — 500 g','Creme de leite fresco — 700 ml','Alho — 20 g','Parmesão — 100 g','Noz-moscada — 2 g','Vinho branco — 100 ml']]],
+ prep:[['Selagem','Sele as postas pele para baixo até crocante; reserve.'],
+       ['Creme','Salteie cogumelos e alho, deglaceie com vinho, junte creme e espinafre.'],
+       ['Ponto','Parmesão e noz-moscada; creme nappé (não fervura forte).'],
+       ['Montagem','Espelho de creme na travessa, salmão por cima.'],
+       ['Réchaud','Reponha creme quente a cada rodada para manter brilho.']],
+ dicas:['Corresponde ao "salmão em posta ao molho cremoso" do planejamento.','Pele crocante para cima na montagem — textura sobrevive ao réchaud.','Espinafre entra por último: verde vivo, não oliva militar.'],
+ foto:PIN+'46_ad81e52382b32c2d3040a2ecf04029ed.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'PESCE ALLA MEDITERRANEA', s:'Peixe assado com tomates, azeitonas, alcaparras e cebola roxa', cat:'Peixe / Frutos do Mar', org:'Mediterrânea',
+ porc:'170 g', temp:'Quente (mín. 65°C)', cons:'Até 2 dias sob refrigeração (0–4°C)',
+ ingr:[['Peixe',['Filés altos de peixe branco — 2,2 kg','Sal, pimenta e limão — q.b.']],
+       ['Assado',['Tomate-cereja — 800 g','Azeitonas pretas e verdes — 300 g','Cebola roxa em pétalas — 300 g','Alcaparras — 50 g','Alho — 20 g','Vinho branco — 150 ml','Azeite — 150 ml','Orégano e salsa — 20 g']]],
+ prep:[['Base','Na travessa, tomates, cebola, azeitonas, alcaparras, alho e azeite.'],
+       ['Pré-assado','Asse a base a 200°C por 15 min até os tomates murcharem.'],
+       ['Peixe','Acomode os filés entre os legumes, regue com vinho e azeite.'],
+       ['Forno','Asse por mais 12–15 min; os sucos viram o molho.'],
+       ['Serviço','Salsa fresca e a própria travessa no réchaud.']],
+ dicas:['O prato-síntese do conceito: cor, azeite, mar e simplicidade.','Assar e servir na mesma travessa poupa louça e mantém o rústico.','Aproveita a mesma base para o Tagine (troque ervas por chermoula).'],
+ foto:PIN+'47_2b844df793fa87ab735dcfcbe5bc5297.jpg', cred:'Pinterest · pasta Medito'},
+
+// ─────────── ESPECIAL DO DIA ───────────
+{t:'PANINO ALLA GRIGLIA', s:'Panini prensado de muçarela, espinafre e tomate seco', cat:'Especial do Dia', org:'Italiana',
+ porc:'1/2 un. (140 g)', temp:'Quente — da prensa', cons:'Montados crus: 24 h (0–4°C); prensar no serviço',
+ ingr:[['Panini',['Ciabatta ou pão chato — 10 un.','Muçarela fatiada — 600 g','Espinafre salteado — 400 g','Tomate seco — 200 g','Pesto — 150 g','Azeite — 80 ml']]],
+ prep:[['Montagem','Pincele pesto no pão, monte com muçarela, espinafre e tomate seco.'],
+       ['Prensa','Prense em chapa/grill até marcar e derreter o queijo.'],
+       ['Corte','Corte em metades diagonais expondo o recheio.'],
+       ['Serviço','Sirva quente da prensa, em rodadas — não vai a réchaud.']],
+ dicas:['Especial de dia de semana e linha café da tarde.','Meia-lua em pé na tábua (foto) mostra as camadas e vende.','Recheios seguem a sobra nobre do dia: parmigiana de ontem vira panino de hoje.'],
+ foto:PIN+'23_4621708fca48478e2192c1d24cfb56ae.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'GRATINATO AL CARTOCCIO', s:'Gratinado individual assado e servido no papel-manteiga', cat:'Especial do Dia', org:'Mediterrânea contemporânea',
+ porc:'1 un. (200 g)', temp:'Quente (mín. 65°C)', cons:'Montados: 24 h (0–4°C); assar no serviço',
+ ingr:[['Base (variável do dia)',['Batata/massa/legumes — 1,5 kg','Molho branco ou de tomate — 800 ml','Queijo para gratinar — 500 g','Ervas frescas — 30 g','Papel-manteiga — 10 folhas']]],
+ prep:[['Cartoccio','Forre bowls individuais com papel-manteiga formando trouxinha.'],
+       ['Recheio','Preencha com a base do dia e molho; cubra com queijo.'],
+       ['Forno','Asse a 200°C até gratinar e o papel dourar nas pontas.'],
+       ['Serviço','Sirva a trouxinha inteira — o papel é o prato.']],
+ dicas:['Formato individual resolve fila e porção de uma vez.','O papel dourado na borda (foto) é a identidade visual do especial.','Rotativo: aproveita produções da semana em nova roupagem.'],
+ foto:PIN+'39_e71ef7b5af69c74ddc95677571232f51.jpg', cred:'Pinterest · pasta Medito'},
+
+// ─────────── SOBREMESAS ───────────
+{t:'PERE AL FORNO', s:'Peras assadas com ricota doce, nozes e mel de alecrim', cat:'Sobremesas', org:'Mediterrânea',
+ porc:'1/2 pera (110 g)', temp:'Ambiente ou morna', cons:'Assadas: 2 dias (0–4°C); rechear no serviço',
+ ingr:[['Peras',['Peras firmes — 8 un.','Mel — 100 ml','Manteiga — 60 g','Canela e alecrim — q.b.']],
+       ['Recheio',['Ricota fresca — 600 g','Mel — 60 ml','Baunilha — 5 ml','Raspas de laranja — 1 un.','Nozes tostadas — 150 g']]],
+ prep:[['Assado','Corte as peras ao meio, retire o miolo e asse com mel e manteiga a 190°C por 20 min.'],
+       ['Recheio','Bata a ricota com mel, baunilha e raspas até cremosa.'],
+       ['Montagem','Quenelle de ricota na cavidade de cada meia pera.'],
+       ['Finalização','Nozes, fio de mel e alecrim no momento de expor.']],
+ dicas:['Sobremesa "Blue Zones": fruta + laticínio leve + oleaginosa.','Sirva morna no inverno — o contraste com a ricota fria é o charme.','Pera firme não desmancha na travessa do buffet.'],
+ foto:PIN+'41_5f8750c0920e43d734312ec49170c020.jpg', cred:'Pinterest · pasta Medito'},
+
+{t:'TORTA DEGLI AGRUMI', s:'Bolo de festa decorado com limões sicilianos e folhas cítricas', cat:'Sobremesas', org:'Buffet de eventos',
+ porc:'100 g', temp:'Fria (0–4°C)', cons:'Até 3 dias sob refrigeração; decorar no dia',
+ ingr:[['Bolo',['Massa amanteigada de limão — 2 kg','Curd de limão siciliano — 600 g','Cobertura de cream cheese — 800 g']],
+       ['Decoração',['Limões sicilianos pequenos — 6 un.','Folhas de limoeiro higienizadas — 12 un.','Flores brancas comestíveis — q.b.']]],
+ prep:[['Bolo','Asse os discos de massa de limão e recheie com curd.'],
+       ['Cobertura','Cubra com cream cheese em acabamento rústico de espátula.'],
+       ['Decoração','Limões inteiros e folhas em cascata lateral (foto).'],
+       ['Serviço','Peça central da mesa de doces em eventos; fatiar à vista.']],
+ dicas:['Referência direta do evento do @quintado.roseiral — tema cítrico total.','Folhas de limoeiro apenas decorativas — retire ao fatiar.','O bolo temático amarra a mesa de doces ao conceito mediterrâneo.'],
+ foto:IG+'16_quintado.roseiral_9.jpg', cred:'Instagram · @quintado.roseiral'},
+];
+
+/* ══════════ ÍCONES (linha, navy — como no modelo impresso) ══════════ */
+const ICO = {
+  rendimento:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.2" r="2.7"/><circle cx="5.7" cy="9.1" r="2.1"/><circle cx="18.3" cy="9.1" r="2.1"/><path d="M7.4 18.8c.4-4 2-6.1 4.6-6.1s4.2 2.1 4.6 6.1M2.3 18c.2-3.1 1.5-4.8 3.6-4.8 1 0 1.8.3 2.5 1M21.7 18c-.2-3.1-1.5-4.8-3.6-4.8-1 0-1.8.3-2.5 1"/></svg>',
+  porcao:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2L5 8Z"/><path d="M4 5.2h16V8H4zM9 5.2V3.4h6v1.8M8.5 11.2h7M12 11.2v5.6M9.2 14h5.6"/></svg>',
+  categoria:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12.5h18c-.5 5-3.7 7.6-9 7.6s-8.5-2.6-9-7.6Z"/><path d="M6.8 9.6c2.2 0 4 .9 5.2 2.9M12 12.5c.1-3.2 1.8-5.4 5-6.6-.1 2.8-1.3 4.5-3.5 5.4"/></svg>',
+  origem:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.4 12h17.2M12 3c2.6 2.5 4 5.5 4 9s-1.4 6.5-4 9c-2.6-2.5-4-5.5-4-9s1.4-6.5 4-9ZM5.5 7.2h13M5.5 16.8h13"/></svg>',
+  temperatura:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 4.6a2.5 2.5 0 0 1 5 0v8.5a4.8 4.8 0 1 1-5 0V4.6Z"/><path d="M12 6v9.2"/><circle cx="12" cy="17.4" r="1.7"/></svg>',
+  conservacao:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.3v19.4M3.6 7.2l16.8 9.6M20.4 7.2 3.6 16.8M12 5.2 9.8 3M12 5.2 14.2 3M12 18.8 9.8 21M12 18.8l2.2 2.2M6.4 8.8 3.4 8M6.4 8.8 5.6 5.9M17.6 15.2l3 .8M17.6 15.2l.8 2.9M17.6 8.8l3-.8M17.6 8.8l.8-2.9M6.4 15.2l-3 .8M6.4 15.2l-.8 2.9"/></svg>',
+  chef:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M11.5 17.5a6.3 6.3 0 0 1 1.6-12.4 7.8 7.8 0 0 1 13.8 0 6.3 6.3 0 0 1 1.6 12.4v10H11.5v-10Z"/><path d="M11.5 31h17M16.5 19v8.5M20 18v9.5M23.5 19v8.5"/></svg>'
+};
+
+/* ══════════ INDEXEDDB (uploads da Érica) ══════════ */
+let db = null;
+let UPLOADS = [];
+function abrirDB(){
+  return new Promise((res, rej) => {
+    const rq = indexedDB.open('spesso-fichas', 1);
+    rq.onupgradeneeded = e => { e.target.result.createObjectStore('uploads', { keyPath:'id', autoIncrement:true }); };
+    rq.onsuccess = e => { db = e.target.result; res(); };
+    rq.onerror = () => rej(rq.error);
+  });
+}
+function carregarUploads(){
+  return new Promise(res => {
+    const out = [];
+    const tx = db.transaction('uploads', 'readonly').objectStore('uploads').openCursor();
+    tx.onsuccess = e => {
+      const c = e.target.result;
+      if (c) { out.push(c.value); c.continue(); } else { UPLOADS = out; res(); }
+    };
+  });
+}
+function salvarUpload(item){
+  return new Promise(res => {
+    const tx = db.transaction('uploads', 'readwrite');
+    tx.objectStore('uploads').add(item);
+    tx.oncomplete = res;
+  });
+}
+function removerUpload(id){
+  return new Promise(res => {
+    const tx = db.transaction('uploads', 'readwrite');
+    tx.objectStore('uploads').delete(id);
+    tx.oncomplete = res;
+  });
+}
+
+/* ══════════ DESATIVADOS (persistência em localStorage) ══════════ */
+const DESAT_KEY = 'spesso-desativados';
+let DESATIVADOS = new Set(JSON.parse(localStorage.getItem(DESAT_KEY) || '[]'));
+function salvarDesativados(){ localStorage.setItem(DESAT_KEY, JSON.stringify(Array.from(DESATIVADOS))); }
+function desativarFicha(chave){ DESATIVADOS.add(chave); salvarDesativados(); renderAbas(); render(); }
+function reativarFicha(chave){ DESATIVADOS.delete(chave); salvarDesativados(); renderAbas(); render(); }
+function fichaAtiva(f){ return !DESATIVADOS.has(f.t); }
+function upAtivo(u){ return !DESATIVADOS.has('up:' + u.id); }
+
+/* ══════════ EDIÇÃO DE INGREDIENTES (persistência em localStorage) ══════════ */
+const EDICOES_KEY = 'spesso-edicoes-fichas-v1';
+let EDICOES = JSON.parse(localStorage.getItem(EDICOES_KEY) || '{}');
+const FICHAS_COMPLETAS_KEY = 'spesso-fichas-completas-v2';
+const FICHAS_NOVAS_KEY = 'spesso-fichas-novas-v2';
+let FICHAS_COMPLETAS = JSON.parse(localStorage.getItem(FICHAS_COMPLETAS_KEY) || '{}');
+let FICHAS_NOVAS = JSON.parse(localStorage.getItem(FICHAS_NOVAS_KEY) || '[]');
+FICHAS_NOVAS.forEach(f => { if (!FICHAS.some(x => x.t === f.t)) FICHAS.push(f); });
+FICHAS.forEach(f => {
+  if (EDICOES[f.t] && Array.isArray(EDICOES[f.t].ingr)) f.ingr = EDICOES[f.t].ingr;
+  if (FICHAS_COMPLETAS[f.t]) Object.assign(f, FICHAS_COMPLETAS[f.t]);
+});
+function salvarEdicoes(){ localStorage.setItem(EDICOES_KEY, JSON.stringify(EDICOES)); }
+function localizarFicha(chave){ return document.querySelector(`article.ficha[data-chave="${encodeURIComponent(chave)}"]`); }
+function editarFicha(chave){
+  const art = localizarFicha(chave);
+  if (!art) return;
+  art.classList.add('editando');
+  art.querySelectorAll('.ingr h5,.texto-ingr').forEach(el => el.contentEditable = 'true');
+  art.querySelector('.texto-ingr')?.focus();
+}
+function cancelarEdicao(){ render(); }
+function adicionarIngrediente(btn){
+  const ul = btn.previousElementSibling;
+  const li = document.createElement('li');
+  li.innerHTML = '<span class="texto-ingr" contenteditable="true">Novo ingrediente — quantidade</span><button class="btn-remover-ingr" onclick="removerIngrediente(this)" title="Remover ingrediente">×</button>';
+  ul.appendChild(li);
+  li.querySelector('.texto-ingr').focus();
+}
+function removerIngrediente(btn){ btn.closest('li').remove(); }
+function salvarEdicao(chave){
+  const art = localizarFicha(chave);
+  if (!art) return;
+  const ingr = Array.from(art.querySelectorAll('.grupo-ingr')).map(grupo => {
+    const nome = grupo.querySelector('h5').textContent.trim() || 'Ingredientes';
+    const itens = Array.from(grupo.querySelectorAll('.texto-ingr')).map(el => el.textContent.trim()).filter(Boolean);
+    return [nome, itens];
+  }).filter(([,itens]) => itens.length);
+  const ficha = FICHAS.find(f => f.t === chave);
+  if (ficha && ingr.length) {
+    ficha.ingr = ingr;
+    EDICOES[chave] = { ingr, alteradoEm:new Date().toISOString() };
+    salvarEdicoes();
+  }
+  render();
+}
+
+function esc(v=''){ return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function linhaEditor(tipo, a='', b=''){
+  if(tipo==='ingrediente') return `<div class="editor-linha ingrediente"><input class="e-grupo" placeholder="Grupo (ex.: Base)" value="${esc(a)}"><input class="e-item" placeholder="Ingrediente — quantidade" value="${esc(b)}"><button type="button" onclick="this.parentElement.remove()">×</button></div>`;
+  if(tipo==='preparo') return `<div class="editor-linha passo"><input class="e-passo-titulo" placeholder="Etapa" value="${esc(a)}"><textarea class="e-passo-texto" placeholder="Instruções">${esc(b)}</textarea><button type="button" onclick="this.parentElement.remove()">×</button></div>`;
+  return `<div class="editor-linha dica"><textarea class="e-dica" placeholder="Dica do chef">${esc(a)}</textarea><button type="button" onclick="this.parentElement.remove()">×</button></div>`;
+}
+function adicionarLinhaEditor(tipo){ document.getElementById('lista-'+tipo).insertAdjacentHTML('beforeend',linhaEditor(tipo)); }
+function fecharEditor(){ document.getElementById('editorModal').classList.remove('aberto'); }
+function abrirEditorNovo(){ abrirEditorCompleto(null); }
+function abrirEditorFicha(chave){ abrirEditorCompleto(FICHAS.find(f=>f.t===chave)); }
+function abrirEditorUpload(id){
+  const u=UPLOADS.find(x=>x.id===id); if(!u)return;
+  const ref=URL.createObjectURL(u.blob);
+  abrirEditorCompleto({t:u.nome.replace(/\.[^.]+$/,''),s:'',cat:u.cat,org:'',porc:'',temp:'',cons:'',ingr:[['Ingredientes',[]]],prep:[],dicas:[],foto:ref,cred:'Ficha enviada por upload',_uploadId:id,_referencia:ref},true);
+}
+function abrirEditorCompleto(f, conversao=false){
+  const novo=!f; f=f||{t:'',s:'',cat:CATEGORIAS[0],org:'',porc:'',temp:'',cons:'',ingr:[['Ingredientes',['']]],prep:[['','']],dicas:[''],foto:'',cred:''};
+  const ing=(f.ingr||[]).flatMap(([g,itens])=>(itens.length?itens:['']).map(i=>linhaEditor('ingrediente',g,i))).join('');
+  const prep=(f.prep||[]).map(([t,x])=>linhaEditor('preparo',t,x)).join('');
+  const dicas=(f.dicas||[]).map(d=>linhaEditor('dica',d)).join('');
+  const modal=document.getElementById('editorModal');
+  modal.innerHTML=`<div class="editor-painel"><h2 id="editorTitulo">${novo?'Criar nova ficha':conversao?'Converter imagem em ficha editável':'Editar ficha completa'}</h2>
+  ${f._referencia?`<div class="editor-campo largo"><label>Imagem original para consulta</label><img class="referencia-upload" src="${f._referencia}"></div>`:''}
+  <div class="editor-grid">
+    <div class="editor-campo"><label>Nome do produto</label><input id="eTitulo" value="${esc(f.t)}"></div>
+    <div class="editor-campo"><label>Categoria / aba</label><select id="eCategoria">${CATEGORIAS.map(c=>`<option${c===f.cat?' selected':''}>${c}</option>`).join('')}</select></div>
+    <div class="editor-campo largo"><label>Subtítulo / descrição</label><input id="eSubtitulo" value="${esc(f.s)}"></div>
+    <div class="editor-campo"><label>Rendimento</label><input id="eRendimento" value="${esc(f.rend||'10 porções')}"></div>
+    <div class="editor-campo"><label>Porção</label><input id="ePorcao" value="${esc(f.porc)}"></div>
+    <div class="editor-campo"><label>Origem</label><input id="eOrigem" value="${esc(f.org)}"></div>
+    <div class="editor-campo"><label>Temperatura de serviço</label><input id="eTemperatura" value="${esc(f.temp)}"></div>
+    <div class="editor-campo largo"><label>Conservação</label><input id="eConservacao" value="${esc(f.cons)}"></div>
+    <div class="editor-campo largo"><label>Foto (endereço atual)</label><input id="eFoto" value="${esc(f.foto)}"></div>
+    <div class="editor-campo largo"><label>Ou escolher outra foto</label><input id="eFotoArquivo" type="file" accept="image/*"></div>
+  </div>
+  <div class="editor-secao"><h3>Ingredientes e quantidades</h3><div id="lista-ingrediente">${ing}</div><button class="editor-add" type="button" onclick="adicionarLinhaEditor('ingrediente')">＋ ingrediente</button></div>
+  <div class="editor-secao"><h3>Modo de preparo</h3><div id="lista-preparo">${prep}</div><button class="editor-add" type="button" onclick="adicionarLinhaEditor('preparo')">＋ etapa</button></div>
+  <div class="editor-secao"><h3>Dicas do chef</h3><div id="lista-dica">${dicas}</div><button class="editor-add" type="button" onclick="adicionarLinhaEditor('dica')">＋ dica</button></div>
+  <div class="editor-botoes"><button type="button" onclick="fecharEditor()">Cancelar</button><button class="salvar" type="button" onclick="salvarFichaCompleta('${encodeURIComponent(f.t)}',${novo},${f._uploadId||'null'})">Salvar ficha</button></div></div>`;
+  modal.classList.add('aberto');
+}
+function arquivoParaDataURL(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);}); }
+async function salvarFichaCompleta(chaveCod,nova,uploadId){
+  const chave=decodeURIComponent(chaveCod); const titulo=document.getElementById('eTitulo').value.trim();
+  if(!titulo){ alert('Informe o nome do produto.'); return; }
+  let foto=document.getElementById('eFoto').value.trim(); const arq=document.getElementById('eFotoArquivo').files[0]; if(arq) foto=await arquivoParaDataURL(arq); else if(uploadId){const u=UPLOADS.find(x=>x.id===uploadId);if(u)foto=await arquivoParaDataURL(u.blob);}
+  const pares=[...document.querySelectorAll('#lista-ingrediente .ingrediente')].map(r=>[r.querySelector('.e-grupo').value.trim()||'Ingredientes',r.querySelector('.e-item').value.trim()]).filter(x=>x[1]);
+  const grupos=[]; pares.forEach(([g,i])=>{let x=grupos.find(z=>z[0]===g);if(!x){x=[g,[]];grupos.push(x)}x[1].push(i)});
+  const ficha={t:titulo,s:document.getElementById('eSubtitulo').value.trim(),cat:document.getElementById('eCategoria').value,rend:document.getElementById('eRendimento').value.trim(),porc:document.getElementById('ePorcao').value.trim(),org:document.getElementById('eOrigem').value.trim(),temp:document.getElementById('eTemperatura').value.trim(),cons:document.getElementById('eConservacao').value.trim(),foto,cred:'Spesso Cucina',ingr:grupos.length?grupos:[['Ingredientes',[]]],prep:[...document.querySelectorAll('#lista-preparo .passo')].map(r=>[r.querySelector('.e-passo-titulo').value.trim(),r.querySelector('.e-passo-texto').value.trim()]).filter(x=>x[0]||x[1]),dicas:[...document.querySelectorAll('#lista-dica .e-dica')].map(x=>x.value.trim()).filter(Boolean)};
+  try {
+    if(nova || uploadId){ FICHAS.push(ficha); FICHAS_NOVAS.push(ficha); localStorage.setItem(FICHAS_NOVAS_KEY,JSON.stringify(FICHAS_NOVAS)); }
+    else { const alvo=FICHAS.find(x=>x.t===chave); if(alvo) Object.assign(alvo,ficha); FICHAS_COMPLETAS[chave]=ficha; if(titulo!==chave){delete FICHAS_COMPLETAS[chave];FICHAS_COMPLETAS[titulo]=ficha;} localStorage.setItem(FICHAS_COMPLETAS_KEY,JSON.stringify(FICHAS_COMPLETAS)); }
+  } catch(e) { alert('A foto é grande demais para o armazenamento deste navegador. Escolha uma imagem menor e tente novamente.'); return; }
+  if(uploadId){ DESATIVADOS.add('up:'+uploadId); salvarDesativados(); }
+  abaAtual=ficha.cat; fecharEditor(); renderAbas(); render(); window.scrollTo({top:0});
+}
+
+/* ══════════ RENDER ══════════ */
+const abasEl = document.getElementById('abas');
+const contEl = document.getElementById('conteudo');
+let abaAtual = '__todos';
+
+function upsDe(cat){ return UPLOADS.filter(u => u.cat === cat && upAtivo(u)); }
+function contar(cat){ return FICHAS.filter(f => f.cat === cat && fichaAtiva(f)).length + upsDe(cat).length; }
+function contarDesativados(){
+  return FICHAS.filter(f => !fichaAtiva(f)).length + UPLOADS.filter(u => !upAtivo(u)).length;
+}
+
+function renderAbas(){
+  abasEl.innerHTML = '';
+  const mk = (label, n, chave, cls) => {
+    const b = document.createElement('button');
+    if (cls) b.classList.add(cls);
+    if (chave === abaAtual) b.classList.add('ativa');
+    b.innerHTML = label + (n !== null ? ' <span class="n">(' + n + ')</span>' : '');
+    b.onclick = () => { abaAtual = chave; renderAbas(); render(); window.scrollTo({top:0}); };
+    abasEl.appendChild(b);
+  };
+  mk('Todos os Produtos', FICHAS.filter(fichaAtiva).length + UPLOADS.filter(u => u.cat !== MONTAGEM_KEY && upAtivo(u)).length, '__todos');
+  CATEGORIAS.forEach(c => mk(c, contar(c), c));
+  mk('Montagem de Buffet', MONTAGENS.length + upsDe(MONTAGEM_KEY).length, '__montagem', 'especial');
+  mk('✕ Desativados', contarDesativados(), '__desativados', 'especial');
+  mk('⬆ Upload', null, '__upload', 'especial');
+}
+
+function fichaHTML(f, inativa){
+  const ingr = f.ingr.map(([g, itens]) =>
+    '<div class="grupo-ingr"><h5>' + g + '</h5><ul>' + itens.map(i => '<li><span class="texto-ingr">' + i + '</span><button class="btn-remover-ingr" onclick="removerIngrediente(this)" title="Remover ingrediente">×</button></li>').join('') + '</ul><button class="btn-add-ingr" onclick="adicionarIngrediente(this)">+ ingrediente</button></div>').join('');
+  const prep = f.prep.map(([t, tx]) =>
+    '<li><div><b class="passo-titulo">' + t + '</b>' + tx + '</div></li>').join('');
+  const dicas = f.dicas.map(d => '<li>' + d + '</li>').join('');
+  const estado = inativa
+    ? `<span class="badge-origem">era: ${f.cat}</span><button class="btn-estado reativar" onclick="reativarFicha('${f.t}')">↩ reativar</button>`
+    : `<button class="btn-editar" onclick="abrirEditorFicha(decodeURIComponent('${encodeURIComponent(f.t)}'))">✎ editar tudo</button><button class="btn-estado" onclick="desativarFicha('${f.t}')" title="Mover para Desativados">✕ desativar</button>`;
+  return `
+  <article class="ficha${inativa ? ' inativa' : ''}" data-chave="${encodeURIComponent(f.t)}">
+    ${estado}
+    <h3 class="titulo">${f.t}</h3>
+    <div class="orn" aria-hidden="true">
+      <svg viewBox="0 0 164 20" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" stroke="#1C2749" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 10h61M102 10h61"/>
+          <path d="M63 10c6 0 10-2 14-7M101 10c-6 0-10-2-14-7"/>
+          <path d="M76 4c-3 0-5 1-7 3 3 .3 5-.4 7-3ZM88 4c3 0 5 1 7 3-3 .3-5-.4-7-3Z"/>
+          <path d="M82 2v12M82 8c-3-2-5-2-7-1 2 2 4 3 7 2M82 8c3-2 5-2 7-1-2 2-4 3-7 2M82 13c-2 0-4 1-5 3 2 0 4-.5 5-2M82 13c2 0 4 1 5 3-2 0-4-.5-5-2"/>
+        </g>
+        <circle cx="82" cy="17" r="1.15" fill="#1C2749"/>
+      </svg>
+    </div>
+    <div class="subtitulo"><span>• &nbsp;${f.s}&nbsp; •</span></div>
+    <div class="principal">
+      <div class="principal-esq">
+        <h4 class="bloco">Ficha Técnica</h4>
+        <ul class="ft">
+          <li>${ICO.rendimento}<span><b>Rendimento:</b> ${f.rend || '10 porções'}</span></li>
+          <li>${ICO.porcao}<span><b>Porção:</b> ${f.porc}</span></li>
+          <li>${ICO.categoria}<span><b>Categoria:</b> ${f.cat}</span></li>
+          <li>${ICO.origem}<span><b>Origem:</b> ${f.org}</span></li>
+          <li>${ICO.temperatura}<span><b>Temperatura de serviço:</b> ${f.temp}</span></li>
+          <li>${ICO.conservacao}<span><b>Conservação:</b> ${f.cons}</span></li>
+        </ul>
+        <h4 class="bloco">Ingredientes</h4>
+        <div class="editor-acoes"><button class="salvar" onclick="salvarEdicao(decodeURIComponent('${encodeURIComponent(f.t)}'))">Salvar alterações</button><button onclick="cancelarEdicao()">Cancelar</button></div>
+        <div class="ingr">${ingr}</div>
+      </div>
+      <div class="fotobox"><img src="${f.foto}" loading="eager" decoding="async" alt="${f.t}"><div class="credito">${f.cred}</div></div>
+    </div>
+    <div class="rodape-ficha">
+      <div class="preparo">
+        <h4 class="bloco">Modo de Preparo</h4>
+        <ol>${prep}</ol>
+      </div>
+      <div class="dicas">
+          <div class="dicas-head">${ICO.chef}<span>Dicas do Chef</span></div>
+          <ul>${dicas}</ul>
+      </div>
+    </div>
+    <div class="assinatura"><div class="fio"></div><div class="marca"><img src="logotipo-spesso.png" alt="Spesso Cucina italiana"></div><div class="fio"></div></div>
+  </article>`;
+}
+
+function uploadFichaHTML(u, inativa){
+  const url = URL.createObjectURL(u.blob);
+  const estado = inativa
+    ? `<button class="rm" style="background:#3c6b3c; left:auto; right:20px" onclick="reativarFicha('up:${u.id}')">↩ reativar</button>`
+    : `<button class="rm" style="left:auto; right:20px; top:52px" onclick="desativarFicha('up:${u.id}')">✕ desativar</button>`;
+  return `<div class="ficha-upload">
+    <button class="rm" onclick="apagarUpload(${u.id})">remover</button>
+    ${estado}
+    ${inativa ? '' : `<button class="rm" style="left:115px;background:#1C2749;opacity:.9" onclick="abrirEditorUpload(${u.id})">✎ tornar editável</button>`}
+    <span class="rotulo-up" ${inativa ? 'style="top:52px"' : ''}>${u.cat} · enviada${inativa ? ' · desativada' : ''}</span>
+    <img src="${url}" alt="${u.nome}">
+  </div>`;
+}
+
+function montagemHTML(){
+  const fixas = MONTAGENS.map(([img, titulo, credito]) =>
+    `<div class="gfoto"><img src="${IG}${img}" loading="lazy" alt="${titulo}"><p><b>${titulo}</b><br>${credito}</p></div>`).join('');
+  const envs = upsDe(MONTAGEM_KEY).map(u =>
+    `<div class="gfoto"><button class="rm" onclick="apagarUpload(${u.id})">remover</button><img src="${URL.createObjectURL(u.blob)}" alt="${u.nome}"><p><b>${u.nome}</b><br>enviada por vocês</p></div>`).join('');
+  return `<h2 class="grupo">Montagem de Buffet</h2>
+    <p class="grupo-sub">Arrumação de mesas, ilhas e balcões — referências do Instagram "Spesso Buffet" + fotos enviadas</p>
+    <div class="regua"><span>❧</span></div>
+    <div class="galeria">${fixas}${envs}</div>`;
+}
+
+function uploadTabHTML(){
+  const opts = [MONTAGEM_KEY].concat(CATEGORIAS).map(c => `<option value="${c}">${c}</option>`).join('');
+  const lista = UPLOADS.length
+    ? UPLOADS.map(u => `<div class="gfoto"><button class="rm" onclick="apagarUpload(${u.id})">remover</button><img src="${URL.createObjectURL(u.blob)}" alt="${u.nome}"><p><b>${u.nome}</b><br>pendurada em: ${u.cat}</p></div>`).join('')
+    : '<p style="text-align:center; color:#7a745f; font-style:italic">Nenhum arquivo enviado ainda.</p>';
+  return `<h2 class="grupo">Upload de Fichas e Fotos</h2>
+    <p class="grupo-sub">Para a Érica pendurar as fichas prontas na categoria certa — ou subir fotos de arrumação do buffet</p>
+    <div class="regua"><span>❧</span></div>
+    <div class="upload-box">
+      <h3>Enviar arquivo</h3>
+      <label>1 · Escolha as imagens (pode selecionar várias)</label>
+      <input type="file" id="upArquivos" accept="image/*" multiple>
+      <label>2 · Onde pendurar?</label>
+      <select id="upCategoria">${opts}</select>
+      <br>
+      <button class="enviar" onclick="enviarUploads()">Pendurar no mural</button>
+      <div class="msg" id="upMsg"></div>
+    </div>
+    <p class="upload-nota">As imagens ficam guardadas neste navegador (IndexedDB) — aparecem na aba da categoria escolhida e em "Todos os Produtos". Para remover, use o botão "remover" sobre a imagem.</p>
+    <div style="height:26px"></div>
+    <div class="galeria">${lista}</div>`;
+}
+
+function blocoVazio(cat){
+  const itens = (PLANEJADOS[cat] || []).map(i => '<li>' + i + '</li>').join('');
+  return `<div class="vazio"><b>Ainda sem fichas nesta categoria.</b><br>
+    Itens já definidos no Planejamento Semanal do Cardápio:<ul style="margin-top:8px">${itens}</ul>
+    <p style="margin-top:10px; font-style:italic">Use a aba <b>⬆ Upload</b> para pendurar aqui as fichas prontas da Érica.</p></div>`;
+}
+
+function catHTML(cat){
+  const fs = FICHAS.filter(f => f.cat === cat && fichaAtiva(f));
+  const ups = upsDe(cat);
+  let html = '';
+  if (ups.length) html += ups.map(u => uploadFichaHTML(u, false)).join('');
+  html += fs.map(f => fichaHTML(f, false)).join('');
+  if (!fs.length && !ups.length) html += blocoVazio(cat);
+  return html;
+}
+
+function desativadosHTML(){
+  const fs = FICHAS.filter(f => !fichaAtiva(f));
+  const ups = UPLOADS.filter(u => !upAtivo(u));
+  let corpo = '';
+  if (!fs.length && !ups.length) {
+    corpo = `<div class="vazio"><b>Nenhum produto desativado.</b><br>
+      Em qualquer ficha, clique em <b>✕ desativar</b> (canto superior direito) para mandar o produto para cá — útil para registrar o que vocês decidiram <i>não</i> fazer, sem perder a ficha.</div>`;
+  } else {
+    corpo = ups.map(u => uploadFichaHTML(u, true)).join('') + fs.map(f => fichaHTML(f, true)).join('');
+  }
+  return `<h2 class="grupo">Desativados</h2>
+    <p class="grupo-sub">Produtos que decidimos não fazer — a ficha fica guardada e pode ser reativada a qualquer momento</p>
+    <div class="regua"><span>✕</span></div>` + corpo;
+}
+
+function render(){
+  if (abaAtual === '__todos') {
+    contEl.innerHTML = CATEGORIAS.map(cat => {
+      const n = contar(cat);
+      if (!n) return '';
+      return `<h2 class="grupo">${cat}</h2><div class="regua"><span>❧</span></div>` + catHTML(cat);
+    }).join('');
+  } else if (abaAtual === '__montagem') {
+    contEl.innerHTML = montagemHTML();
+  } else if (abaAtual === '__desativados') {
+    contEl.innerHTML = desativadosHTML();
+  } else if (abaAtual === '__upload') {
+    contEl.innerHTML = uploadTabHTML();
+  } else {
+    const n = contar(abaAtual);
+    contEl.innerHTML = `<h2 class="grupo">${abaAtual}</h2>
+      <p class="grupo-sub">${n ? n + ' ficha(s)' : ''}</p>
+      <div class="regua"><span>❧</span></div>` + catHTML(abaAtual);
+  }
+}
+
+async function enviarUploads(){
+  const inp = document.getElementById('upArquivos');
+  const cat = document.getElementById('upCategoria').value;
+  const msg = document.getElementById('upMsg');
+  if (!inp.files.length) { msg.textContent = 'Escolha pelo menos uma imagem.'; msg.style.color = '#8c2f2f'; return; }
+  for (const file of inp.files) {
+    await salvarUpload({ tipo: cat === MONTAGEM_KEY ? 'montagem' : 'ficha', cat, nome: file.name, blob: file, data: new Date().toISOString() });
+  }
+  await carregarUploads();
+  msg.style.color = '#3c6b3c';
+  msg.textContent = inp.files.length + ' arquivo(s) pendurado(s) em "' + cat + '".';
+  inp.value = '';
+  renderAbas(); render();
+}
+
+async function apagarUpload(id){
+  if (!confirm('Remover esta imagem do mural?')) return;
+  await removerUpload(id);
+  await carregarUploads();
+  renderAbas(); render();
+}
+
+(async () => {
+  try { await abrirDB(); await carregarUploads(); } catch(e) { console.warn('IndexedDB indisponível:', e); }
+  renderAbas(); render();
+})();
+</script>
+</body>
+</html>
