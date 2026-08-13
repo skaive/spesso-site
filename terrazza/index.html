@@ -1018,7 +1018,7 @@ function mostrarPreviewRecorte(dataUrl, texto){
   box.innerHTML = (dataUrl ? '<img src="' + dataUrl + '" style="max-width:220px;max-height:180px;object-fit:contain;border-radius:6px;display:block;margin-bottom:6px">' : '') + texto;
 }
 // miolo da extração, sem DOM: usado pelo editor (extrairFichaIA) e pela
-// restauração automática dos uploads legados (restaurarUploadsLegado)
+// conversão automática dos uploads (converterUploadsAutomatico)
 async function extrairDadosIA(u){
   let blocoArquivo, dataUrlImg = null;
   if (u.blob.type === 'application/pdf') {
@@ -1063,17 +1063,23 @@ async function extrairFichaIA(uploadId){
   }
 }
 
-/* ══════════ RESTAURAÇÃO AUTOMÁTICA (uploads legados da Érica) ══════════
-   Antes de 13/08 o upload pendurava a imagem crua direto na categoria
-   escolhida (u.cat). O fluxo novo tirou essas imagens das abas e as deixou
-   como "pendentes de conversão" manual. Esta rotina roda no navegador de
-   quem tiver esse legado: converte cada um com a IA e cria a ficha na aba
-   que a pessoa tinha escolhido. Idempotente pela flag u.convertida. */
+/* ══════════ CONVERSÃO AUTOMÁTICA (pedido do Renato, 13/08 14h) ══════════
+   Todo upload de ficha (legado com categoria escolhida OU novo sem aba)
+   é convertido SOZINHO pela IA ao abrir a página — a Érica não clica em
+   nada. Aba: a que a pessoa escolheu no fluxo antigo (u.cat) ou a que a
+   IA indicar. Sem perder dado: a ficha nasce e é salva ANTES de o
+   original ser descartado; se a IA falhar, o arquivo fica na aba Upload
+   com o 🪄 manual. Originais já convertidos são descartados (decisão do
+   Renato: não guardar mais as imagens antigas). */
 let __restauroRodando = false;
-async function restaurarUploadsLegado(){
+async function converterUploadsAutomatico(){
   if (__restauroRodando) return;
-  const legado = UPLOADS.filter(u => !u.convertida && CATEGORIAS.includes(u.cat));
-  if (!legado.length) return;
+  // descarte dos originais que já viraram ficha (galeria antiga confundia)
+  for (const antigo of UPLOADS.filter(u => u.convertida)) {
+    try { await removerUpload(antigo.id); } catch(e) {}
+  }
+  const legado = UPLOADS.filter(u => !u.convertida && u.cat !== MONTAGEM_KEY && u.tipo !== 'montagem');
+  if (!legado.length) { await carregarUploads(); renderAbas(); render(); return; }
   __restauroRodando = true;
   const aviso = document.createElement('div');
   aviso.style.cssText = 'position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:#1C2749;color:#fff;padding:10px 22px;border-radius:999px;z-index:99;font-size:.85rem;box-shadow:0 4px 14px rgba(0,0,0,.3);max-width:92vw;text-align:center';
@@ -1081,21 +1087,21 @@ async function restaurarUploadsLegado(){
   let feitos = 0, falhas = 0, n = 0;
   for (const u of legado) {
     n++;
-    aviso.textContent = `Restaurando fichas enviadas: "${u.nome}" (${n}/${legado.length})…`;
+    aviso.textContent = `Convertendo com IA: "${u.nome}" (${n}/${legado.length})…`;
     try {
       const jaExiste = FICHAS.find(f => f.t.toLowerCase() === u.nome.replace(/\.[^.]+$/,'').trim().toLowerCase());
       const { d, dataUrlImg } = await extrairDadosIA(u);
-      const titulo = (d.titulo || u.nome.replace(/\.[^.]+$/,'')).trim() || 'FICHA RESTAURADA';
+      const titulo = (d.titulo || u.nome.replace(/\.[^.]+$/,'')).trim() || 'FICHA CONVERTIDA';
       if (jaExiste || FICHAS.some(f => f.t.toLowerCase() === titulo.toLowerCase())) {
-        u.convertida = true; u.convertidaEm = new Date().toISOString();
-        u.convertidaPara = titulo + ' (já existia — não dupliquei)';
-        await atualizarUpload(u); feitos++; continue;
+        await removerUpload(u.id); feitos++; continue; // ficha já existe: só descarta o original
       }
       let foto = '';
       if (dataUrlImg && d.foto_bbox && d.foto_bbox.w >= 12 && d.foto_bbox.h >= 8) {
         try { foto = await recortarBbox(dataUrlImg, d.foto_bbox); } catch(e) {}
       }
-      const ficha = { t:titulo, s:d.subtitulo||'', cat:u.cat, rend:d.rendimento||'10 porções',
+      const ficha = { t:titulo, s:d.subtitulo||'',
+        cat: CATEGORIAS.includes(u.cat) ? u.cat : (CATEGORIAS.includes(d.categoria) ? d.categoria : CATEGORIAS[0]),
+        rend:d.rendimento||'10 porções',
         porc:d.porcao||'', org:d.origem||'', temp:d.temperatura||'', cons:d.conservacao||'',
         foto, cred:'Convertida automaticamente — revisar',
         ingr:(d.ingredientes||[]).map(g => [g.grupo||'Ingredientes', g.itens||[]]),
@@ -1104,16 +1110,16 @@ async function restaurarUploadsLegado(){
       FICHAS.push(ficha); FICHAS_NOVAS.push(ficha);
       try { localStorage.setItem(FICHAS_NOVAS_KEY, JSON.stringify(FICHAS_NOVAS)); }
       catch(e) { ficha.foto = ''; localStorage.setItem(FICHAS_NOVAS_KEY, JSON.stringify(FICHAS_NOVAS)); }
-      u.convertida = true; u.convertidaEm = new Date().toISOString();
-      u.convertidaPara = titulo + ' (restauração automática)';
-      await atualizarUpload(u);
+      // ficha salva com sucesso — só agora o original é descartado (sem perder dado)
+      await removerUpload(u.id);
       feitos++;
-    } catch(e) { console.warn('restauro falhou:', u.nome, e); falhas++; }
+    } catch(e) { console.warn('conversão falhou:', u.nome, e); falhas++; }
   }
+  await carregarUploads();
   renderAbas(); render();
   aviso.textContent = falhas
-    ? `Restauração: ${feitos} ficha(s) de volta nas abas originais; ${falhas} não deu — ficaram na aba Upload para o 🪄 IA manual.`
-    : `Restauração concluída: ${feitos} ficha(s) de volta nas abas que vocês tinham escolhido. ✅`;
+    ? `Conversão automática: ${feitos} ficha(s) criada(s); ${falhas} não deu — ficaram na aba Upload para o 🪄 IA manual.`
+    : `Conversão automática concluída: ${feitos} ficha(s) criada(s) nas abas. Procure o selo "Convertida automaticamente — revisar". ✅`;
   setTimeout(() => aviso.remove(), 15000);
   __restauroRodando = false;
 }
@@ -1296,18 +1302,12 @@ function montagemHTML(){
 }
 
 function uploadTabHTML(){
-  const pendentes = UPLOADS.filter(u => !u.convertida && u.cat !== MONTAGEM_KEY);
+  const pendentes = UPLOADS.filter(u => !u.convertida && u.cat !== MONTAGEM_KEY && u.tipo !== 'montagem');
   const lista = pendentes.length
-    ? pendentes.map(u => `<div class="gfoto"><button class="rm" onclick="apagarUpload(${u.id})">remover</button><button class="rm" style="left:auto;right:16px;background:#1C2749;opacity:.9" onclick="abrirEditorUpload(${u.id},true)">🪄 IA</button>${u.blob.type==='application/pdf' ? `<div style="height:190px;display:flex;align-items:center;justify-content:center;background:#eee8d8;font-size:2.4rem">📄</div>` : `<img src="${URL.createObjectURL(u.blob)}" alt="${u.nome}">`}<p><b>${u.nome}</b><br>aguardando conversão — clique 🪄 IA</p></div>`).join('')
-    : '<p style="text-align:center; color:#7a745f; font-style:italic">Nenhum arquivo aguardando conversão.</p>';
-  const convertidas = UPLOADS.filter(u => u.convertida);
-  const arquivo = convertidas.length
-    ? `<h2 class="grupo" style="font-size:1.15rem">📁 Originais já convertidos</h2>
-       <p class="grupo-sub">Imagens que viraram fichas editáveis — guardadas aqui só para consulta, não contam como produto</p>
-       <div class="galeria">${convertidas.map(u => `<div class="gfoto" style="opacity:.75"><button class="rm" onclick="apagarUpload(${u.id})">remover</button><img src="${URL.createObjectURL(u.blob)}" alt="${u.nome}"><p><b>${u.nome}</b><br>virou: ${u.convertidaPara || 'ficha editável'}</p></div>`).join('')}</div>`
-    : '';
+    ? pendentes.map(u => `<div class="gfoto"><button class="rm" onclick="apagarUpload(${u.id})">remover</button><button class="rm" style="left:auto;right:16px;background:#1C2749;opacity:.9" onclick="abrirEditorUpload(${u.id},true)">🪄 IA</button>${u.blob.type==='application/pdf' ? `<div style="height:190px;display:flex;align-items:center;justify-content:center;background:#eee8d8;font-size:2.4rem">📄</div>` : `<img src="${URL.createObjectURL(u.blob)}" alt="${u.nome}">`}<p><b>${u.nome}</b><br>a conversão automática não conseguiu — tente o 🪄 IA</p></div>`).join('')
+    : '<p style="text-align:center; color:#7a745f; font-style:italic">Nenhum arquivo pendente — tudo que sobe aqui vira ficha automaticamente.</p>';
   return `<h2 class="grupo">Upload de Fichas e Fotos</h2>
-    <p class="grupo-sub">Suba o arquivo → 🪄 Extrair com IA → revise → escolha a aba e Salve: só a ficha montada vira produto</p>
+    <p class="grupo-sub">Suba o arquivo e pronto: a IA lê, monta a ficha e pendura na aba certa sozinha</p>
     <div class="regua"><span>❧</span></div>
     <div class="upload-box">
       <h3>Enviar arquivo</h3>
@@ -1315,18 +1315,16 @@ function uploadTabHTML(){
       <input type="file" id="upArquivos" accept="image/*,application/pdf" multiple>
       <label>2 · O que é?</label>
       <select id="upTipo">
-        <option value="ficha" selected>Ficha para converter (a aba você escolhe ao montar)</option>
+        <option value="ficha" selected>Ficha de produto (vira ficha automaticamente)</option>
         <option value="montagem">Foto de montagem do buffet</option>
       </select>
       <br>
       <button class="enviar" onclick="enviarUploads()">Enviar</button>
       <div class="msg" id="upMsg"></div>
     </div>
-    <p class="upload-nota">A imagem enviada <b>não vira produto</b>: clique em <b>🪄 IA</b> nela, a inteligência lê e preenche a ficha, você revisa, escolhe a categoria e salva — aí sim nasce a ficha na aba escolhida. O original fica guardado no arquivo abaixo. Tudo salvo neste navegador.</p>
+    <p class="upload-nota">Ao enviar, a IA converte cada arquivo em ficha editável e pendura na aba — as fichas nascem com o selo <b>"Convertida automaticamente — revisar"</b> para vocês conferirem. O original é descartado depois que a ficha nasce; só fica aqui o que a IA não conseguir ler. Tudo salvo neste navegador.</p>
     <div style="height:26px"></div>
-    <div class="galeria">${lista}</div>
-    <div style="height:30px"></div>
-    ${arquivo}`;
+    <div class="galeria">${lista}</div>`;
 }
 
 function blocoVazio(cat){
@@ -1395,7 +1393,8 @@ async function enviarUploads(){
   msg.style.color = '#3c6b3c';
   msg.textContent = tipo === 'montagem'
     ? inp.files.length + ' foto(s) pendurada(s) em Montagem de Buffet.'
-    : inp.files.length + ' arquivo(s) recebido(s) — agora clique em 🪄 IA em cada um para montar a ficha.';
+    : inp.files.length + ' arquivo(s) recebido(s) — a IA já está convertendo em ficha automaticamente.';
+  if (tipo !== 'montagem') converterUploadsAutomatico().catch(e => console.warn('conversão automática:', e));
   inp.value = '';
   renderAbas(); render();
 }
@@ -1410,8 +1409,8 @@ async function apagarUpload(id){
 (async () => {
   try { await abrirDB(); await carregarUploads(); } catch(e) { console.warn('IndexedDB indisponível:', e); }
   renderAbas(); render();
-  // legado: uploads pendurados em categoria pelo fluxo antigo voltam como ficha
-  restaurarUploadsLegado().catch(e => console.warn('restauro legado:', e));
+  // todo upload de ficha pendente vira ficha sozinho (e originais convertidos são descartados)
+  converterUploadsAutomatico().catch(e => console.warn('conversão automática:', e));
 })();
 </script>
 </body>
