@@ -1097,7 +1097,7 @@ async function restaurarUploadsLegado(){
       }
       const ficha = { t:titulo, s:d.subtitulo||'', cat:u.cat, rend:d.rendimento||'10 porções',
         porc:d.porcao||'', org:d.origem||'', temp:d.temperatura||'', cons:d.conservacao||'',
-        foto, cred:'Spesso Cucina',
+        foto, cred:'Convertida automaticamente — revisar',
         ingr:(d.ingredientes||[]).map(g => [g.grupo||'Ingredientes', g.itens||[]]),
         prep:(d.preparo||[]).map(p => [p.etapa||'', p.texto||'']),
         dicas:(d.dicas||[]).slice(0,5) };
