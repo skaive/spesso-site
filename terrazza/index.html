@@ -197,6 +197,9 @@
   .assinatura .fio:last-child::before { right:0; }
   .assinatura .marca { width:170px; height:58px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
   .assinatura .marca img { display:block; width:170px; height:58px; object-fit:contain; transform:scale(1.75); filter:brightness(0) saturate(100%) invert(14%) sepia(27%) saturate(2125%) hue-rotate(190deg) brightness(88%) contrast(97%); }
+  .btn-extrair-ia { display:block; margin-top:10px; font-family:'Jost', sans-serif; font-size:.95rem; letter-spacing:.04em; background:#1C2749; color:#fff; border:none; border-radius:999px; padding:10px 26px; cursor:pointer; }
+  .btn-extrair-ia:hover { background:#2e3d6b; }
+  .btn-extrair-ia:disabled { background:#8a8fa5; cursor:wait; }
   @media (max-width:720px){
     .ficha { padding:25px 18px 14px; }
     .ficha h3.titulo { font-size:2.15rem; }
@@ -248,7 +251,7 @@
 <button class="btn-nova" onclick="abrirEditorNovo()">＋ Nova ficha</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-08-12.1</span><br>Rendimento padrão 10 porções; pesos, tempos e conservação são estimativas iniciais. Fichas enviadas ficam guardadas neste navegador.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · 12/08/2026<br>Rendimento padrão 10 porções; pesos, tempos e conservação são estimativas iniciais. Fichas enviadas ficam guardadas neste navegador.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -853,6 +856,13 @@ function salvarUpload(item){
     tx.oncomplete = res;
   });
 }
+function atualizarUpload(item){
+  return new Promise(res => {
+    const tx = db.transaction('uploads', 'readwrite');
+    tx.objectStore('uploads').put(item);
+    tx.oncomplete = res;
+  });
+}
 function removerUpload(id){
   return new Promise(res => {
     const tx = db.transaction('uploads', 'readwrite');
@@ -927,10 +937,66 @@ function adicionarLinhaEditor(tipo){ document.getElementById('lista-'+tipo).inse
 function fecharEditor(){ document.getElementById('editorModal').classList.remove('aberto'); }
 function abrirEditorNovo(){ abrirEditorCompleto(null); }
 function abrirEditorFicha(chave){ abrirEditorCompleto(FICHAS.find(f=>f.t===chave)); }
-function abrirEditorUpload(id){
+function abrirEditorUpload(id, autoIA){
   const u=UPLOADS.find(x=>x.id===id); if(!u)return;
   const ref=URL.createObjectURL(u.blob);
   abrirEditorCompleto({t:u.nome.replace(/\.[^.]+$/,''),s:'',cat:u.cat,org:'',porc:'',temp:'',cons:'',ingr:[['Ingredientes',[]]],prep:[],dicas:[],foto:ref,cred:'Ficha enviada por upload',_uploadId:id,_referencia:ref},true);
+  if(autoIA) setTimeout(()=>extrairFichaIA(id), 300);
+}
+
+/* ══════════ EXTRAÇÃO COM IA (mesmo motor do leitor de NF) ══════════ */
+const IA_ENDPOINT = 'https://skaive.spesso.com.br/api/extract';
+function redimensionarBlob(blob, maxDim){
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const esc = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * esc); c.height = Math.round(img.height * esc);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      res(c.toDataURL('image/jpeg', 0.85));
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(blob);
+  });
+}
+async function extrairFichaIA(uploadId){
+  const u = UPLOADS.find(x => x.id === uploadId); if(!u) return;
+  const btn = document.getElementById('btnExtrairIA');
+  if (btn) { btn.disabled = true; btn.textContent = '🪄 Lendo a ficha com IA…'; }
+  try {
+    const dataUrl = await redimensionarBlob(u.blob, 1600);
+    const prompt = 'Você é chef e nutricionista. A imagem é uma FICHA TÉCNICA de um prato (ou uma foto de prato). Extraia/estime os dados e responda APENAS com JSON válido, sem markdown.\n\nCategorias possíveis (escolha a mais adequada): ' + CATEGORIAS.join(' | ') + '\n\nJSON: {"titulo":"nome do prato (como está na ficha; se em italiano, manter)","subtitulo":"descrição curta","categoria":"uma das categorias listadas","origem":"","rendimento":"ex.: 10 porções","porcao":"ex.: aprox. 250 g","temperatura":"ex.: Quente (mín. 65°C)","conservacao":"ex.: Até 3 dias sob refrigeração (0–4°C)","ingredientes":[{"grupo":"ex.: Base / Recheio / Molho","itens":["Ingrediente — quantidade"]}],"preparo":[{"etapa":"título curto","texto":"instrução"}],"dicas":["dica do chef"]}\n\nRegras: transcreva fielmente o que estiver legível na ficha (quantidades incluídas); estime com bom senso apenas o que faltar; máximo 5 dicas; se a imagem for só uma foto de prato, crie a ficha completa estimada.';
+    const res = await fetch(IA_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ max_tokens: 4000, content: [
+        { type:'image', source:{ type:'base64', media_type:'image/jpeg', data: dataUrl.split(',')[1] } },
+        { type:'text', text: prompt } ] }) });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    const clean = (data.texto || '').replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+    preencherEditorComIA(JSON.parse(clean));
+    if (btn) { btn.textContent = '✅ Extraído! Revise os campos e salve'; }
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '🪄 Extrair com IA'; }
+    alert('Não consegui extrair desta imagem: ' + (e.message || 'tente de novo') + '\nVocê pode preencher manualmente ou tentar outra vez.');
+  }
+}
+function preencherEditorComIA(d){
+  const set = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
+  set('eTitulo', d.titulo); set('eSubtitulo', d.subtitulo); set('eOrigem', d.origem);
+  set('eRendimento', d.rendimento); set('ePorcao', d.porcao);
+  set('eTemperatura', d.temperatura); set('eConservacao', d.conservacao);
+  if (d.categoria && CATEGORIAS.includes(d.categoria)) set('eCategoria', d.categoria);
+  const li = document.getElementById('lista-ingrediente');
+  if (li && Array.isArray(d.ingredientes) && d.ingredientes.length)
+    li.innerHTML = d.ingredientes.flatMap(g => (g.itens||[]).map(i => linhaEditor('ingrediente', g.grupo||'Ingredientes', i))).join('');
+  const lp = document.getElementById('lista-preparo');
+  if (lp && Array.isArray(d.preparo) && d.preparo.length)
+    lp.innerHTML = d.preparo.map(p => linhaEditor('preparo', p.etapa||'', p.texto||'')).join('');
+  const ld = document.getElementById('lista-dica');
+  if (ld && Array.isArray(d.dicas) && d.dicas.length)
+    ld.innerHTML = d.dicas.map(x => linhaEditor('dica', x)).join('');
 }
 function abrirEditorCompleto(f, conversao=false){
   const novo=!f; f=f||{t:'',s:'',cat:CATEGORIAS[0],org:'',porc:'',temp:'',cons:'',ingr:[['Ingredientes',['']]],prep:[['','']],dicas:[''],foto:'',cred:''};
@@ -939,7 +1005,7 @@ function abrirEditorCompleto(f, conversao=false){
   const dicas=(f.dicas||[]).map(d=>linhaEditor('dica',d)).join('');
   const modal=document.getElementById('editorModal');
   modal.innerHTML=`<div class="editor-painel"><h2 id="editorTitulo">${novo?'Criar nova ficha':conversao?'Converter imagem em ficha editável':'Editar ficha completa'}</h2>
-  ${f._referencia?`<div class="editor-campo largo"><label>Imagem original para consulta</label><img class="referencia-upload" src="${f._referencia}"></div>`:''}
+  ${f._referencia?`<div class="editor-campo largo"><label>Imagem original para consulta</label><img class="referencia-upload" src="${f._referencia}">${f._uploadId?`<button type="button" class="btn-extrair-ia" id="btnExtrairIA" onclick="extrairFichaIA(${f._uploadId})">🪄 Extrair com IA</button>`:''}</div>`:''}
   <div class="editor-grid">
     <div class="editor-campo"><label>Nome do produto</label><input id="eTitulo" value="${esc(f.t)}"></div>
     <div class="editor-campo"><label>Categoria / aba</label><select id="eCategoria">${CATEGORIAS.map(c=>`<option${c===f.cat?' selected':''}>${c}</option>`).join('')}</select></div>
@@ -970,7 +1036,12 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId){
     if(nova || uploadId){ FICHAS.push(ficha); FICHAS_NOVAS.push(ficha); localStorage.setItem(FICHAS_NOVAS_KEY,JSON.stringify(FICHAS_NOVAS)); }
     else { const alvo=FICHAS.find(x=>x.t===chave); if(alvo) Object.assign(alvo,ficha); FICHAS_COMPLETAS[chave]=ficha; if(titulo!==chave){delete FICHAS_COMPLETAS[chave];FICHAS_COMPLETAS[titulo]=ficha;} localStorage.setItem(FICHAS_COMPLETAS_KEY,JSON.stringify(FICHAS_COMPLETAS)); }
   } catch(e) { alert('A foto é grande demais para o armazenamento deste navegador. Escolha uma imagem menor e tente novamente.'); return; }
-  if(uploadId){ DESATIVADOS.add('up:'+uploadId); salvarDesativados(); }
+  if(uploadId){
+    // original vira "arquivo": some das categorias sem virar item desativado (evita duplicidade)
+    const u=UPLOADS.find(x=>x.id===uploadId);
+    if(u){ u.convertida=true; u.convertidaEm=new Date().toISOString(); u.convertidaPara=titulo; await atualizarUpload(u); }
+    DESATIVADOS.delete('up:'+uploadId); salvarDesativados();
+  }
   abaAtual=ficha.cat; fecharEditor(); renderAbas(); render(); window.scrollTo({top:0});
 }
 
@@ -979,10 +1050,10 @@ const abasEl = document.getElementById('abas');
 const contEl = document.getElementById('conteudo');
 let abaAtual = '__todos';
 
-function upsDe(cat){ return UPLOADS.filter(u => u.cat === cat && upAtivo(u)); }
+function upsDe(cat){ return UPLOADS.filter(u => u.cat === cat && upAtivo(u) && !u.convertida); }
 function contar(cat){ return FICHAS.filter(f => f.cat === cat && fichaAtiva(f)).length + upsDe(cat).length; }
 function contarDesativados(){
-  return FICHAS.filter(f => !fichaAtiva(f)).length + UPLOADS.filter(u => !upAtivo(u)).length;
+  return FICHAS.filter(f => !fichaAtiva(f)).length + UPLOADS.filter(u => !upAtivo(u) && !u.convertida).length;
 }
 
 function renderAbas(){
@@ -995,7 +1066,7 @@ function renderAbas(){
     b.onclick = () => { abaAtual = chave; renderAbas(); render(); window.scrollTo({top:0}); };
     abasEl.appendChild(b);
   };
-  mk('Todos os Produtos', FICHAS.filter(fichaAtiva).length + UPLOADS.filter(u => u.cat !== MONTAGEM_KEY && upAtivo(u)).length, '__todos');
+  mk('Todos os Produtos', FICHAS.filter(fichaAtiva).length + UPLOADS.filter(u => u.cat !== MONTAGEM_KEY && upAtivo(u) && !u.convertida).length, '__todos');
   CATEGORIAS.forEach(c => mk(c, contar(c), c));
   mk('Montagem de Buffet', MONTAGENS.length + upsDe(MONTAGEM_KEY).length, '__montagem', 'especial');
   mk('✕ Desativados', contarDesativados(), '__desativados', 'especial');
@@ -1066,7 +1137,7 @@ function uploadFichaHTML(u, inativa){
   return `<div class="ficha-upload">
     <button class="rm" onclick="apagarUpload(${u.id})">remover</button>
     ${estado}
-    ${inativa ? '' : `<button class="rm" style="left:115px;background:#1C2749;opacity:.9" onclick="abrirEditorUpload(${u.id})">✎ tornar editável</button>`}
+    ${inativa ? '' : `<button class="rm" style="left:115px;background:#1C2749;opacity:.9" onclick="abrirEditorUpload(${u.id},true)">🪄 extrair com IA</button><button class="rm" style="left:265px;background:#6d6d66;opacity:.85" onclick="abrirEditorUpload(${u.id})">✎ manual</button>`}
     <span class="rotulo-up" ${inativa ? 'style="top:52px"' : ''}>${u.cat} · enviada${inativa ? ' · desativada' : ''}</span>
     <img src="${url}" alt="${u.nome}">
   </div>`;
@@ -1085,11 +1156,18 @@ function montagemHTML(){
 
 function uploadTabHTML(){
   const opts = [MONTAGEM_KEY].concat(CATEGORIAS).map(c => `<option value="${c}">${c}</option>`).join('');
-  const lista = UPLOADS.length
-    ? UPLOADS.map(u => `<div class="gfoto"><button class="rm" onclick="apagarUpload(${u.id})">remover</button><img src="${URL.createObjectURL(u.blob)}" alt="${u.nome}"><p><b>${u.nome}</b><br>pendurada em: ${u.cat}</p></div>`).join('')
-    : '<p style="text-align:center; color:#7a745f; font-style:italic">Nenhum arquivo enviado ainda.</p>';
+  const pendentes = UPLOADS.filter(u => !u.convertida);
+  const lista = pendentes.length
+    ? pendentes.map(u => `<div class="gfoto"><button class="rm" onclick="apagarUpload(${u.id})">remover</button><button class="rm" style="left:auto;right:16px;background:#1C2749;opacity:.9" onclick="abrirEditorUpload(${u.id},true)">🪄 IA</button><img src="${URL.createObjectURL(u.blob)}" alt="${u.nome}"><p><b>${u.nome}</b><br>pendurada em: ${u.cat}</p></div>`).join('')
+    : '<p style="text-align:center; color:#7a745f; font-style:italic">Nenhum arquivo aguardando conversão.</p>';
+  const convertidas = UPLOADS.filter(u => u.convertida);
+  const arquivo = convertidas.length
+    ? `<h2 class="grupo" style="font-size:1.15rem">📁 Originais já convertidos</h2>
+       <p class="grupo-sub">Imagens que viraram fichas editáveis — guardadas aqui só para consulta, não contam como produto</p>
+       <div class="galeria">${convertidas.map(u => `<div class="gfoto" style="opacity:.75"><button class="rm" onclick="apagarUpload(${u.id})">remover</button><img src="${URL.createObjectURL(u.blob)}" alt="${u.nome}"><p><b>${u.nome}</b><br>virou: ${u.convertidaPara || 'ficha editável'}</p></div>`).join('')}</div>`
+    : '';
   return `<h2 class="grupo">Upload de Fichas e Fotos</h2>
-    <p class="grupo-sub">Para a Érica pendurar as fichas prontas na categoria certa — ou subir fotos de arrumação do buffet</p>
+    <p class="grupo-sub">Suba a imagem da ficha → 🪄 Extrair com IA → revise → Salvar: nasce uma ficha editável já pendurada na categoria</p>
     <div class="regua"><span>❧</span></div>
     <div class="upload-box">
       <h3>Enviar arquivo</h3>
@@ -1101,9 +1179,11 @@ function uploadTabHTML(){
       <button class="enviar" onclick="enviarUploads()">Pendurar no mural</button>
       <div class="msg" id="upMsg"></div>
     </div>
-    <p class="upload-nota">As imagens ficam guardadas neste navegador (IndexedDB) — aparecem na aba da categoria escolhida e em "Todos os Produtos". Para remover, use o botão "remover" sobre a imagem.</p>
+    <p class="upload-nota">Depois de enviar, clique em <b>🪄 IA</b> na imagem: a IA lê a ficha, preenche tudo, você revisa e salva. A ficha nova entra na categoria escolhida; a imagem original fica guardada no arquivo abaixo (sem duplicar produto). Tudo salvo neste navegador.</p>
     <div style="height:26px"></div>
-    <div class="galeria">${lista}</div>`;
+    <div class="galeria">${lista}</div>
+    <div style="height:30px"></div>
+    ${arquivo}`;
 }
 
 function blocoVazio(cat){
@@ -1125,7 +1205,7 @@ function catHTML(cat){
 
 function desativadosHTML(){
   const fs = FICHAS.filter(f => !fichaAtiva(f));
-  const ups = UPLOADS.filter(u => !upAtivo(u));
+  const ups = UPLOADS.filter(u => !upAtivo(u) && !u.convertida);
   let corpo = '';
   if (!fs.length && !ups.length) {
     corpo = `<div class="vazio"><b>Nenhum produto desativado.</b><br>
