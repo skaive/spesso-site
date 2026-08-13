@@ -201,12 +201,16 @@
   .btn-extrair-ia:hover { background:#2e3d6b; }
   .btn-extrair-ia:disabled { background:#8a8fa5; cursor:wait; }
   @media (max-width:720px){
-    .ficha { padding:25px 18px 14px; }
-    .ficha h3.titulo { font-size:2.15rem; }
+    .ficha { padding:25px 14px 14px; }
+    .ficha h3.titulo { font-size:1.55rem; white-space:normal; transform:none; letter-spacing:.01em; line-height:1.12; padding-top:34px; word-break:break-word; }
     .ficha .subtitulo span { white-space:normal; font-size:.75rem; }
+    .ficha .btn-estado { top:10px; right:10px; font-size:.66rem; padding:3px 10px; }
+    .ficha .btn-editar { top:10px; right:104px; font-size:.66rem; padding:3px 10px; }
+    .ficha .badge-origem { top:10px; left:10px; font-size:.62rem; }
     .principal,.rodape-ficha { grid-template-columns:1fr; gap:18px; }
     .principal-esq { padding-right:0; }
     .fotobox img { height:auto; max-height:620px; }
+    .ficha.inativa::after { font-size:1.9rem; }
   }
   @media print {
     body { background:#fff; }
@@ -322,15 +326,17 @@ const FICHAS = [
  dicas:['Textura grosseira é proposital — pasta lisa parece industrializada.','Prove antes de salgar: azeitona e alcaparra já carregam sal.','Cobrir com filme de azeite conserva a cor por mais tempo.'],
  foto:PIN+'22_24ceb8ee0f26bfc23036e763ef296d64.jpg', cred:'Pinterest · pasta Medito'},
 
-{t:'TAPENADE RUSTICA', s:'Creme de azeitonas com azeite de ervas e pão de fermentação natural', cat:'Antepasti', org:'Provençal',
- porc:'50 g + pães', temp:'Ambiente', cons:'Até 5 dias sob refrigeração (0–4°C)',
- ingr:[['Base',['Azeitonas verdes e pretas — 700 g','Anchova (opcional) — 30 g','Alho assado — 25 g','Azeite extravirgem — 180 ml','Ervas frescas (tomilho, manjericão) — 30 g','Raspas de limão — 1 un.']],
-       ['Serviço',['Pão de fermentação natural — 600 g','Azeite para o poço — 50 ml']]],
- prep:[['Processamento','Pulse as azeitonas com alho assado e anchova até pasta rústica.'],
-       ['Aroma','Incorpore azeite, ervas picadas e raspas de limão.'],
-       ['Montagem','Bowl escuro, superfície riscada com colher, poço generoso de azeite.'],
-       ['Serviço','Fatias de pão levemente tostadas ao lado, nunca sobre a pasta.']],
- dicas:['Alho assado (não cru) dá doçura e evita ardência no buffet.','A anchova é invisível ao olho e dobra o umami — avise no rótulo de alergênicos.','Dupla perfeita com a Crema di Olive Verdi na ilha de antepastos.'],
+{t:'VERRINE DI SALMONE E AVOCADO', s:'Copinhos de tartare de salmão com creme de abacate e ervas', cat:'Antepasti', org:'Mediterrânea contemporânea',
+ porc:'1 copinho (90 g)', temp:'Fria (0–4°C)', cons:'Montar no serviço; componentes: 24 h (0–4°C)',
+ ingr:[['Tartare de salmão',['Salmão fresco em cubos pequenos — 1 kg','Suco de limão — 80 ml','Azeite extravirgem — 60 ml','Cebolinha picada — 20 g','Flor de sal e pimenta — q.b.']],
+       ['Creme de abacate',['Abacate maduro — 800 g','Suco de limão — 60 ml','Iogurte natural — 150 g','Coentro ou salsa — 20 g','Sal — q.b.']],
+       ['Finalização',['Micro-ervas ou cebolinha — 20 g','Limão em meias-luas — 2 un.']]],
+ prep:[['Tartare','Corte o salmão na ponta da faca em cubos regulares; tempere só na hora da montagem.'],
+       ['Creme','Processe o abacate com limão, iogurte e ervas até aveludado.'],
+       ['Montagem','No copinho transparente: camada de creme de abacate, camada de tartare, repita.'],
+       ['Finalização','Coroe com ervas frescas e sirva com meia-lua de limão.'],
+       ['Serviço','Exponha os copinhos sobre gelo, em rodadas pequenas.']],
+ dicas:['Use salmão previamente congelado (segurança para consumo cru) e avise na plaquinha.','Bastante limão no creme segura o verde do abacate por mais tempo.','Os copinhos em camadas são a foto do buffet — capriche na régua das camadas.','Sem lactose: troque o iogurte por azeite no creme.'],
  foto:PIN+'42_bbe78aa355d5dfe40b185a5f8a9fcd60.jpg', cred:'Pinterest · pasta Medito'},
 
 {t:'CORONA DI BRUSCHETTE', s:'Coroa de bruschettas com tomate confitado, stracciatella e manjericão', cat:'Antepasti', org:'Italiana',
