@@ -1017,26 +1017,31 @@ function mostrarPreviewRecorte(dataUrl, texto){
   }
   box.innerHTML = (dataUrl ? '<img src="' + dataUrl + '" style="max-width:220px;max-height:180px;object-fit:contain;border-radius:6px;display:block;margin-bottom:6px">' : '') + texto;
 }
-async function extrairFichaIA(uploadId){
-  const u = UPLOADS.find(x => x.id === uploadId); if(!u) return;
-  const btn = document.getElementById('btnExtrairIA');
-  if (btn) { btn.disabled = true; btn.textContent = '🪄 Lendo a ficha com IA…'; }
-  try {
-    let blocoArquivo, dataUrlImg = null;
-    if (u.blob.type === 'application/pdf') {
-      if (u.blob.size > 3000000) throw new Error('PDF grande demais (' + (u.blob.size/1048576).toFixed(1) + ' MB, máx. 3 MB). Envie um print/foto da ficha.');
-      blocoArquivo = { type:'document', source:{ type:'base64', media_type:'application/pdf', data: await blobParaBase64(u.blob) } };
-    } else {
-      dataUrlImg = await redimensionarBlob(u.blob, 1600).catch(() => { throw new Error('não consegui abrir este arquivo como imagem (formato ' + (u.blob.type || 'desconhecido') + '). Envie JPG, PNG ou PDF.'); });
-      blocoArquivo = { type:'image', source:{ type:'base64', media_type:'image/jpeg', data: dataUrlImg.split(',')[1] } };
-    }
+// miolo da extração, sem DOM: usado pelo editor (extrairFichaIA) e pela
+// restauração automática dos uploads legados (restaurarUploadsLegado)
+async function extrairDadosIA(u){
+  let blocoArquivo, dataUrlImg = null;
+  if (u.blob.type === 'application/pdf') {
+    if (u.blob.size > 3000000) throw new Error('PDF grande demais (' + (u.blob.size/1048576).toFixed(1) + ' MB, máx. 3 MB). Envie um print/foto da ficha.');
+    blocoArquivo = { type:'document', source:{ type:'base64', media_type:'application/pdf', data: await blobParaBase64(u.blob) } };
+  } else {
+    dataUrlImg = await redimensionarBlob(u.blob, 1600).catch(() => { throw new Error('não consegui abrir este arquivo como imagem (formato ' + (u.blob.type || 'desconhecido') + '). Envie JPG, PNG ou PDF.'); });
+    blocoArquivo = { type:'image', source:{ type:'base64', media_type:'image/jpeg', data: dataUrlImg.split(',')[1] } };
+  }
     const prompt = 'Você é chef e nutricionista. A imagem é uma FICHA TÉCNICA de um prato (ou uma foto de prato). Extraia/estime os dados e responda APENAS com JSON válido, sem markdown.\n\nCategorias possíveis (escolha a mais adequada): ' + CATEGORIAS.join(' | ') + '\n\nJSON: {"titulo":"nome do prato (como está na ficha; se em italiano, manter)","subtitulo":"descrição curta","categoria":"uma das categorias listadas","origem":"","rendimento":"ex.: 10 porções","porcao":"ex.: aprox. 250 g","temperatura":"ex.: Quente (mín. 65°C)","conservacao":"ex.: Até 3 dias sob refrigeração (0–4°C)","ingredientes":[{"grupo":"ex.: Base / Recheio / Molho","itens":["Ingrediente — quantidade"]}],"preparo":[{"etapa":"título curto","texto":"instrução"}],"dicas":["dica do chef"],"foto_bbox":{"x":0,"y":0,"w":0,"h":0}}\n\nRegras: transcreva fielmente o que estiver legível na ficha (quantidades incluídas); estime com bom senso apenas o que faltar; máximo 5 dicas; se a imagem for só uma foto de prato, crie a ficha completa estimada. foto_bbox: retângulo onde está a FOTO DO PRATO dentro da imagem, em PORCENTAGEM (x,y = canto superior esquerdo; w,h = largura/altura; 0–100). Se a imagem inteira já for a foto do prato, use {"x":0,"y":0,"w":100,"h":100}; se não houver foto de prato, use null.';
     const res = await fetch(IA_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ max_tokens: 4000, content: [ blocoArquivo, { type:'text', text: prompt } ] }) });
     if (!res.ok) throw new Error('o serviço de IA respondeu com erro ' + res.status + ': ' + (await res.text()).slice(0, 200));
     const data = await res.json();
     const clean = (data.texto || '').replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
-    const d = JSON.parse(clean);
+    return { d: JSON.parse(clean), dataUrlImg };
+}
+async function extrairFichaIA(uploadId){
+  const u = UPLOADS.find(x => x.id === uploadId); if(!u) return;
+  const btn = document.getElementById('btnExtrairIA');
+  if (btn) { btn.disabled = true; btn.textContent = '🪄 Lendo a ficha com IA…'; }
+  try {
+    const { d, dataUrlImg } = await extrairDadosIA(u);
     preencherEditorComIA(d);
     // foto do prato: recorta a área indicada pela IA (nunca usa a página inteira da ficha)
     window.__iaDefiniuFoto = true;
@@ -1056,6 +1061,61 @@ async function extrairFichaIA(uploadId){
     if (btn) { btn.disabled = false; btn.textContent = '🪄 Extrair com IA'; }
     alert('Não consegui extrair desta imagem: ' + (e.message || 'tente de novo') + '\nVocê pode preencher manualmente ou tentar outra vez.');
   }
+}
+
+/* ══════════ RESTAURAÇÃO AUTOMÁTICA (uploads legados da Érica) ══════════
+   Antes de 13/08 o upload pendurava a imagem crua direto na categoria
+   escolhida (u.cat). O fluxo novo tirou essas imagens das abas e as deixou
+   como "pendentes de conversão" manual. Esta rotina roda no navegador de
+   quem tiver esse legado: converte cada um com a IA e cria a ficha na aba
+   que a pessoa tinha escolhido. Idempotente pela flag u.convertida. */
+let __restauroRodando = false;
+async function restaurarUploadsLegado(){
+  if (__restauroRodando) return;
+  const legado = UPLOADS.filter(u => !u.convertida && CATEGORIAS.includes(u.cat));
+  if (!legado.length) return;
+  __restauroRodando = true;
+  const aviso = document.createElement('div');
+  aviso.style.cssText = 'position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:#1C2749;color:#fff;padding:10px 22px;border-radius:999px;z-index:99;font-size:.85rem;box-shadow:0 4px 14px rgba(0,0,0,.3);max-width:92vw;text-align:center';
+  document.body.appendChild(aviso);
+  let feitos = 0, falhas = 0, n = 0;
+  for (const u of legado) {
+    n++;
+    aviso.textContent = `Restaurando fichas enviadas: "${u.nome}" (${n}/${legado.length})…`;
+    try {
+      const jaExiste = FICHAS.find(f => f.t.toLowerCase() === u.nome.replace(/\.[^.]+$/,'').trim().toLowerCase());
+      const { d, dataUrlImg } = await extrairDadosIA(u);
+      const titulo = (d.titulo || u.nome.replace(/\.[^.]+$/,'')).trim() || 'FICHA RESTAURADA';
+      if (jaExiste || FICHAS.some(f => f.t.toLowerCase() === titulo.toLowerCase())) {
+        u.convertida = true; u.convertidaEm = new Date().toISOString();
+        u.convertidaPara = titulo + ' (já existia — não dupliquei)';
+        await atualizarUpload(u); feitos++; continue;
+      }
+      let foto = '';
+      if (dataUrlImg && d.foto_bbox && d.foto_bbox.w >= 12 && d.foto_bbox.h >= 8) {
+        try { foto = await recortarBbox(dataUrlImg, d.foto_bbox); } catch(e) {}
+      }
+      const ficha = { t:titulo, s:d.subtitulo||'', cat:u.cat, rend:d.rendimento||'10 porções',
+        porc:d.porcao||'', org:d.origem||'', temp:d.temperatura||'', cons:d.conservacao||'',
+        foto, cred:'Spesso Cucina',
+        ingr:(d.ingredientes||[]).map(g => [g.grupo||'Ingredientes', g.itens||[]]),
+        prep:(d.preparo||[]).map(p => [p.etapa||'', p.texto||'']),
+        dicas:(d.dicas||[]).slice(0,5) };
+      FICHAS.push(ficha); FICHAS_NOVAS.push(ficha);
+      try { localStorage.setItem(FICHAS_NOVAS_KEY, JSON.stringify(FICHAS_NOVAS)); }
+      catch(e) { ficha.foto = ''; localStorage.setItem(FICHAS_NOVAS_KEY, JSON.stringify(FICHAS_NOVAS)); }
+      u.convertida = true; u.convertidaEm = new Date().toISOString();
+      u.convertidaPara = titulo + ' (restauração automática)';
+      await atualizarUpload(u);
+      feitos++;
+    } catch(e) { console.warn('restauro falhou:', u.nome, e); falhas++; }
+  }
+  renderAbas(); render();
+  aviso.textContent = falhas
+    ? `Restauração: ${feitos} ficha(s) de volta nas abas originais; ${falhas} não deu — ficaram na aba Upload para o 🪄 IA manual.`
+    : `Restauração concluída: ${feitos} ficha(s) de volta nas abas que vocês tinham escolhido. ✅`;
+  setTimeout(() => aviso.remove(), 15000);
+  __restauroRodando = false;
 }
 function preencherEditorComIA(d){
   const set = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
@@ -1350,6 +1410,8 @@ async function apagarUpload(id){
 (async () => {
   try { await abrirDB(); await carregarUploads(); } catch(e) { console.warn('IndexedDB indisponível:', e); }
   renderAbas(); render();
+  // legado: uploads pendurados em categoria pelo fluxo antigo voltam como ficha
+  restaurarUploadsLegado().catch(e => console.warn('restauro legado:', e));
 })();
 </script>
 </body>
