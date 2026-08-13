@@ -909,7 +909,7 @@ const FICHAS_COMPLETAS_KEY = 'spesso-fichas-completas-v2';
 const FICHAS_NOVAS_KEY = 'spesso-fichas-novas-v2';
 let FICHAS_COMPLETAS = JSON.parse(localStorage.getItem(FICHAS_COMPLETAS_KEY) || '{}');
 let FICHAS_NOVAS = JSON.parse(localStorage.getItem(FICHAS_NOVAS_KEY) || '[]');
-FICHAS_NOVAS.forEach(f => { if (!FICHAS.some(x => x.t === f.t)) FICHAS.push(f); });
+FICHAS_NOVAS.forEach(f => { if (!f._muralId && !FICHAS.some(x => x.t === f.t)) FICHAS.push(f); }); // as com _muralId vêm do mural
 FICHAS.forEach(f => {
   if (EDICOES[f.t] && Array.isArray(EDICOES[f.t].ingr)) f.ingr = EDICOES[f.t].ingr;
   if (FICHAS_COMPLETAS[f.t]) Object.assign(f, FICHAS_COMPLETAS[f.t]);
@@ -1179,7 +1179,7 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
   const ficha={t:titulo,s:document.getElementById('eSubtitulo').value.trim(),cat:document.getElementById('eCategoria').value,rend:document.getElementById('eRendimento').value.trim(),porc:document.getElementById('ePorcao').value.trim(),org:document.getElementById('eOrigem').value.trim(),temp:document.getElementById('eTemperatura').value.trim(),cons:document.getElementById('eConservacao').value.trim(),foto,cred:'Spesso Cucina',ingr:grupos.length?grupos:[['Ingredientes',[]]],prep:[...document.querySelectorAll('#lista-preparo .passo')].map(r=>[r.querySelector('.e-passo-titulo').value.trim(),r.querySelector('.e-passo-texto').value.trim()]).filter(x=>x[0]||x[1]),dicas:[...document.querySelectorAll('#lista-dica .e-dica')].map(x=>x.value.trim()).filter(Boolean)};
   if(dbId){
     // ficha do mural compartilhado (Supabase): salvar habilita e grava para todos
-    ficha.cred = 'Ficha técnica da Érica (app Skaive) · revisada';
+    ficha.cred = 'Ficha da Érica · revisada';
     try { await dbPatch(dbId, { categoria: ficha.cat, dados: ficha, desativada: false }); }
     catch(e){ alert('Não consegui salvar no mural: ' + e.message); return; }
     await carregarFichasDB();
@@ -1197,6 +1197,7 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
     DESATIVADOS.delete('up:'+uploadId); salvarDesativados();
   }
   abaAtual=ficha.cat; fecharEditor(); renderAbas(); render(); window.scrollTo({top:0});
+  sincronizarMuralAutomatico().catch(e => console.warn('sincronização do mural:', e));
 }
 
 /* ══════════ MURAL COMPARTILHADO (Supabase terrazza_fichas) ══════════
@@ -1238,6 +1239,67 @@ function abrirEditorDb(id){
   const f = dbToF(row);
   if (!CATEGORIAS.includes(f.cat)) f.cat = CATEGORIAS[0];
   abrirEditorCompleto(f);
+}
+
+/* ══════════ SINCRONIZAÇÃO AUTOMÁTICA dispositivo → mural ══════════
+   As fichas que a Érica criou/converteu ficavam presas no navegador dela
+   (localStorage). Este bloco sobe cada ficha local para o mural (Supabase)
+   na primeira abertura da página, com deduplicação por título. Depois de
+   subir, a ficha local sai de cena e passa a valer a versão do mural. */
+function dataUrlParaBlob(dataUrl){
+  const [meta, b64] = dataUrl.split(',');
+  const mime = (meta.match(/data:([^;]+)/) || [,'image/jpeg'])[1];
+  const bin = atob(b64); const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+async function subirFotoMural(dataUrl, titulo){
+  const slug = (titulo || 'ficha').toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').slice(0, 40);
+  const caminho = 'fotos/' + Date.now() + '-' + slug + '.jpg';
+  const r = await fetch(SB_URL + '/storage/v1/object/terrazza/' + caminho, {
+    method: 'POST',
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'image/jpeg' },
+    body: dataUrlParaBlob(dataUrl)
+  });
+  if (!r.ok) throw new Error('upload da foto falhou (' + r.status + ')');
+  return SB_URL + '/storage/v1/object/public/terrazza/' + caminho;
+}
+let __sincronizando = false;
+async function sincronizarMuralAutomatico(){
+  if (__sincronizando) return;
+  __sincronizando = true;
+  try {
+    const pendentes = FICHAS_NOVAS.filter(f => !f._muralId);
+    if (!pendentes.length) return;
+    await carregarFichasDB(); // estado fresco para deduplicar
+    let mudou = false;
+    for (const f of pendentes) {
+      const tit = (f.t || '').trim().toLowerCase();
+      const jaExiste = FICHAS_DB.find(r => ((r.dados && r.dados.t) || '').trim().toLowerCase() === tit);
+      if (jaExiste) { f._muralId = jaExiste.id; mudou = true; continue; }
+      let foto_url = '';
+      try {
+        if ((f.foto || '').startsWith('data:')) foto_url = await subirFotoMural(f.foto, f.t);
+        else if ((f.foto || '').startsWith('http')) foto_url = f.foto;
+      } catch(e) { console.warn('foto não subiu, ficha vai sem foto:', e); }
+      const dados = { t:f.t, s:f.s||'', org:f.org||'', rend:f.rend||'', porc:f.porc||'', temp:f.temp||'', cons:f.cons||'',
+                      ingr:f.ingr||[], prep:f.prep||[], dicas:f.dicas||[], cred:(f.cred||'Ficha da Érica') };
+      const r = await fetch(SB_URL + '/rest/v1/terrazza_fichas', {
+        method: 'POST',
+        headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=representation' },
+        body: JSON.stringify({ categoria: CATEGORIAS.includes(f.cat) ? f.cat : '', dados, foto_url, desativada: !CATEGORIAS.includes(f.cat) })
+      });
+      if (r.ok) { const [row] = await r.json(); f._muralId = row.id; mudou = true; }
+    }
+    if (mudou) {
+      localStorage.setItem(FICHAS_NOVAS_KEY, JSON.stringify(FICHAS_NOVAS));
+      // as sincronizadas saem da lista local de exibição (passam a vir do mural)
+      for (const f of FICHAS_NOVAS) {
+        if (f._muralId) { const i = FICHAS.findIndex(x => x.t === f.t && !x._dbId); if (i >= 0) FICHAS.splice(i, 1); }
+      }
+      await carregarFichasDB(); renderAbas(); render();
+    }
+  } finally { __sincronizando = false; }
 }
 
 /* ══════════ RENDER ══════════ */
@@ -1453,7 +1515,7 @@ async function enviarUploads(){
   msg.textContent = tipo === 'montagem'
     ? inp.files.length + ' foto(s) pendurada(s) em Montagem de Buffet.'
     : inp.files.length + ' arquivo(s) recebido(s) — a IA já está convertendo em ficha automaticamente.';
-  if (tipo !== 'montagem') converterUploadsAutomatico().catch(e => console.warn('conversão automática:', e));
+  if (tipo !== 'montagem') converterUploadsAutomatico().then(() => sincronizarMuralAutomatico()).catch(e => console.warn('conversão automática:', e));
   inp.value = '';
   renderAbas(); render();
 }
@@ -1467,10 +1529,14 @@ async function apagarUpload(id){
 
 (async () => {
   try { await abrirDB(); await carregarUploads(); } catch(e) { console.warn('IndexedDB indisponível:', e); }
-  await carregarFichasDB(); // mural compartilhado (acervo da Érica no Supabase)
+  await carregarFichasDB(); // mural compartilhado (Supabase)
   renderAbas(); render();
-  // todo upload de ficha pendente vira ficha sozinho (e originais convertidos são descartados)
-  converterUploadsAutomatico().catch(e => console.warn('conversão automática:', e));
+  // fichas presas neste navegador sobem para o mural (dedup por título)
+  sincronizarMuralAutomatico().catch(e => console.warn('sincronização do mural:', e));
+  // todo upload de ficha pendente vira ficha sozinho e, na sequência, sobe pro mural
+  converterUploadsAutomatico()
+    .then(() => sincronizarMuralAutomatico())
+    .catch(e => console.warn('conversão automática:', e));
 })();
 </script>
 </body>
