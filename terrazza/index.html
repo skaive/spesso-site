@@ -1163,11 +1163,11 @@ function abrirEditorCompleto(f, conversao=false){
   <div class="editor-secao"><h3>Ingredientes e quantidades</h3><div id="lista-ingrediente">${ing}</div><button class="editor-add" type="button" onclick="adicionarLinhaEditor('ingrediente')">＋ ingrediente</button></div>
   <div class="editor-secao"><h3>Modo de preparo</h3><div id="lista-preparo">${prep}</div><button class="editor-add" type="button" onclick="adicionarLinhaEditor('preparo')">＋ etapa</button></div>
   <div class="editor-secao"><h3>Dicas do chef</h3><div id="lista-dica">${dicas}</div><button class="editor-add" type="button" onclick="adicionarLinhaEditor('dica')">＋ dica</button></div>
-  <div class="editor-botoes"><button type="button" onclick="fecharEditor()">Cancelar</button><button class="salvar" type="button" onclick="salvarFichaCompleta('${encodeURIComponent(f.t)}',${novo},${f._uploadId||'null'})">Salvar ficha</button></div></div>`;
+  <div class="editor-botoes"><button type="button" onclick="fecharEditor()">Cancelar</button><button class="salvar" type="button" onclick="salvarFichaCompleta('${encodeURIComponent(f.t)}',${novo},${f._uploadId||'null'},'${f._dbId||''}')">Salvar ficha</button></div></div>`;
   modal.classList.add('aberto');
 }
 function arquivoParaDataURL(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);}); }
-async function salvarFichaCompleta(chaveCod,nova,uploadId){
+async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
   const chave=decodeURIComponent(chaveCod); const titulo=document.getElementById('eTitulo').value.trim();
   if(!titulo){ alert('Informe o nome do produto.'); return; }
   let foto=document.getElementById('eFoto').value.trim(); const arq=document.getElementById('eFotoArquivo').files[0];
@@ -1177,6 +1177,15 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId){
   const pares=[...document.querySelectorAll('#lista-ingrediente .ingrediente')].map(r=>[r.querySelector('.e-grupo').value.trim()||'Ingredientes',r.querySelector('.e-item').value.trim()]).filter(x=>x[1]);
   const grupos=[]; pares.forEach(([g,i])=>{let x=grupos.find(z=>z[0]===g);if(!x){x=[g,[]];grupos.push(x)}x[1].push(i)});
   const ficha={t:titulo,s:document.getElementById('eSubtitulo').value.trim(),cat:document.getElementById('eCategoria').value,rend:document.getElementById('eRendimento').value.trim(),porc:document.getElementById('ePorcao').value.trim(),org:document.getElementById('eOrigem').value.trim(),temp:document.getElementById('eTemperatura').value.trim(),cons:document.getElementById('eConservacao').value.trim(),foto,cred:'Spesso Cucina',ingr:grupos.length?grupos:[['Ingredientes',[]]],prep:[...document.querySelectorAll('#lista-preparo .passo')].map(r=>[r.querySelector('.e-passo-titulo').value.trim(),r.querySelector('.e-passo-texto').value.trim()]).filter(x=>x[0]||x[1]),dicas:[...document.querySelectorAll('#lista-dica .e-dica')].map(x=>x.value.trim()).filter(Boolean)};
+  if(dbId){
+    // ficha do mural compartilhado (Supabase): salvar habilita e grava para todos
+    ficha.cred = 'Ficha técnica da Érica (app Skaive) · revisada';
+    try { await dbPatch(dbId, { categoria: ficha.cat, dados: ficha, desativada: false }); }
+    catch(e){ alert('Não consegui salvar no mural: ' + e.message); return; }
+    await carregarFichasDB();
+    abaAtual=ficha.cat; fecharEditor(); renderAbas(); render(); window.scrollTo({top:0});
+    return;
+  }
   try {
     if(nova || uploadId){ FICHAS.push(ficha); FICHAS_NOVAS.push(ficha); localStorage.setItem(FICHAS_NOVAS_KEY,JSON.stringify(FICHAS_NOVAS)); }
     else { const alvo=FICHAS.find(x=>x.t===chave); if(alvo) Object.assign(alvo,ficha); FICHAS_COMPLETAS[chave]=ficha; if(titulo!==chave){delete FICHAS_COMPLETAS[chave];FICHAS_COMPLETAS[titulo]=ficha;} localStorage.setItem(FICHAS_COMPLETAS_KEY,JSON.stringify(FICHAS_COMPLETAS)); }
@@ -1190,6 +1199,47 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId){
   abaAtual=ficha.cat; fecharEditor(); renderAbas(); render(); window.scrollTo({top:0});
 }
 
+/* ══════════ MURAL COMPARTILHADO (Supabase terrazza_fichas) ══════════
+   Fichas geradas do acervo da Érica (fichas_tecnicas do app Skaive) vivem no
+   banco: todo mundo vê o mesmo mural em qualquer aparelho. Nascem
+   DESATIVADAS; a Érica habilita escolhendo a aba (↩ habilitar → editor → salvar). */
+const SB_URL = 'https://ujxdbktmbowtokrxxylb.supabase.co';
+const SB_KEY = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
+let FICHAS_DB = [];
+async function carregarFichasDB(){
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/terrazza_fichas?select=id,categoria,dados,foto_url,desativada&order=criado_em.asc', { headers: { apikey: SB_KEY } });
+    if (r.ok) FICHAS_DB = await r.json();
+  } catch(e) { console.warn('mural Supabase indisponível:', e); }
+}
+function dbToF(row){
+  const f = Object.assign({}, row.dados);
+  f.cat = row.categoria || f.cat || 'Sem categoria';
+  if (row.foto_url) f.foto = row.foto_url;
+  f._dbId = row.id;
+  return f;
+}
+function dbAtivasDe(cat){ return FICHAS_DB.filter(r => !r.desativada && (r.categoria || '') === cat); }
+async function dbPatch(id, corpo){
+  corpo.atualizado_em = new Date().toISOString();
+  const r = await fetch(SB_URL + '/rest/v1/terrazza_fichas?id=eq.' + id, {
+    method: 'PATCH',
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify(corpo)
+  });
+  if (!r.ok) throw new Error('salvar no mural falhou (' + r.status + ')');
+}
+async function dbDesativar(id){
+  try { await dbPatch(id, { desativada: true }); } catch(e) { alert(e.message); }
+  await carregarFichasDB(); renderAbas(); render();
+}
+function abrirEditorDb(id){
+  const row = FICHAS_DB.find(r => r.id === id); if (!row) return;
+  const f = dbToF(row);
+  if (!CATEGORIAS.includes(f.cat)) f.cat = CATEGORIAS[0];
+  abrirEditorCompleto(f);
+}
+
 /* ══════════ RENDER ══════════ */
 const abasEl = document.getElementById('abas');
 const contEl = document.getElementById('conteudo');
@@ -1198,9 +1248,9 @@ let abaAtual = '__todos';
 /* imagens enviadas NÃO penduram mais nas abas de produto — só a ficha montada.
    A única exceção é Montagem de Buffet, onde a própria foto é o conteúdo. */
 function upsDe(cat){ return cat === MONTAGEM_KEY ? UPLOADS.filter(u => u.cat === MONTAGEM_KEY && upAtivo(u) && !u.convertida) : []; }
-function contar(cat){ return FICHAS.filter(f => f.cat === cat && fichaAtiva(f)).length + upsDe(cat).length; }
+function contar(cat){ return FICHAS.filter(f => f.cat === cat && fichaAtiva(f)).length + upsDe(cat).length + dbAtivasDe(cat).length; }
 function contarDesativados(){
-  return FICHAS.filter(f => !fichaAtiva(f)).length + UPLOADS.filter(u => !upAtivo(u) && !u.convertida).length;
+  return FICHAS.filter(f => !fichaAtiva(f)).length + UPLOADS.filter(u => !upAtivo(u) && !u.convertida).length + FICHAS_DB.filter(r => r.desativada).length;
 }
 
 function renderAbas(){
@@ -1213,7 +1263,7 @@ function renderAbas(){
     b.onclick = () => { abaAtual = chave; renderAbas(); render(); window.scrollTo({top:0}); };
     abasEl.appendChild(b);
   };
-  mk('Todos os Produtos', FICHAS.filter(fichaAtiva).length, '__todos');
+  mk('Todos os Produtos', FICHAS.filter(fichaAtiva).length + FICHAS_DB.filter(r => !r.desativada).length, '__todos');
   CATEGORIAS.forEach(c => mk(c, contar(c), c));
   mk('Montagem de Buffet', MONTAGENS.length + upsDe(MONTAGEM_KEY).length, '__montagem', 'especial');
   mk('✕ Desativados', contarDesativados(), '__desativados', 'especial');
@@ -1226,7 +1276,11 @@ function fichaHTML(f, inativa){
   const prep = f.prep.map(([t, tx]) =>
     '<li><div><b class="passo-titulo">' + t + '</b>' + tx + '</div></li>').join('');
   const dicas = f.dicas.map(d => '<li>' + d + '</li>').join('');
-  const estado = inativa
+  const estado = f._dbId
+    ? (inativa
+      ? `<span class="badge-origem">${f.cat && f.cat !== 'Sem categoria' ? 'aba sugerida: ' + f.cat : 'sem categoria — escolher ao habilitar'}</span><button class="btn-estado reativar" onclick="abrirEditorDb('${f._dbId}')">↩ habilitar</button>`
+      : `<button class="btn-editar" onclick="abrirEditorDb('${f._dbId}')">✎ editar tudo</button><button class="btn-estado" onclick="dbDesativar('${f._dbId}')" title="Mover para Desativados">✕ desativar</button>`)
+    : inativa
     ? `<span class="badge-origem">era: ${f.cat}</span><button class="btn-estado reativar" onclick="reativarFicha('${f.t}')">↩ reativar</button>`
     : `<button class="btn-editar" onclick="abrirEditorFicha(decodeURIComponent('${encodeURIComponent(f.t)}'))">✎ editar tudo</button><button class="btn-estado" onclick="desativarFicha('${f.t}')" title="Mover para Desativados">✕ desativar</button>`;
   return `
@@ -1337,25 +1391,30 @@ function blocoVazio(cat){
 function catHTML(cat){
   const fs = FICHAS.filter(f => f.cat === cat && fichaAtiva(f));
   const ups = upsDe(cat);
+  const dbs = dbAtivasDe(cat);
   let html = '';
   if (ups.length) html += ups.map(u => uploadFichaHTML(u, false)).join('');
+  html += dbs.map(r => fichaHTML(dbToF(r), false)).join('');
   html += fs.map(f => fichaHTML(f, false)).join('');
-  if (!fs.length && !ups.length) html += blocoVazio(cat);
+  if (!fs.length && !ups.length && !dbs.length) html += blocoVazio(cat);
   return html;
 }
 
 function desativadosHTML(){
   const fs = FICHAS.filter(f => !fichaAtiva(f));
   const ups = UPLOADS.filter(u => !upAtivo(u) && !u.convertida);
+  const dbs = FICHAS_DB.filter(r => r.desativada);
   let corpo = '';
-  if (!fs.length && !ups.length) {
+  if (!fs.length && !ups.length && !dbs.length) {
     corpo = `<div class="vazio"><b>Nenhum produto desativado.</b><br>
       Em qualquer ficha, clique em <b>✕ desativar</b> (canto superior direito) para mandar o produto para cá — útil para registrar o que vocês decidiram <i>não</i> fazer, sem perder a ficha.</div>`;
   } else {
-    corpo = ups.map(u => uploadFichaHTML(u, true)).join('') + fs.map(f => fichaHTML(f, true)).join('');
+    const aviso = dbs.length ? `<div class="vazio" style="margin-bottom:26px"><b>${dbs.length} ficha(s) do acervo da Érica aguardando habilitação.</b><br>
+      São as fichas técnicas do app Skaive convertidas com IA (preparo e dicas são sugestões — revisar). Clique em <b>↩ habilitar</b>, confira os dados, escolha a aba e salve: a ficha entra no cardápio.</div>` : '';
+    corpo = aviso + dbs.map(r => fichaHTML(dbToF(r), true)).join('') + ups.map(u => uploadFichaHTML(u, true)).join('') + fs.map(f => fichaHTML(f, true)).join('');
   }
   return `<h2 class="grupo">Desativados</h2>
-    <p class="grupo-sub">Produtos que decidimos não fazer — a ficha fica guardada e pode ser reativada a qualquer momento</p>
+    <p class="grupo-sub">Fichas fora do cardápio — aguardando habilitação ou descartadas; nada se perde</p>
     <div class="regua"><span>✕</span></div>` + corpo;
 }
 
@@ -1408,6 +1467,7 @@ async function apagarUpload(id){
 
 (async () => {
   try { await abrirDB(); await carregarUploads(); } catch(e) { console.warn('IndexedDB indisponível:', e); }
+  await carregarFichasDB(); // mural compartilhado (acervo da Érica no Supabase)
   renderAbas(); render();
   // todo upload de ficha pendente vira ficha sozinho (e originais convertidos são descartados)
   converterUploadsAutomatico().catch(e => console.warn('conversão automática:', e));
