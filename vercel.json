@@ -1,4 +1,5 @@
 {
+  "trailingSlash": true,
   "redirects": [
     { "source": "/app", "destination": "https://skaive.spesso.com.br", "permanent": false },
     { "source": "/skaive", "destination": "https://skaive.spesso.com.br", "permanent": false }
