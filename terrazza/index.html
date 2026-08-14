@@ -201,6 +201,35 @@
   .assinatura .fio:last-child::before { right:0; }
   .assinatura .marca { width:170px; height:58px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
   .assinatura .marca img { display:block; width:170px; height:58px; object-fit:contain; transform:scale(1.75); filter:brightness(0) saturate(100%) invert(14%) sepia(27%) saturate(2125%) hue-rotate(190deg) brightness(88%) contrast(97%); }
+  /* status do prato + custo/CMV */
+  .status-chip { position:absolute; top:14px; left:14px; z-index:3; border:none; border-radius:999px; font-size:.68rem; padding:4px 13px; cursor:pointer; font-family:'Jost', sans-serif; letter-spacing:.05em; font-weight:600; }
+  .status-chip.desenvolvimento { background:#e7e1cf; color:#6d6d66; }
+  .status-chip.experimentado { background:#f3e3b3; color:#7a5c12; }
+  .status-chip.final { background:#dcebd8; color:#2f5c2a; }
+  .cmv-linhas { margin-top:10px; border-top:1.5px solid var(--navy); padding-top:8px; }
+  .cmv-badge { display:inline-block; border-radius:999px; padding:1px 12px; font-weight:600; font-size:.82rem; }
+  .cmv-ok { background:#dcebd8; color:#2f5c2a; }
+  .cmv-medio { background:#f3e3b3; color:#7a5c12; }
+  .cmv-alto { background:#f3c9c0; color:#8c2f2f; }
+  /* planejamento */
+  .plan-secao { background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 auto 22px; max-width:960px; }
+  .plan-secao h3 { color:var(--navy); font-family:'Playfair Display', serif; font-size:1.05rem; margin-bottom:10px; text-transform:uppercase; letter-spacing:.06em; }
+  .plan-regras { width:100%; border-collapse:collapse; font-size:.85rem; }
+  .plan-regras th { text-align:left; color:#7a745f; font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; padding:4px 8px; }
+  .plan-regras td { padding:4px 8px; border-top:1px dashed var(--line); }
+  .plan-regras input { width:70px; border:1px solid var(--line); border-radius:6px; padding:4px 8px; font-family:inherit; }
+  .plan-classe { display:flex; flex-wrap:wrap; gap:8px; }
+  .plan-prato { display:flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--line); border-radius:999px; padding:4px 6px 4px 14px; font-size:.82rem; }
+  .plan-prato button { border:1px solid var(--navy); background:transparent; color:var(--navy); border-radius:999px; font-size:.68rem; padding:2px 10px; cursor:pointer; font-family:inherit; }
+  .plan-prato button.on { background:var(--navy); color:#fff; }
+  .plan-cal { width:100%; border-collapse:collapse; font-size:.78rem; }
+  .plan-cal th { background:var(--navy); color:#fff; padding:6px 8px; font-weight:600; letter-spacing:.04em; }
+  .plan-cal td { border:1px solid var(--line); padding:6px 8px; vertical-align:top; min-width:110px; background:#fff; }
+  .plan-cal td .fixo::before { content:'★ '; color:#b8860b; }
+  .plan-cal td .rot::before { content:'↻ '; color:var(--navy); opacity:.6; }
+  .plan-cal tfoot td { background:var(--cream); font-weight:600; }
+  .plan-aviso { font-size:.8rem; color:#7a745f; font-style:italic; margin-top:8px; }
+  .plan-rolagem { overflow-x:auto; } /* exceção controlada: tabela larga rola dentro dela mesma */
   .btn-extrair-ia { display:block; margin-top:10px; font-family:'Jost', sans-serif; font-size:.95rem; letter-spacing:.04em; background:#1C2749; color:#fff; border:none; border-radius:999px; padding:10px 26px; cursor:pointer; }
   .btn-extrair-ia:hover { background:#2e3d6b; }
   .btn-extrair-ia:disabled { background:#8a8fa5; cursor:wait; }
@@ -1157,6 +1186,9 @@ function abrirEditorCompleto(f, conversao=false){
     <div class="editor-campo"><label>Origem</label><input id="eOrigem" value="${esc(f.org)}"></div>
     <div class="editor-campo"><label>Temperatura de serviço</label><input id="eTemperatura" value="${esc(f.temp)}"></div>
     <div class="editor-campo largo"><label>Conservação</label><input id="eConservacao" value="${esc(f.cons)}"></div>
+    <div class="editor-campo"><label>Custo dos insumos (R$ — receita toda)</label><input id="eCustoInsumos" type="number" step="0.01" min="0" value="${f.custoInsumos > 0 ? f.custoInsumos : ''}" placeholder="ex.: 87.50"></div>
+    <div class="editor-campo"><label>Rendimento da receita (kg)</label><input id="eRendKg" type="number" step="0.01" min="0" value="${f.rendKg > 0 ? f.rendKg : ''}" placeholder="ex.: 3.2"></div>
+    <div class="editor-campo largo"><label>Estágio do prato</label><select id="eStatus">${Object.keys(STATUS_INFO).map(k => `<option value="${k}"${(f.status || 'desenvolvimento') === k ? ' selected' : ''}>${STATUS_INFO[k].rotulo}</option>`).join('')}</select></div>
     <div class="editor-campo largo"><label>Foto (endereço atual)</label><input id="eFoto" value="${esc(f.foto)}"></div>
     <div class="editor-campo largo"><label>Ou escolher outra foto</label><input id="eFotoArquivo" type="file" accept="image/*"></div>
   </div>
@@ -1176,10 +1208,13 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
   else if(foto.startsWith('blob:')) foto='';
   const pares=[...document.querySelectorAll('#lista-ingrediente .ingrediente')].map(r=>[r.querySelector('.e-grupo').value.trim()||'Ingredientes',r.querySelector('.e-item').value.trim()]).filter(x=>x[1]);
   const grupos=[]; pares.forEach(([g,i])=>{let x=grupos.find(z=>z[0]===g);if(!x){x=[g,[]];grupos.push(x)}x[1].push(i)});
-  const ficha={t:titulo,s:document.getElementById('eSubtitulo').value.trim(),cat:document.getElementById('eCategoria').value,rend:document.getElementById('eRendimento').value.trim(),porc:document.getElementById('ePorcao').value.trim(),org:document.getElementById('eOrigem').value.trim(),temp:document.getElementById('eTemperatura').value.trim(),cons:document.getElementById('eConservacao').value.trim(),foto,cred:'Spesso Cucina',ingr:grupos.length?grupos:[['Ingredientes',[]]],prep:[...document.querySelectorAll('#lista-preparo .passo')].map(r=>[r.querySelector('.e-passo-titulo').value.trim(),r.querySelector('.e-passo-texto').value.trim()]).filter(x=>x[0]||x[1]),dicas:[...document.querySelectorAll('#lista-dica .e-dica')].map(x=>x.value.trim()).filter(Boolean)};
+  const ficha={t:titulo,s:document.getElementById('eSubtitulo').value.trim(),cat:document.getElementById('eCategoria').value,rend:document.getElementById('eRendimento').value.trim(),porc:document.getElementById('ePorcao').value.trim(),org:document.getElementById('eOrigem').value.trim(),temp:document.getElementById('eTemperatura').value.trim(),cons:document.getElementById('eConservacao').value.trim(),foto,cred:'Spesso Cucina',ingr:grupos.length?grupos:[['Ingredientes',[]]],prep:[...document.querySelectorAll('#lista-preparo .passo')].map(r=>[r.querySelector('.e-passo-titulo').value.trim(),r.querySelector('.e-passo-texto').value.trim()]).filter(x=>x[0]||x[1]),dicas:[...document.querySelectorAll('#lista-dica .e-dica')].map(x=>x.value.trim()).filter(Boolean),
+    custoInsumos:parseFloat(document.getElementById('eCustoInsumos').value)||0,rendKg:parseFloat(document.getElementById('eRendKg').value)||0,status:document.getElementById('eStatus').value};
   if(dbId){
     // ficha do mural compartilhado (Supabase): salvar habilita e grava para todos
     ficha.cred = 'Ficha da Érica · revisada';
+    const rowAtual = FICHAS_DB.find(r => r.id === dbId);
+    if (rowAtual && rowAtual.dados && rowAtual.dados.plano && !ficha.plano) ficha.plano = rowAtual.dados.plano;
     try { await dbPatch(dbId, { categoria: ficha.cat, dados: ficha, desativada: false }); }
     catch(e){ alert('Não consegui salvar no mural: ' + e.message); return; }
     await carregarFichasDB();
@@ -1188,7 +1223,7 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
   }
   try {
     if(nova || uploadId){ FICHAS.push(ficha); FICHAS_NOVAS.push(ficha); localStorage.setItem(FICHAS_NOVAS_KEY,JSON.stringify(FICHAS_NOVAS)); }
-    else { const alvo=FICHAS.find(x=>x.t===chave); if(alvo) Object.assign(alvo,ficha); FICHAS_COMPLETAS[chave]=ficha; if(titulo!==chave){delete FICHAS_COMPLETAS[chave];FICHAS_COMPLETAS[titulo]=ficha;} localStorage.setItem(FICHAS_COMPLETAS_KEY,JSON.stringify(FICHAS_COMPLETAS)); }
+    else { const alvo=FICHAS.find(x=>x.t===chave); if(alvo) Object.assign(alvo,ficha); const mesclada=Object.assign({},FICHAS_COMPLETAS[chave]||{},ficha); FICHAS_COMPLETAS[chave]=mesclada; if(titulo!==chave){delete FICHAS_COMPLETAS[chave];FICHAS_COMPLETAS[titulo]=mesclada;} localStorage.setItem(FICHAS_COMPLETAS_KEY,JSON.stringify(FICHAS_COMPLETAS)); }
   } catch(e) { alert('A foto é grande demais para o armazenamento deste navegador. Escolha uma imagem menor e tente novamente.'); return; }
   if(uploadId){
     // original vira "arquivo": some das categorias sem virar item desativado (evita duplicidade)
@@ -1272,11 +1307,11 @@ async function sincronizarMuralAutomatico(){
     const pendentes = FICHAS_NOVAS.filter(f => !f._muralId);
     if (!pendentes.length) return;
     await carregarFichasDB(); // estado fresco para deduplicar
+    const vistos = new Map(FICHAS_DB.map(r => [((r.dados && r.dados.t) || '').trim().toLowerCase(), r.id]));
     let mudou = false;
     for (const f of pendentes) {
       const tit = (f.t || '').trim().toLowerCase();
-      const jaExiste = FICHAS_DB.find(r => ((r.dados && r.dados.t) || '').trim().toLowerCase() === tit);
-      if (jaExiste) { f._muralId = jaExiste.id; mudou = true; continue; }
+      if (vistos.has(tit)) { f._muralId = vistos.get(tit); mudou = true; continue; }
       let foto_url = '';
       try {
         if ((f.foto || '').startsWith('data:')) foto_url = await subirFotoMural(f.foto, f.t);
@@ -1289,7 +1324,7 @@ async function sincronizarMuralAutomatico(){
         headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=representation' },
         body: JSON.stringify({ categoria: CATEGORIAS.includes(f.cat) ? f.cat : '', dados, foto_url, desativada: !CATEGORIAS.includes(f.cat) })
       });
-      if (r.ok) { const [row] = await r.json(); f._muralId = row.id; mudou = true; }
+      if (r.ok) { const [row] = await r.json(); f._muralId = row.id; vistos.set(tit, row.id); mudou = true; }
     }
     if (mudou) {
       localStorage.setItem(FICHAS_NOVAS_KEY, JSON.stringify(FICHAS_NOVAS));
@@ -1300,6 +1335,116 @@ async function sincronizarMuralAutomatico(){
       await carregarFichasDB(); renderAbas(); render();
     }
   } finally { __sincronizando = false; }
+}
+
+/* ══════════ STATUS, CUSTO/CMV E PLANEJAMENTO ══════════
+   Tudo por QUILO (sem porção/fatia). Venda do quilo configurável (padrão R$115).
+   Status do prato: desenvolvimento → experimentado → cardápio final.
+   Planejamento: regras por categoria (itens/dia + peso p/ CMV ponderado),
+   pratos FINAIS classificados em fixo (★ todo dia) ou rotativo (↻ rodízio). */
+const STATUS_INFO = {
+  desenvolvimento: { rotulo: '⚪ Em desenvolvimento', prox: 'experimentado' },
+  experimentado:   { rotulo: '🟡 Já experimentado',   prox: 'final' },
+  final:           { rotulo: '🟢 Cardápio final',      prox: 'desenvolvimento' }
+};
+const DIAS_SEMANA = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
+let PLANO_CFG = { precoKg: 115, regras: {} }; // regras[cat] = { porDia, peso }
+const PESOS_SUGERIDOS = { 'Antepasti':0.8, 'Saladas':0.8, 'Legumes':0.8, 'Acompanhamentos':1.0, 'Massas':1.2, 'Carne Bovina':2.0, 'Carne Suína':2.0, 'Frango':1.8, 'Peixe / Frutos do Mar':2.0, 'Especial do Dia':1.0, 'Sobremesas':0.5, 'Assinaturas da Casa':1.0 };
+function precoKgAtual(){ return Number(PLANO_CFG.precoKg) > 0 ? Number(PLANO_CFG.precoKg) : 115; }
+function custoKg(f){
+  const c = Number(f.custoInsumos), r = Number(f.rendKg);
+  return (c > 0 && r > 0) ? c / r : null;
+}
+function cmvPct(f){ const ck = custoKg(f); return ck ? ck / precoKgAtual() * 100 : null; }
+function cmvBadge(f){
+  const p = cmvPct(f);
+  if (p === null) return '<span class="cmv-badge" style="background:#eee8d8;color:#7a745f">—</span>';
+  const cls = p <= 30 ? 'cmv-ok' : p <= 40 ? 'cmv-medio' : 'cmv-alto';
+  return `<span class="cmv-badge ${cls}">${p.toFixed(1).replace('.', ',')}%</span>`;
+}
+async function carregarPlanoCfg(){
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/terrazza_config?chave=eq.plano&select=valor', { headers: { apikey: SB_KEY } });
+    if (r.ok) { const [row] = await r.json(); if (row) PLANO_CFG = Object.assign(PLANO_CFG, row.valor); }
+  } catch(e) { console.warn('config do plano indisponível:', e); }
+}
+async function salvarPlanoCfg(){
+  try {
+    await fetch(SB_URL + '/rest/v1/terrazza_config?on_conflict=chave', {
+      method: 'POST',
+      headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify({ chave: 'plano', valor: PLANO_CFG, atualizado_em: new Date().toISOString() })
+    });
+  } catch(e) { alert('Não consegui salvar a configuração do plano: ' + e.message); }
+}
+function regraDe(cat){
+  if (!PLANO_CFG.regras[cat]) PLANO_CFG.regras[cat] = { porDia: 0, peso: PESOS_SUGERIDOS[cat] || 1 };
+  return PLANO_CFG.regras[cat];
+}
+// universo do planejamento: fichas ativas (locais + mural)
+function fichasUniverso(){
+  const locais = FICHAS.filter(fichaAtiva).map(f => ({ f, dbRow: null }));
+  const db = FICHAS_DB.filter(r => !r.desativada).map(r => ({ f: dbToF(r), dbRow: r }));
+  return locais.concat(db);
+}
+function fichasFinaisDe(cat){
+  return fichasUniverso().filter(x => x.f.cat === cat && (x.f.status || 'desenvolvimento') === 'final');
+}
+async function persistirCamposFicha(tituloCod, dbId, campos){
+  const titulo = decodeURIComponent(tituloCod);
+  if (dbId) {
+    const row = FICHAS_DB.find(r => r.id === dbId); if (!row) return;
+    Object.assign(row.dados, campos);
+    try { await dbPatch(dbId, { dados: row.dados }); } catch(e) { alert(e.message); }
+    await carregarFichasDB();
+  } else {
+    const f = FICHAS.find(x => x.t === titulo); if (!f) return;
+    Object.assign(f, campos);
+    FICHAS_COMPLETAS[titulo] = Object.assign(FICHAS_COMPLETAS[titulo] || {}, campos);
+    try { localStorage.setItem(FICHAS_COMPLETAS_KEY, JSON.stringify(FICHAS_COMPLETAS)); } catch(e) {}
+  }
+}
+async function statusCiclo(tituloCod, dbId){
+  const alvo = dbId ? dbToF(FICHAS_DB.find(r => r.id === dbId) || {dados:{}}) : FICHAS.find(x => x.t === decodeURIComponent(tituloCod));
+  const atual = (alvo && alvo.status) || 'desenvolvimento';
+  await persistirCamposFicha(tituloCod, dbId, { status: STATUS_INFO[atual].prox });
+  renderAbas(); render();
+}
+async function planoClasse(tituloCod, dbId, tipo){
+  await persistirCamposFicha(tituloCod, dbId, { plano: tipo });
+  render();
+}
+// distribuição semanal: fixos todo dia; rotativos em rodízio determinístico
+function gradeSemana(){
+  const grade = {}; // grade[cat][dia] = [{t, fixo}]
+  for (const cat of CATEGORIAS) {
+    const regra = regraDe(cat);
+    if (!(regra.porDia > 0)) continue;
+    const finais = fichasFinaisDe(cat);
+    const fixos = finais.filter(x => x.f.plano === 'fixo').sort((a,b) => a.f.t.localeCompare(b.f.t));
+    const rot = finais.filter(x => x.f.plano !== 'fixo').sort((a,b) => a.f.t.localeCompare(b.f.t));
+    grade[cat] = [];
+    for (let d = 0; d < 7; d++) {
+      const doDia = fixos.slice(0, regra.porDia).map(x => ({ x, fixo: true }));
+      const vagas = Math.max(0, regra.porDia - doDia.length);
+      for (let k = 0; k < vagas && rot.length; k++) doDia.push({ x: rot[(d * vagas + k) % rot.length], fixo: false });
+      grade[cat][d] = doDia;
+    }
+  }
+  return grade;
+}
+function resumoDia(grade, d){
+  let soma = 0, n = 0, somaPond = 0, pesoTot = 0;
+  for (const cat in grade) {
+    const peso = regraDe(cat).peso || 1;
+    for (const cel of grade[cat][d]) {
+      const ck = custoKg(cel.x.f);
+      if (ck) { soma += ck; n++; somaPond += ck * peso; pesoTot += peso; }
+    }
+  }
+  if (!n) return null;
+  const media = soma / n, pond = somaPond / pesoTot;
+  return { media, pond, cmvMedia: media / precoKgAtual() * 100, cmvPond: pond / precoKgAtual() * 100, n };
 }
 
 /* ══════════ RENDER ══════════ */
@@ -1327,6 +1472,7 @@ function renderAbas(){
   };
   mk('Todos os Produtos', FICHAS.filter(fichaAtiva).length + FICHAS_DB.filter(r => !r.desativada).length, '__todos');
   CATEGORIAS.forEach(c => mk(c, contar(c), c));
+  mk('📅 Planejamento', null, '__planejamento', 'especial');
   mk('Montagem de Buffet', MONTAGENS.length + upsDe(MONTAGEM_KEY).length, '__montagem', 'especial');
   mk('✕ Desativados', contarDesativados(), '__desativados', 'especial');
   mk('⬆ Upload', null, '__upload', 'especial');
@@ -1338,13 +1484,15 @@ function fichaHTML(f, inativa){
   const prep = f.prep.map(([t, tx]) =>
     '<li><div><b class="passo-titulo">' + t + '</b>' + tx + '</div></li>').join('');
   const dicas = f.dicas.map(d => '<li>' + d + '</li>').join('');
+  const st = STATUS_INFO[f.status] || STATUS_INFO.desenvolvimento;
+  const chip = inativa ? '' : `<button class="status-chip ${f.status || 'desenvolvimento'}" title="Estágio do prato — clique para mudar" onclick="statusCiclo('${encodeURIComponent(f.t)}','${f._dbId || ''}')">${st.rotulo}</button>`;
   const estado = f._dbId
     ? (inativa
       ? `<span class="badge-origem">${f.cat && f.cat !== 'Sem categoria' ? 'aba sugerida: ' + f.cat : 'sem categoria — escolher ao habilitar'}</span><button class="btn-estado reativar" onclick="abrirEditorDb('${f._dbId}')">↩ habilitar</button>`
-      : `<button class="btn-editar" onclick="abrirEditorDb('${f._dbId}')">✎ editar tudo</button><button class="btn-estado" onclick="dbDesativar('${f._dbId}')" title="Mover para Desativados">✕ desativar</button>`)
+      : chip + `<button class="btn-editar" onclick="abrirEditorDb('${f._dbId}')">✎ editar tudo</button><button class="btn-estado" onclick="dbDesativar('${f._dbId}')" title="Mover para Desativados">✕ desativar</button>`)
     : inativa
     ? `<span class="badge-origem">era: ${f.cat}</span><button class="btn-estado reativar" onclick="reativarFicha('${f.t}')">↩ reativar</button>`
-    : `<button class="btn-editar" onclick="abrirEditorFicha(decodeURIComponent('${encodeURIComponent(f.t)}'))">✎ editar tudo</button><button class="btn-estado" onclick="desativarFicha('${f.t}')" title="Mover para Desativados">✕ desativar</button>`;
+    : chip + `<button class="btn-editar" onclick="abrirEditorFicha(decodeURIComponent('${encodeURIComponent(f.t)}'))">✎ editar tudo</button><button class="btn-estado" onclick="desativarFicha('${f.t}')" title="Mover para Desativados">✕ desativar</button>`;
   return `
   <article class="ficha${inativa ? ' inativa' : ''}" data-chave="${encodeURIComponent(f.t)}">
     ${estado}
@@ -1372,6 +1520,12 @@ function fichaHTML(f, inativa){
           <li>${ICO.origem}<span><b>Origem:</b> ${f.org}</span></li>
           <li>${ICO.temperatura}<span><b>Temperatura de serviço:</b> ${f.temp}</span></li>
           <li>${ICO.conservacao}<span><b>Conservação:</b> ${f.cons}</span></li>
+        </ul>
+        <ul class="ft cmv-linhas">
+          <li>${ICO.porcao}<span><b>Custo dos insumos (receita):</b> ${f.custoInsumos > 0 ? 'R$ ' + Number(f.custoInsumos).toFixed(2).replace('.', ',') : '— preencher no ✎ editar'}</span></li>
+          <li>${ICO.rendimento}<span><b>Rendimento da receita:</b> ${f.rendKg > 0 ? String(f.rendKg).replace('.', ',') + ' kg' : '—'}</span></li>
+          <li>${ICO.categoria}<span><b>Custo do quilo pronto:</b> ${custoKg(f) ? 'R$ ' + custoKg(f).toFixed(2).replace('.', ',') : '—'}</span></li>
+          <li>${ICO.origem}<span><b>CMV no quilo (venda R$ ${precoKgAtual().toFixed(0)}):</b> ${cmvBadge(f)}</span></li>
         </ul>
         <h4 class="bloco">Ingredientes</h4>
         <div class="editor-acoes"><button class="salvar" onclick="salvarEdicao(decodeURIComponent('${encodeURIComponent(f.t)}'))">Salvar alterações</button><button onclick="cancelarEdicao()">Cancelar</button></div>
@@ -1443,6 +1597,91 @@ function uploadTabHTML(){
     <div class="galeria">${lista}</div>`;
 }
 
+function regraMudou(cat, campo, valor){
+  regraDe(cat)[campo] = parseFloat(valor) || 0;
+  salvarPlanoCfg(); render();
+}
+function precoKgMudou(valor){
+  PLANO_CFG.precoKg = parseFloat(valor) || 115;
+  salvarPlanoCfg(); render();
+}
+function planejamentoHTML(){
+  const regrasLinhas = CATEGORIAS.map(cat => {
+    const r = regraDe(cat);
+    const finais = fichasFinaisDe(cat);
+    const fixos = finais.filter(x => x.f.plano === 'fixo').length;
+    const falta = Math.max(0, r.porDia - finais.length);
+    return `<tr><td><b>${cat}</b></td>
+      <td><input type="number" min="0" step="1" value="${r.porDia}" onchange="regraMudou('${cat}','porDia',this.value)"></td>
+      <td><input type="number" min="0" step="0.1" value="${r.peso}" onchange="regraMudou('${cat}','peso',this.value)"></td>
+      <td>${finais.length} aprovada(s) · ${fixos} fixa(s)</td>
+      <td>${r.porDia > 0 ? (falta > 0 ? '<span class="cmv-badge cmv-alto">faltam ' + falta + '</span>' : '<span class="cmv-badge cmv-ok">ok</span>') : '—'}</td></tr>`;
+  }).join('');
+
+  const classes = CATEGORIAS.map(cat => {
+    const finais = fichasFinaisDe(cat);
+    if (!finais.length) return '';
+    const chips = finais.map(x => {
+      const cod = encodeURIComponent(x.f.t), dbid = x.dbRow ? x.dbRow.id : '';
+      const ehFixo = x.f.plano === 'fixo';
+      return `<span class="plan-prato">${x.f.t}
+        <button class="${ehFixo ? 'on' : ''}" onclick="planoClasse('${cod}','${dbid}','fixo')">★ fixo</button>
+        <button class="${!ehFixo ? 'on' : ''}" onclick="planoClasse('${cod}','${dbid}','rotativo')">↻ rotativo</button></span>`;
+    }).join('');
+    return `<p style="margin:10px 0 4px"><b>${cat}</b></p><div class="plan-classe">${chips}</div>`;
+  }).join('');
+
+  const grade = gradeSemana();
+  const catsAtivas = Object.keys(grade);
+  const corpo = catsAtivas.map(cat =>
+    `<tr><td><b>${cat}</b></td>` + DIAS_SEMANA.map((_, d) =>
+      '<td>' + (grade[cat][d].length ? grade[cat][d].map(c => `<div class="${c.fixo ? 'fixo' : 'rot'}">${c.x.f.t}</div>`).join('') : '<span style="color:#b0a98f">—</span>') + '</td>'
+    ).join('') + '</tr>'
+  ).join('');
+  const rodape = '<tr><td><b>Custo médio do kg<br>CMV médio · ponderado</b></td>' + DIAS_SEMANA.map((_, d) => {
+    const r = resumoDia(grade, d);
+    if (!r) return '<td><span style="color:#b0a98f">sem custos<br>preenchidos</span></td>';
+    return `<td>R$ ${r.media.toFixed(2).replace('.', ',')} <small>(${r.n} c/ custo)</small><br>` +
+      `<span class="cmv-badge ${r.cmvMedia <= 30 ? 'cmv-ok' : r.cmvMedia <= 40 ? 'cmv-medio' : 'cmv-alto'}">${r.cmvMedia.toFixed(1).replace('.', ',')}%</span> · ` +
+      `<span class="cmv-badge ${r.cmvPond <= 30 ? 'cmv-ok' : r.cmvPond <= 40 ? 'cmv-medio' : 'cmv-alto'}">${r.cmvPond.toFixed(1).replace('.', ',')}%</span></td>`;
+  }).join('') + '</tr>';
+
+  return `<h2 class="grupo">Planejamento do Buffet</h2>
+    <p class="grupo-sub">Tudo por quilo · pratos 🟢 Cardápio final entram no rodízio · ★ fixos todo dia, ↻ rotativos revezam</p>
+    <div class="regua"><span>📅</span></div>
+
+    <div class="plan-secao">
+      <h3>1 · Preço de venda do quilo</h3>
+      <label style="font-size:.9rem">R$ <input type="number" min="1" step="1" value="${precoKgAtual()}" style="width:90px;border:1px solid var(--line);border-radius:6px;padding:5px 8px" onchange="precoKgMudou(this.value)"></label>
+      <span class="plan-aviso">— referência para todos os CMVs (padrão 115).</span>
+    </div>
+
+    <div class="plan-secao">
+      <h3>2 · Regras por categoria</h3>
+      <div class="plan-rolagem"><table class="plan-regras">
+        <tr><th>Categoria</th><th>Itens/dia</th><th>Peso (CMV pond.)</th><th>Cardápio final</th><th>Situação</th></tr>
+        ${regrasLinhas}
+      </table></div>
+      <p class="plan-aviso">Pesos sugeridos: proteínas pesam mais (2,0), massas 1,2, folhas/legumes 0,8, sobremesas 0,5 — calibramos com o consumo real depois.</p>
+    </div>
+
+    <div class="plan-secao">
+      <h3>3 · Classificação dos pratos aprovados (🟢)</h3>
+      ${classes || '<p class="plan-aviso">Nenhum prato marcado como 🟢 Cardápio final ainda — mude o estágio na própria ficha (chip no canto) ou no editor.</p>'}
+    </div>
+
+    <div class="plan-secao" style="max-width:1160px">
+      <h3>4 · Calendário da semana</h3>
+      ${catsAtivas.length ? `<div class="plan-rolagem"><table class="plan-cal">
+        <tr><th style="background:transparent"></th>${DIAS_SEMANA.map(d => '<th>' + d + '</th>').join('')}</tr>
+        ${corpo}
+        <tfoot>${rodape}</tfoot>
+      </table></div>
+      <p class="plan-aviso">★ fixo (todo dia) · ↻ rotativo (rodízio automático e determinístico — ex.: 6 rotativos com 2 vagas/dia repetem a cada 3 dias). Prato elogiado? Promova a ★ fixo na seção 3.</p>`
+      : '<p class="plan-aviso">Defina "itens/dia" nas regras (seção 2) e aprove pratos (🟢) para o calendário nascer.</p>'}
+    </div>`;
+}
+
 function blocoVazio(cat){
   const itens = (PLANEJADOS[cat] || []).map(i => '<li>' + i + '</li>').join('');
   return `<div class="vazio"><b>Ainda sem fichas nesta categoria.</b><br>
@@ -1487,6 +1726,8 @@ function render(){
       if (!n) return '';
       return `<h2 class="grupo">${cat}</h2><div class="regua"><span>❧</span></div>` + catHTML(cat);
     }).join('');
+  } else if (abaAtual === '__planejamento') {
+    contEl.innerHTML = planejamentoHTML();
   } else if (abaAtual === '__montagem') {
     contEl.innerHTML = montagemHTML();
   } else if (abaAtual === '__desativados') {
@@ -1529,7 +1770,7 @@ async function apagarUpload(id){
 
 (async () => {
   try { await abrirDB(); await carregarUploads(); } catch(e) { console.warn('IndexedDB indisponível:', e); }
-  await carregarFichasDB(); // mural compartilhado (Supabase)
+  await Promise.all([carregarFichasDB(), carregarPlanoCfg()]); // mural + config compartilhados
   renderAbas(); render();
   // fichas presas neste navegador sobem para o mural (dedup por título)
   sincronizarMuralAutomatico().catch(e => console.warn('sincronização do mural:', e));
