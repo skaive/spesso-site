@@ -203,14 +203,13 @@
   .assinatura .marca img { display:block; width:170px; height:58px; object-fit:contain; transform:scale(1.75); filter:brightness(0) saturate(100%) invert(14%) sepia(27%) saturate(2125%) hue-rotate(190deg) brightness(88%) contrast(97%); }
   /* status do prato + custo/CMV */
   .status-wrap { position:absolute; top:14px; left:14px; z-index:4; }
-  .status-chip { border:none; border-radius:999px; font-size:.68rem; padding:4px 13px; cursor:pointer; font-family:'Jost', sans-serif; letter-spacing:.05em; font-weight:600; }
+  .status-chip { border:1px solid var(--navy); background:#fff; color:var(--navy); border-radius:999px; font-size:.7rem; padding:3px 12px; cursor:pointer; font-family:'Jost', sans-serif; letter-spacing:.04em; }
+  .status-chip:hover { background:var(--navy); color:#fff; }
   .status-menu { position:absolute; top:110%; left:0; margin-top:4px; background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.2); display:flex; flex-direction:column; gap:3px; padding:7px; min-width:200px; }
   .status-menu[hidden] { display:none; }
   .status-menu button { border:none; background:transparent; text-align:left; font-family:'Jost', sans-serif; font-size:.8rem; padding:6px 10px; border-radius:7px; cursor:pointer; }
   .status-menu button:hover { background:var(--cream); }
-  .status-chip.desenvolvimento { background:#e7e1cf; color:#6d6d66; }
-  .status-chip.experimentado { background:#f3e3b3; color:#7a5c12; }
-  .status-chip.final { background:#dcebd8; color:#2f5c2a; }
+  /* estado indicado pelo emoji no rótulo; visual segue o padrão dos botões editar/desativar */
   .cmv-linhas { margin-top:10px; border-top:1.5px solid var(--navy); padding-top:8px; }
   .cmv-badge { display:inline-block; border-radius:999px; padding:1px 12px; font-weight:600; font-size:.82rem; }
   .cmv-ok { background:#dcebd8; color:#2f5c2a; }
@@ -1045,9 +1044,10 @@ function recortarBbox(dataUrl, bb){
   return new Promise((res, rej) => {
     const img = new Image();
     img.onload = () => {
-      const mg = 2; // margem de segurança em %
-      const x0 = Math.max(0, bb.x - mg), y0 = Math.max(0, bb.y - mg);
-      const w0 = Math.min(100 - x0, bb.w + 2*mg), h0 = Math.min(100 - y0, bb.h + 2*mg);
+      // margem PARA DENTRO: expandir puxava título/caixas vizinhas da ficha
+      const mg = 1.5;
+      const x0 = Math.min(96, Math.max(0, bb.x + mg)), y0 = Math.min(96, Math.max(0, bb.y + mg));
+      const w0 = Math.max(4, Math.min(100 - x0, bb.w - 2*mg)), h0 = Math.max(4, Math.min(100 - y0, bb.h - 2*mg));
       const x = x0/100*img.width, y = y0/100*img.height, w = w0/100*img.width, h = h0/100*img.height;
       const c = document.createElement('canvas');
       c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h));
@@ -1081,7 +1081,7 @@ async function extrairDadosIA(u){
     dataUrlImg = await redimensionarBlob(u.blob, 1600).catch(() => { throw new Error('não consegui abrir este arquivo como imagem (formato ' + (u.blob.type || 'desconhecido') + '). Envie JPG, PNG ou PDF.'); });
     blocoArquivo = { type:'image', source:{ type:'base64', media_type:'image/jpeg', data: dataUrlImg.split(',')[1] } };
   }
-    const prompt = 'Você é chef e nutricionista. A imagem é uma FICHA TÉCNICA de um prato (ou uma foto de prato). Extraia/estime os dados e responda APENAS com JSON válido, sem markdown.\n\nCategorias possíveis (escolha a mais adequada): ' + CATEGORIAS.join(' | ') + '\n\nJSON: {"titulo":"nome do prato (como está na ficha; se em italiano, manter)","subtitulo":"descrição curta","categoria":"uma das categorias listadas","origem":"","temperatura":"ex.: Quente (mín. 65°C)","conservacao":"ex.: Até 3 dias sob refrigeração (0–4°C)","ingredientes":[{"grupo":"ex.: Base / Recheio / Molho","itens":["Ingrediente — quantidade"]}],"preparo":[{"etapa":"título curto","texto":"instrução"}],"dicas":["dica do chef"],"foto_bbox":{"x":0,"y":0,"w":0,"h":0}}\n\nRegras: transcreva fielmente o que estiver legível na ficha (quantidades incluídas); estime com bom senso apenas o que faltar; máximo 5 dicas; se a imagem for só uma foto de prato, crie a ficha completa estimada. foto_bbox: retângulo onde está a FOTO DO PRATO dentro da imagem, em PORCENTAGEM (x,y = canto superior esquerdo; w,h = largura/altura; 0–100). Se a imagem inteira já for a foto do prato, use {"x":0,"y":0,"w":100,"h":100}; se não houver foto de prato, use null.';
+    const prompt = 'Você é chef e nutricionista. A imagem é uma FICHA TÉCNICA de um prato (ou uma foto de prato). Extraia/estime os dados e responda APENAS com JSON válido, sem markdown.\n\nCategorias possíveis (escolha a mais adequada): ' + CATEGORIAS.join(' | ') + '\n\nJSON: {"titulo":"nome do prato (como está na ficha; se em italiano, manter)","subtitulo":"descrição curta","categoria":"uma das categorias listadas","origem":"","temperatura":"ex.: Quente (mín. 65°C)","conservacao":"ex.: Até 3 dias sob refrigeração (0–4°C)","ingredientes":[{"grupo":"ex.: Base / Recheio / Molho","itens":["Ingrediente — quantidade"]}],"preparo":[{"etapa":"título curto","texto":"instrução"}],"dicas":["dica do chef"],"foto_bbox":{"x":0,"y":0,"w":0,"h":0}}\n\nRegras: transcreva fielmente o que estiver legível na ficha (quantidades incluídas); estime com bom senso apenas o que faltar; máximo 5 dicas; se a imagem for só uma foto de prato, crie a ficha completa estimada. foto_bbox: retângulo onde está a FOTO DO PRATO dentro da imagem, em PORCENTAGEM (x,y = canto superior esquerdo; w,h = largura/altura; 0–100). REGRA CRÍTICA: o retângulo deve cobrir SOMENTE a área fotográfica — NUNCA inclua título, subtítulo, textos, caixas (ex.: "Dicas do Chef"), molduras, logo ou fundo de papel. Se a foto encostar em algum desses elementos, ENCOLHA o retângulo até ficar só a fotografia (na dúvida, erre para DENTRO da foto). Se a imagem inteira já for a foto do prato, use {"x":0,"y":0,"w":100,"h":100}; se não houver foto de prato, use null.';
     const res = await fetch(IA_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ max_tokens: 4000, content: [ blocoArquivo, { type:'text', text: prompt } ] }) });
     if (!res.ok) throw new Error('o serviço de IA respondeu com erro ' + res.status + ': ' + (await res.text()).slice(0, 200));
