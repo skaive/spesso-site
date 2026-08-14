@@ -153,6 +153,8 @@
   .wrap { max-width:920px; padding:24px 10px 80px; }
   .ficha { width:100%; max-width:850px; background:#fbfaf7; border:2px solid #292929; box-shadow:0 3px 14px rgba(0,0,0,.16); padding:35px 33px 17px; margin-bottom:38px; }
   .ficha h3.titulo { font-family:'Bodoni Moda','Times New Roman',serif; font-size:3.12rem; font-weight:700; letter-spacing:-.045em; line-height:.94; white-space:nowrap; transform:scaleX(.79); transform-origin:center; }
+  /* títulos longos (>26 letras) estouravam a moldura no desktop — quebram linha sem comprimir */
+  .ficha h3.titulo.titulo-longo { white-space:normal; transform:none; font-size:2.3rem; line-height:1.04; letter-spacing:-.02em; word-break:break-word; }
   .ficha .orn { width:42px; height:20px; margin:0 auto -1px; max-width:none; background:url('ficha-modelo-referencia.jpeg') -407px -105px/851px 1280px no-repeat; }
   .ficha .orn::before,.ficha .orn::after { display:none; }
   .ficha .orn svg { display:none; }
@@ -1563,7 +1565,7 @@ function fichaHTML(f, inativa){
   return `
   <article class="ficha${inativa ? ' inativa' : ''}" data-chave="${codT(f.t)}">
     ${estado}
-    <h3 class="titulo">${f.t}</h3>
+    <h3 class="titulo${(f.t || '').length > 26 ? ' titulo-longo' : ''}">${f.t}</h3>
     <div class="orn" aria-hidden="true">
       <svg viewBox="0 0 164 20" xmlns="http://www.w3.org/2000/svg">
         <g fill="none" stroke="#1C2749" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round">
