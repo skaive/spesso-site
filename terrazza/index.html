@@ -967,7 +967,7 @@ FICHAS.forEach(f => {
   if (FICHAS_COMPLETAS[f.t]) Object.assign(f, FICHAS_COMPLETAS[f.t]);
 });
 function salvarEdicoes(){ localStorage.setItem(EDICOES_KEY, JSON.stringify(EDICOES)); }
-function localizarFicha(chave){ return document.querySelector(`article.ficha[data-chave="${encodeURIComponent(chave)}"]`); }
+function localizarFicha(chave){ return document.querySelector(`article.ficha[data-chave="${codT(chave)}"]`); }
 function editarFicha(chave){
   const art = localizarFicha(chave);
   if (!art) return;
@@ -1002,6 +1002,9 @@ function salvarEdicao(chave){
 }
 
 function esc(v=''){ return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+/* título seguro para dentro de onclick='...': encodeURIComponent NÃO escapa apóstrofo,
+   e títulos como "all'Aglio" quebravam a string JS — o Salvar morria em silêncio */
+function codT(s=''){ return encodeURIComponent(s).replace(/'/g, '%27'); }
 function linhaEditor(tipo, a='', b=''){
   if(tipo==='ingrediente') return `<div class="editor-linha ingrediente"><input class="e-grupo" placeholder="Grupo (ex.: Base)" value="${esc(a)}"><input class="e-item" placeholder="Ingrediente — quantidade" value="${esc(b)}"><button type="button" onclick="this.parentElement.remove()">×</button></div>`;
   if(tipo==='preparo') return `<div class="editor-linha passo"><input class="e-passo-titulo" placeholder="Etapa" value="${esc(a)}"><textarea class="e-passo-texto" placeholder="Instruções">${esc(b)}</textarea><button type="button" onclick="this.parentElement.remove()">×</button></div>`;
@@ -1216,7 +1219,7 @@ function abrirEditorCompleto(f, conversao=false){
   <div class="editor-secao"><h3>Ingredientes e quantidades</h3><div id="lista-ingrediente">${ing}</div><button class="editor-add" type="button" onclick="adicionarLinhaEditor('ingrediente')">＋ ingrediente</button></div>
   <div class="editor-secao"><h3>Modo de preparo</h3><div id="lista-preparo">${prep}</div><button class="editor-add" type="button" onclick="adicionarLinhaEditor('preparo')">＋ etapa</button></div>
   <div class="editor-secao"><h3>Dicas do chef</h3><div id="lista-dica">${dicas}</div><button class="editor-add" type="button" onclick="adicionarLinhaEditor('dica')">＋ dica</button></div>
-  <div class="editor-botoes"><button type="button" onclick="fecharEditor()">Cancelar</button><button class="salvar" type="button" onclick="salvarFichaCompleta('${encodeURIComponent(f.t)}',${novo},${f._uploadId||'null'},'${f._dbId||''}')">Salvar ficha</button></div></div>`;
+  <div class="editor-botoes"><button type="button" onclick="fecharEditor()">Cancelar</button><button class="salvar" type="button" onclick="salvarFichaCompleta('${codT(f.t)}',${novo},${f._uploadId||'null'},'${f._dbId||''}')">Salvar ficha</button></div></div>`;
   modal.classList.add('aberto');
 }
 function arquivoParaDataURL(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);}); }
@@ -1247,7 +1250,7 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
     try { await dbPatch(dbId, patch); }
     catch(e){ alert('Não consegui salvar no mural: ' + e.message); return; }
     await carregarFichasDB();
-    fecharEditor(); irParaFicha(encodeURIComponent(titulo), ficha.cat);
+    fecharEditor(); irParaFicha(codT(titulo), ficha.cat);
     return;
   }
   try {
@@ -1260,7 +1263,7 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
     if(u){ u.convertida=true; u.convertidaEm=new Date().toISOString(); u.convertidaPara=titulo; await atualizarUpload(u); }
     DESATIVADOS.delete('up:'+uploadId); salvarDesativados();
   }
-  fecharEditor(); irParaFicha(encodeURIComponent(titulo), ficha.cat);
+  fecharEditor(); irParaFicha(codT(titulo), ficha.cat);
   sincronizarMuralAutomatico().catch(e => console.warn('sincronização do mural:', e));
 }
 
@@ -1536,7 +1539,7 @@ function fichaHTML(f, inativa){
   const dicas = f.dicas.map(d => '<li>' + d + '</li>').join('');
   const st = STATUS_INFO[f.status] || STATUS_INFO.desenvolvimento;
   const rotuloChip = (f.status === 'final') ? st.rotulo + (f.plano === 'fixo' ? ' · ★' : ' · ↻') : st.rotulo;
-  const cod = encodeURIComponent(f.t), dbid = f._dbId || '';
+  const cod = codT(f.t), dbid = f._dbId || '';
   const chip = inativa ? '' : `<span class="status-wrap">
     <button class="status-chip ${f.status || 'desenvolvimento'}" title="Estágio e movimentação — clique" onclick="statusMenuToggle(this)">${rotuloChip}</button>
     <div class="status-menu" hidden>
@@ -1555,10 +1558,10 @@ function fichaHTML(f, inativa){
       ? `<span class="badge-origem">${f.cat && f.cat !== 'Sem categoria' ? 'aba sugerida: ' + f.cat : 'sem categoria — escolher ao habilitar'}</span><button class="btn-estado reativar" onclick="abrirEditorDb('${f._dbId}')">↩ habilitar</button>`
       : chip + `<button class="btn-editar" onclick="abrirEditorDb('${f._dbId}')">✎ editar tudo</button><button class="btn-estado" onclick="dbDesativar('${f._dbId}')" title="Mover para Desativados">✕ desativar</button>`)
     : inativa
-    ? `<span class="badge-origem">era: ${f.cat}</span><button class="btn-estado reativar" onclick="reativarFicha('${f.t}')">↩ reativar</button>`
-    : chip + `<button class="btn-editar" onclick="abrirEditorFicha(decodeURIComponent('${encodeURIComponent(f.t)}'))">✎ editar tudo</button><button class="btn-estado" onclick="desativarFicha('${f.t}')" title="Mover para Desativados">✕ desativar</button>`;
+    ? `<span class="badge-origem">era: ${f.cat}</span><button class="btn-estado reativar" onclick="reativarFicha(decodeURIComponent('${codT(f.t)}'))">↩ reativar</button>`
+    : chip + `<button class="btn-editar" onclick="abrirEditorFicha(decodeURIComponent('${codT(f.t)}'))">✎ editar tudo</button><button class="btn-estado" onclick="desativarFicha(decodeURIComponent('${codT(f.t)}'))" title="Mover para Desativados">✕ desativar</button>`;
   return `
-  <article class="ficha${inativa ? ' inativa' : ''}" data-chave="${encodeURIComponent(f.t)}">
+  <article class="ficha${inativa ? ' inativa' : ''}" data-chave="${codT(f.t)}">
     ${estado}
     <h3 class="titulo">${f.t}</h3>
     <div class="orn" aria-hidden="true">
@@ -1591,7 +1594,7 @@ function fichaHTML(f, inativa){
           <li>${ICO.origem}<span><b>CMV no quilo (venda R$ ${precoKgAtual().toFixed(0)}):</b> ${cmvBadge(f)}</span></li>
         </ul>
         <h4 class="bloco">Ingredientes</h4>
-        <div class="editor-acoes"><button class="salvar" onclick="salvarEdicao(decodeURIComponent('${encodeURIComponent(f.t)}'))">Salvar alterações</button><button onclick="cancelarEdicao()">Cancelar</button></div>
+        <div class="editor-acoes"><button class="salvar" onclick="salvarEdicao(decodeURIComponent('${codT(f.t)}'))">Salvar alterações</button><button onclick="cancelarEdicao()">Cancelar</button></div>
         <div class="ingr">${ingr}</div>
       </div>
     </div>
@@ -1699,7 +1702,7 @@ function planejamentoHTML(){
     const finais = fichasFinaisDe(cat);
     if (!finais.length) return '';
     const chips = finais.map(x => {
-      const cod = encodeURIComponent(x.f.t), dbid = x.dbRow ? x.dbRow.id : '';
+      const cod = codT(x.f.t), dbid = x.dbRow ? x.dbRow.id : '';
       const ehFixo = x.f.plano === 'fixo';
       return `<span class="plan-prato">${x.f.t}
         <button class="${ehFixo ? 'on' : ''}" onclick="planoClasse('${cod}','${dbid}','fixo')">★ fixo</button>
@@ -1715,7 +1718,7 @@ function planejamentoHTML(){
       const cel = grade[cat][d];
       if (!cel.length) return '';
       return `<div class="cat-bloco"><div class="cat-nome">${cat}</div>` +
-        cel.map(c => `<div class="${c.fixo ? 'p-fixo' : 'p-rot'}" title="Abrir a ficha" onclick="irParaFicha('${encodeURIComponent(c.x.f.t)}','${c.x.f.cat}')">${c.x.f.t}</div>`).join('') + '</div>';
+        cel.map(c => `<div class="${c.fixo ? 'p-fixo' : 'p-rot'}" title="Abrir a ficha" onclick="irParaFicha('${codT(c.x.f.t)}','${c.x.f.cat}')">${c.x.f.t}</div>`).join('') + '</div>';
     }).join('');
     const r = resumoDia(grade, d);
     const resumo = r
