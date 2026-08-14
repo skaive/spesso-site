@@ -366,6 +366,7 @@ const MONTAGENS = [
   ['19_dagiovannapanarea_capa-video_1.jpg','Jantar no jardim — Panarea','@dagiovannapanarea (capa de vídeo)'],
   ['20_minguialichepizzaria_1.jpg','Balcão de buffet montado','referência de balcão'],
   ['21_minguialichepizzaria_1.jpg','Balcão de buffet — vista geral','referência de balcão'],
+  ['https://ujxdbktmbowtokrxxylb.supabase.co/storage/v1/object/public/terrazza/montagem/erica-1786734831127-mesa-brunch-pinterest.jpg','Mesa de brunch com sucos e canapés','Pinterest · enviada pela Érica 14/08'],
 ];
 
 /* ══════════ FICHAS GERADAS ══════════ */
@@ -1621,7 +1622,7 @@ function uploadFichaHTML(u, inativa){
 
 function montagemHTML(){
   const fixas = MONTAGENS.map(([img, titulo, credito]) =>
-    `<div class="gfoto"><img src="${IG}${img}" loading="lazy" alt="${titulo}"><p><b>${titulo}</b><br>${credito}</p></div>`).join('');
+    `<div class="gfoto"><img src="${img.startsWith('http') ? img : IG + img}" loading="lazy" alt="${titulo}"><p><b>${titulo}</b><br>${credito}</p></div>`).join('');
   const envs = upsDe(MONTAGEM_KEY).map(u =>
     `<div class="gfoto"><button class="rm" onclick="apagarUpload(${u.id})">remover</button><img src="${URL.createObjectURL(u.blob)}" alt="${u.nome}"><p><b>${u.nome}</b><br>enviada por vocês</p></div>`).join('');
   return `<h2 class="grupo">Montagem de Buffet</h2>
