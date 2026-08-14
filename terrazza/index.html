@@ -202,7 +202,11 @@
   .assinatura .marca { width:170px; height:58px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
   .assinatura .marca img { display:block; width:170px; height:58px; object-fit:contain; transform:scale(1.75); filter:brightness(0) saturate(100%) invert(14%) sepia(27%) saturate(2125%) hue-rotate(190deg) brightness(88%) contrast(97%); }
   /* status do prato + custo/CMV */
-  .status-chip { position:absolute; top:14px; left:14px; z-index:3; border:none; border-radius:999px; font-size:.68rem; padding:4px 13px; cursor:pointer; font-family:'Jost', sans-serif; letter-spacing:.05em; font-weight:600; }
+  .status-wrap { position:absolute; top:14px; left:14px; z-index:4; }
+  .status-chip { border:none; border-radius:999px; font-size:.68rem; padding:4px 13px; cursor:pointer; font-family:'Jost', sans-serif; letter-spacing:.05em; font-weight:600; }
+  .status-menu { position:absolute; top:110%; left:0; margin-top:4px; background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.2); display:flex; flex-direction:column; gap:3px; padding:7px; min-width:200px; }
+  .status-menu button { border:none; background:transparent; text-align:left; font-family:'Jost', sans-serif; font-size:.8rem; padding:6px 10px; border-radius:7px; cursor:pointer; }
+  .status-menu button:hover { background:var(--cream); }
   .status-chip.desenvolvimento { background:#e7e1cf; color:#6d6d66; }
   .status-chip.experimentado { background:#f3e3b3; color:#7a5c12; }
   .status-chip.final { background:#dcebd8; color:#2f5c2a; }
@@ -229,7 +233,24 @@
   .plan-cal td .rot::before { content:'↻ '; color:var(--navy); opacity:.6; }
   .plan-cal tfoot td { background:var(--cream); font-weight:600; }
   .plan-aviso { font-size:.8rem; color:#7a745f; font-style:italic; margin-top:8px; }
-  .plan-rolagem { overflow-x:auto; } /* exceção controlada: tabela larga rola dentro dela mesma */
+  /* regras e calendário em cartões — nunca rolagem lateral */
+  .plan-grid-regras { display:grid; grid-template-columns:repeat(auto-fit,minmax(235px,1fr)); gap:10px; }
+  .plan-regra-card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:.84rem; }
+  .plan-regra-card b { color:var(--navy); }
+  .plan-regra-card .linha-inputs { display:flex; gap:12px; margin:7px 0 5px; flex-wrap:wrap; align-items:center; font-size:.76rem; color:#7a745f; }
+  .plan-regra-card input { width:62px; border:1px solid var(--line); border-radius:6px; padding:4px 6px; font-family:inherit; }
+  .plan-dias { display:grid; grid-template-columns:repeat(auto-fit,minmax(265px,1fr)); gap:12px; }
+  .plan-dia { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .plan-dia header { background:var(--navy); color:#fff; padding:8px 14px; font-weight:600; letter-spacing:.05em; }
+  .plan-dia .resumo { background:var(--cream); padding:7px 14px; font-size:.78rem; border-bottom:1px solid var(--line); }
+  .plan-dia .cat-bloco { padding:7px 14px; border-bottom:1px dashed var(--line); font-size:.82rem; }
+  .plan-dia .cat-bloco:last-child { border-bottom:none; }
+  .plan-dia .cat-nome { font-size:.64rem; text-transform:uppercase; letter-spacing:.1em; color:#7a745f; margin-bottom:2px; }
+  .p-fixo::before { content:'★ '; color:#b8860b; }
+  .p-rot::before { content:'↻ '; color:var(--navy); opacity:.6; }
+  .plan-dia .p-fixo, .plan-dia .p-rot { cursor:pointer; padding:1px 0; }
+  .plan-dia .p-fixo:hover, .plan-dia .p-rot:hover { text-decoration:underline; color:var(--navy); }
+  article.ficha.destaque { outline:3px solid #b8860b; outline-offset:5px; }
   .btn-extrair-ia { display:block; margin-top:10px; font-family:'Jost', sans-serif; font-size:.95rem; letter-spacing:.04em; background:#1C2749; color:#fff; border:none; border-radius:999px; padding:10px 26px; cursor:pointer; }
   .btn-extrair-ia:hover { background:#2e3d6b; }
   .btn-extrair-ia:disabled { background:#8a8fa5; cursor:wait; }
@@ -240,6 +261,8 @@
     .ficha .btn-estado { top:10px; right:10px; font-size:.66rem; padding:3px 10px; }
     .ficha .btn-editar { top:10px; right:104px; font-size:.66rem; padding:3px 10px; }
     .ficha .badge-origem { top:10px; left:10px; font-size:.62rem; }
+    .status-wrap { top:10px; left:10px; }
+    .status-chip { font-size:.62rem; padding:3px 10px; }
     .principal,.rodape-ficha { grid-template-columns:1fr; gap:18px; }
     .principal-esq { padding-right:0; }
     .fotobox img { height:auto; max-height:620px; }
@@ -1188,7 +1211,8 @@ function abrirEditorCompleto(f, conversao=false){
     <div class="editor-campo largo"><label>Conservação</label><input id="eConservacao" value="${esc(f.cons)}"></div>
     <div class="editor-campo"><label>Custo dos insumos (R$ — receita toda)</label><input id="eCustoInsumos" type="number" step="0.01" min="0" value="${f.custoInsumos > 0 ? f.custoInsumos : ''}" placeholder="ex.: 87.50"></div>
     <div class="editor-campo"><label>Rendimento da receita (kg)</label><input id="eRendKg" type="number" step="0.01" min="0" value="${f.rendKg > 0 ? f.rendKg : ''}" placeholder="ex.: 3.2"></div>
-    <div class="editor-campo largo"><label>Estágio do prato</label><select id="eStatus">${Object.keys(STATUS_INFO).map(k => `<option value="${k}"${(f.status || 'desenvolvimento') === k ? ' selected' : ''}>${STATUS_INFO[k].rotulo}</option>`).join('')}</select></div>
+    <div class="editor-campo"><label>Estágio do prato</label><select id="eStatus">${Object.keys(STATUS_INFO).map(k => `<option value="${k}"${(f.status || 'desenvolvimento') === k ? ' selected' : ''}>${STATUS_INFO[k].rotulo}</option>`).join('')}</select></div>
+    <div class="editor-campo"><label>No rodízio</label><select id="ePlano"><option value="rotativo"${f.plano !== 'fixo' ? ' selected' : ''}>↻ Rotativo (reveza)</option><option value="fixo"${f.plano === 'fixo' ? ' selected' : ''}>★ Fixo (todo dia)</option></select></div>
     <div class="editor-campo largo"><label>Foto (endereço atual)</label><input id="eFoto" value="${esc(f.foto)}"></div>
     <div class="editor-campo largo"><label>Ou escolher outra foto</label><input id="eFotoArquivo" type="file" accept="image/*"></div>
   </div>
@@ -1209,7 +1233,7 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
   const pares=[...document.querySelectorAll('#lista-ingrediente .ingrediente')].map(r=>[r.querySelector('.e-grupo').value.trim()||'Ingredientes',r.querySelector('.e-item').value.trim()]).filter(x=>x[1]);
   const grupos=[]; pares.forEach(([g,i])=>{let x=grupos.find(z=>z[0]===g);if(!x){x=[g,[]];grupos.push(x)}x[1].push(i)});
   const ficha={t:titulo,s:document.getElementById('eSubtitulo').value.trim(),cat:document.getElementById('eCategoria').value,rend:document.getElementById('eRendimento').value.trim(),porc:document.getElementById('ePorcao').value.trim(),org:document.getElementById('eOrigem').value.trim(),temp:document.getElementById('eTemperatura').value.trim(),cons:document.getElementById('eConservacao').value.trim(),foto,cred:'Spesso Cucina',ingr:grupos.length?grupos:[['Ingredientes',[]]],prep:[...document.querySelectorAll('#lista-preparo .passo')].map(r=>[r.querySelector('.e-passo-titulo').value.trim(),r.querySelector('.e-passo-texto').value.trim()]).filter(x=>x[0]||x[1]),dicas:[...document.querySelectorAll('#lista-dica .e-dica')].map(x=>x.value.trim()).filter(Boolean),
-    custoInsumos:parseFloat(document.getElementById('eCustoInsumos').value)||0,rendKg:parseFloat(document.getElementById('eRendKg').value)||0,status:document.getElementById('eStatus').value};
+    custoInsumos:parseFloat(document.getElementById('eCustoInsumos').value)||0,rendKg:parseFloat(document.getElementById('eRendKg').value)||0,status:document.getElementById('eStatus').value,plano:document.getElementById('ePlano').value};
   if(dbId){
     // ficha do mural compartilhado (Supabase): salvar habilita e grava para todos
     ficha.cred = 'Ficha da Érica · revisada';
@@ -1404,11 +1428,32 @@ async function persistirCamposFicha(tituloCod, dbId, campos){
     try { localStorage.setItem(FICHAS_COMPLETAS_KEY, JSON.stringify(FICHAS_COMPLETAS)); } catch(e) {}
   }
 }
-async function statusCiclo(tituloCod, dbId){
-  const alvo = dbId ? dbToF(FICHAS_DB.find(r => r.id === dbId) || {dados:{}}) : FICHAS.find(x => x.t === decodeURIComponent(tituloCod));
-  const atual = (alvo && alvo.status) || 'desenvolvimento';
-  await persistirCamposFicha(tituloCod, dbId, { status: STATUS_INFO[atual].prox });
+function statusMenuToggle(btn){
+  const menu = btn.nextElementSibling;
+  const aberto = !menu.hidden;
+  document.querySelectorAll('.status-menu').forEach(m => m.hidden = true);
+  menu.hidden = aberto;
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.status-wrap')) document.querySelectorAll('.status-menu').forEach(m => m.hidden = true);
+});
+async function statusDefinir(tituloCod, dbId, status, plano){
+  const campos = { status };
+  if (plano) campos.plano = plano;
+  await persistirCamposFicha(tituloCod, dbId, campos);
   renderAbas(); render();
+}
+async function moverCategoria(tituloCod, dbId, cat){
+  if (!cat || !CATEGORIAS.includes(cat)) return;
+  if (dbId) {
+    const row = FICHAS_DB.find(r => r.id === dbId); if (!row) return;
+    row.dados.cat = cat;
+    try { await dbPatch(dbId, { categoria: cat, dados: row.dados }); } catch(e) { alert(e.message); }
+    await carregarFichasDB();
+  } else {
+    await persistirCamposFicha(tituloCod, dbId, { cat });
+  }
+  abaAtual = cat; renderAbas(); render();
 }
 async function planoClasse(tituloCod, dbId, tipo){
   await persistirCamposFicha(tituloCod, dbId, { plano: tipo });
@@ -1485,7 +1530,21 @@ function fichaHTML(f, inativa){
     '<li><div><b class="passo-titulo">' + t + '</b>' + tx + '</div></li>').join('');
   const dicas = f.dicas.map(d => '<li>' + d + '</li>').join('');
   const st = STATUS_INFO[f.status] || STATUS_INFO.desenvolvimento;
-  const chip = inativa ? '' : `<button class="status-chip ${f.status || 'desenvolvimento'}" title="Estágio do prato — clique para mudar" onclick="statusCiclo('${encodeURIComponent(f.t)}','${f._dbId || ''}')">${st.rotulo}</button>`;
+  const rotuloChip = (f.status === 'final') ? st.rotulo + (f.plano === 'fixo' ? ' · ★' : ' · ↻') : st.rotulo;
+  const cod = encodeURIComponent(f.t), dbid = f._dbId || '';
+  const chip = inativa ? '' : `<span class="status-wrap">
+    <button class="status-chip ${f.status || 'desenvolvimento'}" title="Estágio e movimentação — clique" onclick="statusMenuToggle(this)">${rotuloChip}</button>
+    <div class="status-menu" hidden>
+      <button onclick="statusDefinir('${cod}','${dbid}','desenvolvimento',null)">⚪ Em desenvolvimento</button>
+      <button onclick="statusDefinir('${cod}','${dbid}','experimentado',null)">🟡 Já experimentado</button>
+      <button onclick="statusDefinir('${cod}','${dbid}','final','fixo')">🟢 Cardápio final · ★ fixo</button>
+      <button onclick="statusDefinir('${cod}','${dbid}','final','rotativo')">🟢 Cardápio final · ↻ rotativo</button>
+      <div style="border-top:1px dashed var(--line); margin:4px 2px 2px; padding-top:6px; font-size:.7rem; color:#7a745f">Mover para aba:</div>
+      <select style="font-family:inherit;font-size:.8rem;border:1px solid var(--line);border-radius:7px;padding:5px" onchange="moverCategoria('${cod}','${dbid}',this.value)">
+        <option value="">— escolher —</option>${CATEGORIAS.map(c => `<option${c === f.cat ? ' disabled' : ''}>${c}</option>`).join('')}
+      </select>
+    </div>
+  </span>`;
   const estado = f._dbId
     ? (inativa
       ? `<span class="badge-origem">${f.cat && f.cat !== 'Sem categoria' ? 'aba sugerida: ' + f.cat : 'sem categoria — escolher ao habilitar'}</span><button class="btn-estado reativar" onclick="abrirEditorDb('${f._dbId}')">↩ habilitar</button>`
@@ -1597,6 +1656,17 @@ function uploadTabHTML(){
     <div class="galeria">${lista}</div>`;
 }
 
+function irParaFicha(tituloCod, cat){
+  abaAtual = CATEGORIAS.includes(cat) ? cat : '__todos';
+  renderAbas(); render();
+  setTimeout(() => {
+    const art = document.querySelector(`article.ficha[data-chave="${tituloCod}"]`);
+    if (!art) return;
+    art.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    art.classList.add('destaque');
+    setTimeout(() => art.classList.remove('destaque'), 2500);
+  }, 150);
+}
 function regraMudou(cat, campo, valor){
   regraDe(cat)[campo] = parseFloat(valor) || 0;
   salvarPlanoCfg(); render();
@@ -1606,16 +1676,19 @@ function precoKgMudou(valor){
   salvarPlanoCfg(); render();
 }
 function planejamentoHTML(){
-  const regrasLinhas = CATEGORIAS.map(cat => {
+  const regrasCards = CATEGORIAS.map(cat => {
     const r = regraDe(cat);
     const finais = fichasFinaisDe(cat);
     const fixos = finais.filter(x => x.f.plano === 'fixo').length;
     const falta = Math.max(0, r.porDia - finais.length);
-    return `<tr><td><b>${cat}</b></td>
-      <td><input type="number" min="0" step="1" value="${r.porDia}" onchange="regraMudou('${cat}','porDia',this.value)"></td>
-      <td><input type="number" min="0" step="0.1" value="${r.peso}" onchange="regraMudou('${cat}','peso',this.value)"></td>
-      <td>${finais.length} aprovada(s) · ${fixos} fixa(s)</td>
-      <td>${r.porDia > 0 ? (falta > 0 ? '<span class="cmv-badge cmv-alto">faltam ' + falta + '</span>' : '<span class="cmv-badge cmv-ok">ok</span>') : '—'}</td></tr>`;
+    const situacao = r.porDia > 0 ? (falta > 0 ? '<span class="cmv-badge cmv-alto">faltam ' + falta + '</span>' : '<span class="cmv-badge cmv-ok">ok</span>') : '';
+    return `<div class="plan-regra-card"><b>${cat}</b> ${situacao}
+      <div class="linha-inputs">
+        <label>Itens/dia <input type="number" min="0" step="1" value="${r.porDia}" onchange="regraMudou('${cat}','porDia',this.value)"></label>
+        <label>Peso <input type="number" min="0" step="0.1" value="${r.peso}" onchange="regraMudou('${cat}','peso',this.value)"></label>
+      </div>
+      <span style="font-size:.76rem;color:#7a745f">🟢 ${finais.length} aprovada(s) · ★ ${fixos} fixa(s)</span>
+    </div>`;
   }).join('');
 
   const classes = CATEGORIAS.map(cat => {
@@ -1633,18 +1706,21 @@ function planejamentoHTML(){
 
   const grade = gradeSemana();
   const catsAtivas = Object.keys(grade);
-  const corpo = catsAtivas.map(cat =>
-    `<tr><td><b>${cat}</b></td>` + DIAS_SEMANA.map((_, d) =>
-      '<td>' + (grade[cat][d].length ? grade[cat][d].map(c => `<div class="${c.fixo ? 'fixo' : 'rot'}">${c.x.f.t}</div>`).join('') : '<span style="color:#b0a98f">—</span>') + '</td>'
-    ).join('') + '</tr>'
-  ).join('');
-  const rodape = '<tr><td><b>Custo médio do kg<br>CMV médio · ponderado</b></td>' + DIAS_SEMANA.map((_, d) => {
+  const diasCards = DIAS_SEMANA.map((dia, d) => {
+    const blocos = catsAtivas.map(cat => {
+      const cel = grade[cat][d];
+      if (!cel.length) return '';
+      return `<div class="cat-bloco"><div class="cat-nome">${cat}</div>` +
+        cel.map(c => `<div class="${c.fixo ? 'p-fixo' : 'p-rot'}" title="Abrir a ficha" onclick="irParaFicha('${encodeURIComponent(c.x.f.t)}','${c.x.f.cat}')">${c.x.f.t}</div>`).join('') + '</div>';
+    }).join('');
     const r = resumoDia(grade, d);
-    if (!r) return '<td><span style="color:#b0a98f">sem custos<br>preenchidos</span></td>';
-    return `<td>R$ ${r.media.toFixed(2).replace('.', ',')} <small>(${r.n} c/ custo)</small><br>` +
-      `<span class="cmv-badge ${r.cmvMedia <= 30 ? 'cmv-ok' : r.cmvMedia <= 40 ? 'cmv-medio' : 'cmv-alto'}">${r.cmvMedia.toFixed(1).replace('.', ',')}%</span> · ` +
-      `<span class="cmv-badge ${r.cmvPond <= 30 ? 'cmv-ok' : r.cmvPond <= 40 ? 'cmv-medio' : 'cmv-alto'}">${r.cmvPond.toFixed(1).replace('.', ',')}%</span></td>`;
-  }).join('') + '</tr>';
+    const resumo = r
+      ? `Custo médio do kg: <b>R$ ${r.media.toFixed(2).replace('.', ',')}</b> <small>(${r.n} c/ custo)</small><br>` +
+        `CMV médio <span class="cmv-badge ${r.cmvMedia <= 30 ? 'cmv-ok' : r.cmvMedia <= 40 ? 'cmv-medio' : 'cmv-alto'}">${r.cmvMedia.toFixed(1).replace('.', ',')}%</span> · ` +
+        `ponderado <span class="cmv-badge ${r.cmvPond <= 30 ? 'cmv-ok' : r.cmvPond <= 40 ? 'cmv-medio' : 'cmv-alto'}">${r.cmvPond.toFixed(1).replace('.', ',')}%</span>`
+      : '<span style="color:#b0a98f">sem custos preenchidos ainda</span>';
+    return `<div class="plan-dia"><header>${dia}</header><div class="resumo">${resumo}</div>${blocos || '<div class="cat-bloco" style="color:#b0a98f">—</div>'}</div>`;
+  }).join('');
 
   return `<h2 class="grupo">Planejamento do Buffet</h2>
     <p class="grupo-sub">Tudo por quilo · pratos 🟢 Cardápio final entram no rodízio · ★ fixos todo dia, ↻ rotativos revezam</p>
@@ -1658,10 +1734,7 @@ function planejamentoHTML(){
 
     <div class="plan-secao">
       <h3>2 · Regras por categoria</h3>
-      <div class="plan-rolagem"><table class="plan-regras">
-        <tr><th>Categoria</th><th>Itens/dia</th><th>Peso (CMV pond.)</th><th>Cardápio final</th><th>Situação</th></tr>
-        ${regrasLinhas}
-      </table></div>
+      <div class="plan-grid-regras">${regrasCards}</div>
       <p class="plan-aviso">Pesos sugeridos: proteínas pesam mais (2,0), massas 1,2, folhas/legumes 0,8, sobremesas 0,5 — calibramos com o consumo real depois.</p>
     </div>
 
@@ -1672,11 +1745,7 @@ function planejamentoHTML(){
 
     <div class="plan-secao" style="max-width:1160px">
       <h3>4 · Calendário da semana</h3>
-      ${catsAtivas.length ? `<div class="plan-rolagem"><table class="plan-cal">
-        <tr><th style="background:transparent"></th>${DIAS_SEMANA.map(d => '<th>' + d + '</th>').join('')}</tr>
-        ${corpo}
-        <tfoot>${rodape}</tfoot>
-      </table></div>
+      ${catsAtivas.length ? `<div class="plan-dias">${diasCards}</div>
       <p class="plan-aviso">★ fixo (todo dia) · ↻ rotativo (rodízio automático e determinístico — ex.: 6 rotativos com 2 vagas/dia repetem a cada 3 dias). Prato elogiado? Promova a ★ fixo na seção 3.</p>`
       : '<p class="plan-aviso">Defina "itens/dia" nas regras (seção 2) e aprove pratos (🟢) para o calendário nascer.</p>'}
     </div>`;
