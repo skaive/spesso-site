@@ -1224,7 +1224,8 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
   const chave=decodeURIComponent(chaveCod); const titulo=document.getElementById('eTitulo').value.trim();
   if(!titulo){ alert('Informe o nome do produto.'); return; }
   let foto=document.getElementById('eFoto').value.trim(); const arq=document.getElementById('eFotoArquivo').files[0];
-  if(arq) foto=await arquivoParaDataURL(arq);
+  // comprime a foto escolhida (fotos de câmera de 10+ MB estouravam o salvamento no celular)
+  if(arq) foto=await redimensionarBlob(arq, 1600).catch(async () => await arquivoParaDataURL(arq));
   else if(uploadId && (!foto || foto.startsWith('blob:')) && !window.__iaDefiniuFoto){const u=UPLOADS.find(x=>x.id===uploadId); foto=(u && u.blob.type!=='application/pdf') ? await arquivoParaDataURL(u.blob) : '';}
   else if(foto.startsWith('blob:')) foto='';
   const pares=[...document.querySelectorAll('#lista-ingrediente .ingrediente')].map(r=>[r.querySelector('.e-grupo').value.trim()||'Ingredientes',r.querySelector('.e-item').value.trim()]).filter(x=>x[1]);
