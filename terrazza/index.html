@@ -53,8 +53,6 @@
   .ficha .btn-estado.reativar:hover { background:#3c6b3c; color:#fff; }
   .ficha .badge-origem { position:absolute; top:14px; left:14px; background:var(--navy); color:#fff; font-size:.68rem; padding:3px 12px; border-radius:999px; opacity:.85; z-index:2; }
   .ficha.inativa { filter:grayscale(.55); }
-  .ficha.salva-destaque { outline:3px solid #7fae7f; outline-offset:6px; transition:outline-color 1.4s ease .6s; }
-  .ficha.salva-destaque.apagando { outline-color:transparent; }
   .ficha.inativa::after { content:'DESATIVADA'; position:absolute; top:42%; left:50%; transform:translate(-50%,-50%) rotate(-18deg); font-family:'Playfair Display', serif; font-size:3.2rem; color:rgba(140,47,47,.22); letter-spacing:.2em; pointer-events:none; }
   .ficha .btn-editar { position:absolute; top:14px; right:112px; border:1px solid var(--navy); background:#fff; color:var(--navy); border-radius:999px; font-size:.7rem; padding:3px 12px; cursor:pointer; font-family:inherit; letter-spacing:.04em; z-index:3; }
   .ficha .btn-editar:hover { background:var(--navy); color:#fff; }
@@ -970,18 +968,6 @@ FICHAS.forEach(f => {
 });
 function salvarEdicoes(){ localStorage.setItem(EDICOES_KEY, JSON.stringify(EDICOES)); }
 function localizarFicha(chave){ return document.querySelector(`article.ficha[data-chave="${encodeURIComponent(chave)}"]`); }
-/* Depois de salvar, a tela volta para a ficha trabalhada — não para o topo da lista
-   (pedido da Érica, 14/08/2026: "voltar para a ficha que eu estava editando"). */
-function voltarParaFichaSalva(chave){
-  setTimeout(() => {
-    const art = localizarFicha(chave);
-    if (!art) { window.scrollTo({top:0}); return; }
-    art.scrollIntoView({block:'start'});
-    art.classList.add('salva-destaque');
-    setTimeout(() => art.classList.add('apagando'), 900);
-    setTimeout(() => art.classList.remove('salva-destaque','apagando'), 2600);
-  }, 30);
-}
 function editarFicha(chave){
   const art = localizarFicha(chave);
   if (!art) return;
@@ -1013,7 +999,6 @@ function salvarEdicao(chave){
     salvarEdicoes();
   }
   render();
-  voltarParaFichaSalva(chave);
 }
 
 function esc(v=''){ return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -1251,10 +1236,17 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
     ficha.cred = 'Ficha da Érica · revisada';
     const rowAtual = FICHAS_DB.find(r => r.id === dbId);
     if (rowAtual && rowAtual.dados && rowAtual.dados.plano && !ficha.plano) ficha.plano = rowAtual.dados.plano;
-    try { await dbPatch(dbId, { categoria: ficha.cat, dados: ficha, desativada: false }); }
+    const patch = { categoria: ficha.cat, dados: ficha, desativada: false };
+    // foto nova escolhida no editor: sobe pro bucket e atualiza foto_url
+    // (sem isso, o foto_url antigo continuava vencendo na exibição — bug relatado pela Érica)
+    if (foto && foto.startsWith('data:')) {
+      try { const url = await subirFotoMural(foto, titulo); ficha.foto = url; patch.foto_url = url; }
+      catch(e){ alert('A ficha vai salvar, mas a foto nova não subiu (' + e.message + '). Tente a foto de novo.'); }
+    }
+    try { await dbPatch(dbId, patch); }
     catch(e){ alert('Não consegui salvar no mural: ' + e.message); return; }
     await carregarFichasDB();
-    abaAtual=ficha.cat; fecharEditor(); renderAbas(); render(); voltarParaFichaSalva(titulo);
+    fecharEditor(); irParaFicha(encodeURIComponent(titulo), ficha.cat);
     return;
   }
   try {
@@ -1267,7 +1259,7 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
     if(u){ u.convertida=true; u.convertidaEm=new Date().toISOString(); u.convertidaPara=titulo; await atualizarUpload(u); }
     DESATIVADOS.delete('up:'+uploadId); salvarDesativados();
   }
-  abaAtual=ficha.cat; fecharEditor(); renderAbas(); render(); voltarParaFichaSalva(titulo);
+  fecharEditor(); irParaFicha(encodeURIComponent(titulo), ficha.cat);
   sincronizarMuralAutomatico().catch(e => console.warn('sincronização do mural:', e));
 }
 
