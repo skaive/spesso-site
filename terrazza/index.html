@@ -1334,7 +1334,8 @@ async function sincronizarMuralAutomatico(){
   __sincronizando = true;
   try {
     const pendentes = FICHAS_NOVAS.filter(f => !f._muralId);
-    if (!pendentes.length) return;
+    const reparaveis = FICHAS_NOVAS.filter(f => f._muralId && (f.foto || '').startsWith('data:'));
+    if (!pendentes.length && !reparaveis.length) return;
     await carregarFichasDB(); // estado fresco para deduplicar
     const vistos = new Map(FICHAS_DB.map(r => [((r.dados && r.dados.t) || '').trim().toLowerCase(), r.id]));
     let mudou = false;
@@ -1354,6 +1355,17 @@ async function sincronizarMuralAutomatico(){
         body: JSON.stringify({ categoria: CATEGORIAS.includes(f.cat) ? f.cat : '', dados, foto_url, desativada: !CATEGORIAS.includes(f.cat) })
       });
       if (r.ok) { const [row] = await r.json(); f._muralId = row.id; vistos.set(tit, row.id); mudou = true; }
+    }
+    // reparo: fichas já no mural cuja linha ficou SEM foto, mas cuja foto ainda vive neste aparelho —
+    // sobe a foto local e vincula (cobre uploads que falharam e vínculos por título feitos sem foto)
+    for (const f of FICHAS_NOVAS) {
+      if (!f._muralId || !(f.foto || '').startsWith('data:')) continue;
+      const row = FICHAS_DB.find(x => x.id === f._muralId);
+      if (!row || row.foto_url || (row.dados && row.dados.foto)) continue;
+      try {
+        const url = await subirFotoMural(f.foto, f.t);
+        if (url) { await dbPatch(f._muralId, { foto_url: url }); row.foto_url = url; mudou = true; console.log('foto reparada:', f.t); }
+      } catch(e) { console.warn('reparo de foto falhou:', f.t, e); }
     }
     if (mudou) {
       localStorage.setItem(FICHAS_NOVAS_KEY, JSON.stringify(FICHAS_NOVAS));
