@@ -1921,6 +1921,17 @@ async function apagarUpload(id){
 (async () => {
   try { await abrirDB(); await carregarUploads(); } catch(e) { console.warn('IndexedDB indisponível:', e); }
   await Promise.all([carregarFichasDB(), carregarPlanoCfg()]); // mural + config compartilhados
+  // anti-duplicata: cópia local (sem _dbId) cujo título já existe no mural sai da lista —
+  // o mural é a fonte da verdade; a cópia local só permanece se for inédita
+  {
+    const noMural = new Set(FICHAS_DB.filter(r => !r.desativada).map(r => ((r.dados && r.dados.t) || '').trim().toLowerCase()));
+    const vistosLocais = new Set();
+    for (let i = FICHAS.length - 1; i >= 0; i--) {
+      const t = (FICHAS[i].t || '').trim().toLowerCase();
+      if (!FICHAS[i]._dbId && (noMural.has(t) || vistosLocais.has(t))) { FICHAS.splice(i, 1); continue; }
+      vistosLocais.add(t);
+    }
+  }
   renderAbas(); render();
   // fichas presas neste navegador sobem para o mural (dedup por título)
   sincronizarMuralAutomatico().catch(e => console.warn('sincronização do mural:', e));
