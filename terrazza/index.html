@@ -57,6 +57,7 @@
   /* ════════ FICHA — réplica do modelo impresso ════════ */
   .ficha { background:var(--paper); border:1px solid #3c3c38; box-shadow:0 4px 18px rgba(0,0,0,.18); margin:0 auto 40px; max-width:900px; padding:34px 40px 26px; position:relative; }
   .ficha .card-acoes { position:absolute; top:12px; left:12px; right:12px; display:flex; align-items:flex-start; justify-content:space-between; gap:8px; z-index:4; }
+  .ficha .acoes-esq { display:flex; gap:6px; align-items:center; }
   .ficha .acoes-dir { display:flex; gap:6px; flex-shrink:0; }
   .ficha .btn-estado { border:1px solid #8c2f2f; background:#fff; color:#8c2f2f; border-radius:999px; font-size:.7rem; padding:4px 12px; cursor:pointer; font-family:'Jost', sans-serif; letter-spacing:.04em; }
   .ficha .btn-estado:hover { opacity:1; background:#8c2f2f; color:#fff; }
@@ -215,6 +216,7 @@
   .assinatura .marca { width:170px; height:58px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
   .assinatura .marca img { display:block; width:170px; height:58px; object-fit:contain; transform:scale(1.75); filter:brightness(0) saturate(100%) invert(14%) sepia(27%) saturate(2125%) hue-rotate(190deg) brightness(88%) contrast(97%); }
   /* status do prato + custo/CMV */
+  .num-ficha { background:#fbfaf7; border:1px solid var(--navy); color:var(--navy); border-radius:999px; font-size:.7rem; font-weight:700; padding:4px 10px; letter-spacing:.06em; font-family:'Jost', sans-serif; align-self:center; }
   .status-wrap { position:relative; }
   .status-chip { border:1px solid var(--navy); background:#fff; color:var(--navy); border-radius:999px; font-size:.7rem; padding:4px 12px; cursor:pointer; font-family:'Jost', sans-serif; letter-spacing:.04em; }
   .status-chip:hover { background:var(--navy); color:#fff; }
@@ -1547,7 +1549,7 @@ function buscaLimpar(){
   render(); inp.focus();
 }
 function fichaCombina(f, termo){
-  const alvo = semAcento([f.t, f.s, f.cat, (f.ingr || []).map(([g, itens]) => g + ' ' + itens.join(' ')).join(' ')].join(' '));
+  const alvo = semAcento([f.t, f.s, f.cat, f.num || '', (f.ingr || []).map(([g, itens]) => g + ' ' + itens.join(' ')).join(' ')].join(' '));
   return termo.split(/\s+/).every(p => alvo.includes(p));
 }
 function buscaHTML(){
@@ -1623,7 +1625,8 @@ function fichaHTML(f, inativa){
       </select>
     </div>
   </span>`;
-  const barra = (esq, dir) => `<div class="card-acoes">${esq}<span class="acoes-dir">${dir}</span></div>`;
+  const numPill = f.num ? `<span class="num-ficha">Nº ${f.num}</span>` : '';
+  const barra = (esq, dir) => `<div class="card-acoes"><span class="acoes-esq">${numPill}${esq}</span><span class="acoes-dir">${dir}</span></div>`;
   const estado = f._dbId
     ? (inativa
       ? barra(`<span class="badge-origem">${f.cat && f.cat !== 'Sem categoria' ? 'aba sugerida: ' + f.cat : 'sem categoria — escolher ao habilitar'}</span>`,
