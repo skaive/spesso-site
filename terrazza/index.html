@@ -1257,6 +1257,9 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
     ficha.cred = 'Ficha da Érica · revisada';
     const rowAtual = FICHAS_DB.find(r => r.id === dbId);
     if (rowAtual && rowAtual.dados && rowAtual.dados.plano && !ficha.plano) ficha.plano = rowAtual.dados.plano;
+    // numeração: preserva o número existente; ficha sem número (rascunho habilitado) ganha o próximo
+    if (rowAtual && rowAtual.dados && rowAtual.dados.num && !ficha.num) ficha.num = rowAtual.dados.num;
+    if (!ficha.num) ficha.num = proximoNum();
     const patch = { categoria: ficha.cat, dados: ficha, desativada: false };
     // foto nova escolhida no editor: sobe pro bucket e atualiza foto_url
     // (sem isso, o foto_url antigo continuava vencendo na exibição — bug relatado pela Érica)
@@ -1305,6 +1308,11 @@ function dbToF(row){
   return f;
 }
 function dbAtivasDe(cat){ return FICHAS_DB.filter(r => !r.desativada && (r.categoria || '') === cat); }
+function proximoNum(){
+  let m = 0;
+  for (const r of FICHAS_DB) { const n = parseInt(r.dados && r.dados.num, 10); if (n > m) m = n; }
+  return String(m + 1);
+}
 async function dbPatch(id, corpo){
   corpo.atualizado_em = new Date().toISOString();
   const r = await fetch(SB_URL + '/rest/v1/terrazza_fichas?id=eq.' + id, {
@@ -1369,12 +1377,13 @@ async function sincronizarMuralAutomatico(){
       } catch(e) { console.warn('foto não subiu, ficha vai sem foto:', e); }
       const dados = { t:f.t, s:f.s||'', org:f.org||'', rend:f.rend||'', porc:f.porc||'', temp:f.temp||'', cons:f.cons||'',
                       ingr:f.ingr||[], prep:f.prep||[], dicas:f.dicas||[], cred:(f.cred||'Ficha da Érica') };
+      if (CATEGORIAS.includes(f.cat)) dados.num = f.num || proximoNum(); // ficha nova ativa já nasce numerada
       const r = await fetch(SB_URL + '/rest/v1/terrazza_fichas', {
         method: 'POST',
         headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=representation' },
         body: JSON.stringify({ categoria: CATEGORIAS.includes(f.cat) ? f.cat : '', dados, foto_url, desativada: !CATEGORIAS.includes(f.cat) })
       });
-      if (r.ok) { const [row] = await r.json(); f._muralId = row.id; vistos.set(tit, row.id); mudou = true; }
+      if (r.ok) { const [row] = await r.json(); f._muralId = row.id; vistos.set(tit, row.id); FICHAS_DB.push(row); mudou = true; }
     }
     // reparo: fichas já no mural cuja linha ficou SEM foto, mas cuja foto ainda vive neste aparelho —
     // sobe a foto local e vincula (cobre uploads que falharam e vínculos por título feitos sem foto)
