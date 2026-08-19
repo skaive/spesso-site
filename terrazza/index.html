@@ -1933,10 +1933,27 @@ async function apagarUpload(id){
 (async () => {
   try { await abrirDB(); await carregarUploads(); } catch(e) { console.warn('IndexedDB indisponível:', e); }
   await Promise.all([carregarFichasDB(), carregarPlanoCfg()]); // mural + config compartilhados
-  // anti-duplicata: cópia local (sem _dbId) cujo título já existe no mural sai da lista —
+  // adoção do acervo: neste aparelho que CUROU as fichas estáticas (tem desativações locais),
+  // as fichas do acervo migrado que aqui estavam ATIVAS reativam no mural com número — uma vez, idempotente
+  if (DESATIVADOS.size > 0) {
+    for (const r of FICHAS_DB) {
+      if (!r.desativada) continue;
+      const cred = (r.dados && r.dados.cred) || '';
+      if (!cred.includes('migrada do acervo estático')) continue;
+      const t = (r.dados && r.dados.t) || '';
+      if (DESATIVADOS.has(t)) continue; // estava desativada aqui também — segue como está
+      try {
+        r.dados.num = r.dados.num || proximoNum();
+        await dbPatch(r.id, { desativada: false, dados: r.dados });
+        r.desativada = false;
+        console.log('acervo adotado como ativo:', t);
+      } catch(e) { console.warn('adoção do acervo falhou:', t, e); }
+    }
+  }
+  // anti-duplicata: cópia local (sem _dbId) cujo título já existe no mural (em QUALQUER estado) sai da lista —
   // o mural é a fonte da verdade; a cópia local só permanece se for inédita
   {
-    const noMural = new Set(FICHAS_DB.filter(r => !r.desativada).map(r => ((r.dados && r.dados.t) || '').trim().toLowerCase()));
+    const noMural = new Set(FICHAS_DB.map(r => ((r.dados && r.dados.t) || '').trim().toLowerCase()));
     const vistosLocais = new Set();
     for (let i = FICHAS.length - 1; i >= 0; i--) {
       const t = (FICHAS[i].t || '').trim().toLowerCase();
