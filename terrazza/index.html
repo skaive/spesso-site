@@ -217,6 +217,10 @@
   .assinatura .marca img { display:block; width:170px; height:58px; object-fit:contain; transform:scale(1.75); filter:brightness(0) saturate(100%) invert(14%) sepia(27%) saturate(2125%) hue-rotate(190deg) brightness(88%) contrast(97%); }
   /* status do prato + custo/CMV */
   .num-ficha { background:#fbfaf7; border:1px solid var(--navy); color:var(--navy); border-radius:999px; font-size:.7rem; font-weight:700; padding:4px 10px; letter-spacing:.06em; font-family:'Jost', sans-serif; align-self:center; }
+  .obs-box { border:1.5px dashed #b8860b; background:#fdf6e3; border-radius:8px; padding:12px 16px; margin-top:16px; font-family:'Jost', sans-serif; }
+  .obs-box b { display:block; color:#8a6508; font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; margin-bottom:5px; }
+  .obs-box p { font-size:.92rem; color:#4a4a42; white-space:pre-wrap; }
+  .editor-campo textarea { border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-family:'Jost', sans-serif; font-size:.92rem; resize:vertical; background:#fff; }
   .status-wrap { position:relative; }
   .status-chip { border:1px solid var(--navy); background:#fff; color:var(--navy); border-radius:999px; font-size:.7rem; padding:4px 12px; cursor:pointer; font-family:'Jost', sans-serif; letter-spacing:.04em; }
   .status-chip:hover { background:var(--navy); color:#fff; }
@@ -1230,6 +1234,7 @@ function abrirEditorCompleto(f, conversao=false){
     <div class="editor-campo"><label>Rendimento da receita (kg) — PESAR no 1º preparo</label><input id="eRendKg" type="number" step="0.01" min="0" value="${f.rendKg > 0 ? f.rendKg : ''}" placeholder="peso do prato pronto"></div>
     <div class="editor-campo"><label>Estágio do prato</label><select id="eStatus">${Object.keys(STATUS_INFO).map(k => `<option value="${k}"${(f.status || 'desenvolvimento') === k ? ' selected' : ''}>${STATUS_INFO[k].rotulo}</option>`).join('')}</select></div>
     <div class="editor-campo"><label>No rodízio</label><select id="ePlano"><option value="rotativo"${f.plano !== 'fixo' ? ' selected' : ''}>↻ Rotativo (reveza)</option><option value="fixo"${f.plano === 'fixo' ? ' selected' : ''}>★ Fixo (todo dia)</option></select></div>
+    <div class="editor-campo largo"><label>📝 Observações do teste (anotações da chef)</label><textarea id="eObs" rows="3" placeholder="o que você viu no teste: ponto, sabor, ajustes…">${esc(f.obs || '')}</textarea></div>
     <div class="editor-campo largo"><label>Foto (endereço atual)</label><input id="eFoto" value="${esc(f.foto)}"></div>
     <div class="editor-campo largo"><label>Ou escolher outra foto</label><input id="eFotoArquivo" type="file" accept="image/*"></div>
   </div>
@@ -1251,7 +1256,8 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
   const pares=[...document.querySelectorAll('#lista-ingrediente .ingrediente')].map(r=>[r.querySelector('.e-grupo').value.trim()||'Ingredientes',r.querySelector('.e-item').value.trim()]).filter(x=>x[1]);
   const grupos=[]; pares.forEach(([g,i])=>{let x=grupos.find(z=>z[0]===g);if(!x){x=[g,[]];grupos.push(x)}x[1].push(i)});
   const ficha={t:titulo,s:document.getElementById('eSubtitulo').value.trim(),cat:document.getElementById('eCategoria').value,org:document.getElementById('eOrigem').value.trim(),temp:document.getElementById('eTemperatura').value.trim(),cons:document.getElementById('eConservacao').value.trim(),foto,cred:'Spesso Cucina',ingr:grupos.length?grupos:[['Ingredientes',[]]],prep:[...document.querySelectorAll('#lista-preparo .passo')].map(r=>[r.querySelector('.e-passo-titulo').value.trim(),r.querySelector('.e-passo-texto').value.trim()]).filter(x=>x[0]||x[1]),dicas:[...document.querySelectorAll('#lista-dica .e-dica')].map(x=>x.value.trim()).filter(Boolean),
-    custoInsumos:parseFloat(document.getElementById('eCustoInsumos').value)||0,rendKg:parseFloat(document.getElementById('eRendKg').value)||0,status:document.getElementById('eStatus').value,plano:document.getElementById('ePlano').value};
+    custoInsumos:parseFloat(document.getElementById('eCustoInsumos').value)||0,rendKg:parseFloat(document.getElementById('eRendKg').value)||0,status:document.getElementById('eStatus').value,plano:document.getElementById('ePlano').value,
+    obs:(document.getElementById('eObs')?document.getElementById('eObs').value.trim():'')};
   if(dbId){
     // ficha do mural compartilhado (Supabase): salvar habilita e grava para todos
     ficha.cred = 'Ficha da Érica · revisada';
@@ -1260,6 +1266,8 @@ async function salvarFichaCompleta(chaveCod,nova,uploadId,dbId){
     // numeração: preserva o número existente; ficha sem número (rascunho habilitado) ganha o próximo
     if (rowAtual && rowAtual.dados && rowAtual.dados.num && !ficha.num) ficha.num = rowAtual.dados.num;
     if (!ficha.num) ficha.num = proximoNum();
+    // campos geridos fora do editor: preservar sempre (regra de ouro — reconstrução não pode engolir)
+    ficha.retestar = !!(rowAtual && rowAtual.dados && rowAtual.dados.retestar);
     const patch = { categoria: ficha.cat, dados: ficha, desativada: false };
     // foto nova escolhida no editor: sobe pro bucket e atualiza foto_url
     // (sem isso, o foto_url antigo continuava vencendo na exibição — bug relatado pela Érica)
@@ -1489,6 +1497,10 @@ async function statusDefinir(tituloCod, dbId, status, plano){
   await persistirCamposFicha(tituloCod, dbId, campos);
   renderAbas(); render();
 }
+async function retestarToggle(tituloCod, dbId, ligar){
+  await persistirCamposFicha(tituloCod, dbId, { retestar: ligar === true || ligar === 'true' });
+  renderAbas(); render();
+}
 async function moverCategoria(tituloCod, dbId, cat){
   if (!cat || !CATEGORIAS.includes(cat)) return;
   if (dbId) {
@@ -1558,7 +1570,8 @@ function buscaLimpar(){
   render(); inp.focus();
 }
 function fichaCombina(f, termo){
-  const alvo = semAcento([f.t, f.s, f.cat, f.num || '', (f.ingr || []).map(([g, itens]) => g + ' ' + itens.join(' ')).join(' ')].join(' '));
+  const alvo = semAcento([f.t, f.s, f.cat, f.num || '', f.obs || '', f.retestar ? 'retestar testar novamente' : '',
+    (f.ingr || []).map(([g, itens]) => g + ' ' + itens.join(' ')).join(' ')].join(' '));
   return termo.split(/\s+/).every(p => alvo.includes(p));
 }
 function buscaHTML(){
@@ -1619,7 +1632,7 @@ function fichaHTML(f, inativa){
     '<li><div><b class="passo-titulo">' + t + '</b>' + tx + '</div></li>').join('');
   const dicas = f.dicas.map(d => '<li>' + d + '</li>').join('');
   const st = STATUS_INFO[f.status] || STATUS_INFO.desenvolvimento;
-  const rotuloChip = (f.status === 'final') ? st.rotulo + (f.plano === 'fixo' ? ' · ★' : ' · ↻') : st.rotulo;
+  const rotuloChip = ((f.status === 'final') ? st.rotulo + (f.plano === 'fixo' ? ' · ★' : ' · ↻') : st.rotulo) + (f.retestar ? ' · 🔁' : '');
   const cod = codT(f.t), dbid = f._dbId || '';
   const chip = inativa ? '' : `<span class="status-wrap">
     <button class="status-chip ${f.status || 'desenvolvimento'}" title="Estágio e movimentação — clique" onclick="statusMenuToggle(this)">${rotuloChip}</button>
@@ -1628,6 +1641,7 @@ function fichaHTML(f, inativa){
       <button onclick="statusDefinir('${cod}','${dbid}','experimentado',null)">🟡 Já experimentado</button>
       <button onclick="statusDefinir('${cod}','${dbid}','final','fixo')">🟢 Cardápio final · ★ fixo</button>
       <button onclick="statusDefinir('${cod}','${dbid}','final','rotativo')">🟢 Cardápio final · ↻ rotativo</button>
+      <button onclick="retestarToggle('${cod}','${dbid}',${f.retestar ? 'false' : 'true'})" style="border-top:1px dashed var(--line); border-radius:0; margin-top:3px; padding-top:8px;">${f.retestar ? '✅ Tirar a marca de testar novamente' : '🔁 Marcar: testar novamente'}</button>
       <div style="border-top:1px dashed var(--line); margin:4px 2px 2px; padding-top:6px; font-size:.7rem; color:#7a745f">Mover para aba:</div>
       <select style="font-family:inherit;font-size:.8rem;border:1px solid var(--line);border-radius:7px;padding:5px" onchange="moverCategoria('${cod}','${dbid}',this.value)">
         <option value="">— escolher —</option>${CATEGORIAS.map(c => `<option${c === f.cat ? ' disabled' : ''}>${c}</option>`).join('')}
@@ -1693,6 +1707,7 @@ function fichaHTML(f, inativa){
           <ul>${dicas}</ul>
       </div>
     </div>
+    ${f.obs ? `<div class="obs-box"><b>📝 Observações do teste</b><p>${f.obs}</p></div>` : ''}
     <div class="assinatura"><div class="fio"></div><div class="marca"><img src="logotipo-spesso.png" alt="Spesso Cucina italiana"></div><div class="fio"></div></div>
   </article>`;
 }
