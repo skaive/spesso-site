@@ -1315,7 +1315,16 @@ function dbToF(row){
   f._dbId = row.id;
   return f;
 }
-function dbAtivasDe(cat){ return FICHAS_DB.filter(r => !r.desativada && (r.categoria || '') === cat); }
+function dbAtivasDe(cat){
+  // ordena por número (sem número vai pro fim, desempate por título) — pedido da Érica 20/08
+  return FICHAS_DB.filter(r => !r.desativada && (r.categoria || '') === cat).slice().sort((a, b) => {
+    const na = parseInt(a.dados && a.dados.num, 10), nb = parseInt(b.dados && b.dados.num, 10);
+    if (isNaN(na) && isNaN(nb)) return (((a.dados && a.dados.t) || '')).localeCompare(((b.dados && b.dados.t) || ''));
+    if (isNaN(na)) return 1;
+    if (isNaN(nb)) return -1;
+    return na - nb;
+  });
+}
 function proximoNum(){
   let m = 0;
   for (const r of FICHAS_DB) { const n = parseInt(r.dados && r.dados.num, 10); if (n > m) m = n; }
