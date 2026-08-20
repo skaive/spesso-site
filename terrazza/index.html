@@ -1953,6 +1953,8 @@ async function apagarUpload(id){
   if (DESATIVADOS.size > 0) {
     for (const r of FICHAS_DB) {
       if (!r.desativada) continue;
+      // já tem número = já foi adotada uma vez; desativação posterior foi DECISÃO (Érica) — nunca readotar
+      if (r.dados && r.dados.num) continue;
       const cred = (r.dados && r.dados.cred) || '';
       if (!cred.includes('migrada do acervo estático')) continue;
       const t = (r.dados && r.dados.t) || '';
