@@ -364,7 +364,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-21-ordenamento</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-21-ordenamento-2</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1499,7 +1499,19 @@ function fichasFinaisDe(cat){
    (mesmo plano ★/↻ do Planejamento), dias que roda (1=seg … 5=sex),
    posição no buffet e tamanho da GN. Dias/posição/GN moram em
    dados.bufDias/bufPos/bufGn — viajam junto com a ficha no mural. */
-const GN_OPCOES = ['', '1/1 (inteira)', '2/3', '1/2 (meia)', '1/3', '1/4 (um quarto)', '1/6', '1/9', 'redonda', 'outra'];
+const GN_OPCOES = ['1/2 rasa', '1/2 funda', '1/3 rasa', '1/4 rasa'];
+// padrão do Renato (21/09): tudo em 1/2 rasa; arroz e feijão em 1/2 funda
+function gnPadrao(f){ return /arroz|feij/i.test(f.t || '') ? '1/2 funda' : '1/2 rasa'; }
+// ordem do buffet ditada por ele: saladas → arroz → feijão → legumes → farofa de ovos → resto alfabético
+function ordemBuffet(f){
+  const t = f.t || '';
+  if (/farofa de ovos/i.test(t)) return 4;
+  if (/arroz/i.test(t)) return 1;
+  if (/feij/i.test(t)) return 2;
+  if (f.cat === 'Saladas') return 0;
+  if (f.cat === 'Legumes') return 3;
+  return 5;
+}
 // fichas ativas do mural que ainda não têm Nº ganham o próximo — uma vez, idempotente
 async function numerarAtivasSemNumero(){
   for (const r of FICHAS_DB) {
@@ -1511,11 +1523,9 @@ async function numerarAtivasSemNumero(){
 }
 function ordenLista(){
   return fichasUniverso().slice().sort((a, b) => {
-    const na = parseInt(a.f.num, 10), nb = parseInt(b.f.num, 10);
-    if (isNaN(na) && isNaN(nb)) return (a.f.t || '').localeCompare(b.f.t || '');
-    if (isNaN(na)) return 1;
-    if (isNaN(nb)) return -1;
-    return na - nb;
+    const ra = ordemBuffet(a.f), rb = ordemBuffet(b.f);
+    if (ra !== rb) return ra - rb;
+    return (a.f.t || '').localeCompare(b.f.t || '');
   });
 }
 // gravação debounçada POR FICHA: cliques rápidos na mesma linha viram um único PATCH
@@ -1600,10 +1610,10 @@ window.addEventListener('pagehide', () => {
   }
 });
 function ordenLinha(x){
-  const f = x.f, o = { fixo: f.plano === 'fixo', dias: f.bufDias || [], pos: f.bufPos, gn: f.bufGn || '' };
+  const f = x.f, o = { fixo: f.plano === 'fixo', dias: f.bufDias || [], pos: f.bufPos, gn: f.bufGn || gnPadrao(f) };
   const cod = codT(f.t), dbid = x.dbRow ? x.dbRow.id : '';
   const dias = [1,2,3,4,5].map(d => `<label title="${DIAS_SEMANA[d-1]}">${d}<input type="checkbox" ${o.dias.includes(d) ? 'checked' : ''} onchange="ordenMudou('${cod}','${dbid}','dia',{dia:${d},on:this.checked})"></label>`).join('');
-  const gnSel = GN_OPCOES.map(g => `<option value="${g}"${o.gn === g ? ' selected' : ''}>${g || '—'}</option>`).join('');
+  const gnSel = GN_OPCOES.map(g => `<option value="${g}"${o.gn === g ? ' selected' : ''}>${g}</option>`).join('');
   return `<tr class="${o.fixo ? 'orden-fixo-on' : ''}">
     <td class="num">${f.num || '—'}</td>
     <td class="prod" title="Abrir a ficha" onclick="irParaFicha('${cod}','${f.cat}')">${f.t}</td>
@@ -1617,11 +1627,11 @@ function ordenLinha(x){
 function ordenamentoHTML(){
   const linhas = ordenLista().map(ordenLinha).join('');
   return `<h2 class="grupo">Ordenamento Inicial do Buffet</h2>
-    <p class="grupo-sub">Todas as fichas ativas pelo Nº oficial · marque se é fixa (★, todo dia), os dias que roda (1=seg … 5=sex), a posição no buffet e o tamanho da GN — salva sozinho para todos</p>
+    <p class="grupo-sub">Na ordem do buffet: saladas → arroz → feijão → legumes → farofa de ovos → resto em ordem alfabética · marque se é fixa (★, todo dia), os dias que roda (1=seg … 5=sex), a posição e a GN — salva sozinho para todos</p>
     <div class="regua"><span>🧭</span></div>
     <div class="plan-secao" style="max-width:1160px">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px">
-        <span class="plan-aviso" style="margin:0">Fixo = todo dia (os dias ficam sem efeito). Não fixo = marque em quais dias roda. O ★/↻ é o mesmo do Planejamento.</span>
+        <span class="plan-aviso" style="margin:0">Fixo = todo dia (os dias ficam sem efeito). Não fixo = marque em quais dias roda. GN já vem 1/2 rasa (arroz e feijão: 1/2 funda) — mude só as exceções.</span>
         <button class="btn-orden-copiar" onclick="copiarOrdenExcel(this)">⧉ Copiar para Excel</button>
       </div>
       <div style="overflow-x:auto"><table class="orden-tabela">
@@ -1633,7 +1643,7 @@ function ordenamentoHTML(){
 function copiarOrdenExcel(btn){
   const linhas = ordenLista().map(x => {
     const f = x.f;
-    return [f.num || '', f.t, f.cat, f.plano === 'fixo' ? 'FIXO' : '', (f.bufDias || []).join(','), f.bufPos ?? '', f.bufGn || ''].join('\t');
+    return [f.num || '', f.t, f.cat, f.plano === 'fixo' ? 'FIXO' : '', (f.bufDias || []).join(','), f.bufPos ?? '', f.bufGn || gnPadrao(f)].join('\t');
   });
   const tsv = ['Nº\tProduto\tCategoria\tFixo\tDias\tPosição\tGN'].concat(linhas).join('\n');
   navigator.clipboard.writeText(tsv).then(() => {
