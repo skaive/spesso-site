@@ -284,6 +284,13 @@
   .orden-grupo td { background:var(--navy) !important; color:#fff; font-weight:600; letter-spacing:.08em; font-size:.72rem; text-transform:uppercase; padding:6px 10px; }
   .btn-orden-copiar { font-family:'Jost', sans-serif; font-size:.85rem; letter-spacing:.04em; background:var(--navy); color:#fff; border:none; border-radius:999px; padding:8px 22px; cursor:pointer; }
   .btn-orden-copiar:hover { background:#2e3d6b; }
+  /* plaquinhas de buffet 6×3cm (nome + posição) */
+  .plaq-grid { display:flex; flex-wrap:wrap; gap:4mm; background:#fff; border:1px solid var(--line); border-radius:12px; padding:6mm; }
+  .plaq { width:60mm; height:30mm; flex:none; border:1.2px solid var(--navy); background:#fff; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2mm 3mm; break-inside:avoid; }
+  .plaq::before { content:''; position:absolute; inset:1.3mm; border:.4px solid var(--navy); pointer-events:none; }
+  .plaq-nome { font-family:'Libre Bodoni','Times New Roman',serif; font-weight:700; color:var(--navy); font-size:12.5pt; line-height:1.08; text-transform:uppercase; }
+  .plaq-nome.plaq-longo { font-size:10pt; }
+  .plaq-pos { margin-top:1.4mm; font-size:7.5pt; letter-spacing:.22em; color:#7a745f; text-transform:uppercase; }
   /* calendário semanal do buffet */
   .cal-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:12px; align-items:start; }
   .cal-dia { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
@@ -335,6 +342,10 @@
     body.aba-calendario .cal-item img, body.aba-calendario .cal-item .sem-thumb { width:10mm; height:10mm; }
     body.aba-calendario .cal-item .cal-meta { font-size:7.2pt; }
     body.aba-calendario .cal-item .cal-nome small { font-size:6.4pt; }
+    /* plaquinhas: grade limpa em A4, bordas = guia de corte */
+    body.aba-plaquinhas .plan-secao { border:none; padding:0; margin:0; max-width:none; background:#fff; }
+    body.aba-plaquinhas .plaq-aviso { display:none !important; }
+    body.aba-plaquinhas .plaq-grid { border:none; border-radius:0; padding:0; gap:3mm; }
   }
   .btn-nova { position:fixed; right:22px; bottom:22px; z-index:30; border:0; border-radius:999px; background:var(--navy); color:#fff; padding:13px 22px; font:700 .9rem inherit; box-shadow:0 4px 18px rgba(0,0,0,.28); cursor:pointer; }
   .editor-modal { position:fixed; inset:0; z-index:100; background:rgba(15,20,38,.78); display:none; overflow:auto; padding:24px; }
@@ -391,7 +402,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-22-calendario-a3</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-22-plaquinhas</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1730,6 +1741,30 @@ function calendarioHTML(){
       <div class="cal-grid">${colunas.join('')}</div>
     </div>`;
 }
+/* ══════════ PLAQUINHAS DE BUFFET (aba 🏷) ══════════
+   Etiquetas 6×3cm (nome + posição) para a frente de cada posição,
+   na ordem física do salão (pista → posição → nº); imprimir em A4. */
+function plaquinhasHTML(){
+  const itens = fichasUniverso().slice().sort((a, b) => {
+    const pa = CAL_PISTAS.indexOf(a.f.bufPista || ''), pb = CAL_PISTAS.indexOf(b.f.bufPista || '');
+    if (pa !== pb) return (pa < 0 ? 9 : pa) - (pb < 0 ? 9 : pb);
+    if ((a.f.bufPos ?? 999) !== (b.f.bufPos ?? 999)) return (a.f.bufPos ?? 999) - (b.f.bufPos ?? 999);
+    return (parseInt(a.f.num, 10) || 999) - (parseInt(b.f.num, 10) || 999);
+  });
+  const cards = itens.map(x => {
+    const f = x.f;
+    return `<div class="plaq"><div class="plaq-nome${(f.t || '').length > 24 ? ' plaq-longo' : ''}">${f.t}</div><div class="plaq-pos">Posição ${f.bufPos ?? '—'}</div></div>`;
+  }).join('');
+  return `<h2 class="grupo">Plaquinhas do Buffet</h2>
+    <p class="grupo-sub">Etiquetas de 6 × 3 cm com nome e posição, na ordem do salão (pista → posição) — recortar na borda e colocar na frente de cada posição</p>
+    <div class="regua"><span>🏷</span></div>
+    <div class="plan-secao" style="max-width:1260px">
+      <div class="plaq-aviso" style="display:flex; justify-content:flex-end; margin-bottom:10px">
+        <button class="btn-orden-copiar" onclick="window.print()">🖨 Imprimir plaquinhas (A4)</button>
+      </div>
+      <div class="plaq-grid">${cards}</div>
+    </div>`;
+}
 function copiarOrdenExcel(btn){
   const linhas = ordenLista().map(x => {
     const f = x.f;
@@ -1918,6 +1953,7 @@ function renderAbas(){
   CATEGORIAS.forEach(c => { const n = contar(c); if (n) mk(c, n, c); }); // categoria zerada não polui o menu
   mk('🧭 Ordenamento', null, '__ordenamento', 'especial');
   mk('📆 Calendário', null, '__calendario', 'especial');
+  mk('🏷 Plaquinhas', null, '__plaquinhas', 'especial');
   mk('✕ Desativados', contarDesativados(), '__desativados', 'especial');
   mk('⬆ Upload', null, '__upload', 'especial');
 }
@@ -2193,11 +2229,15 @@ function desativadosHTML(){
 
 function render(){
   // impressão do calendário sai em A3 retrato, 1 dia por folha; nas demais abas as fichas seguem A4
-  const noCal = abaAtual === '__calendario';
+  const noCal = abaAtual === '__calendario', noPlaq = abaAtual === '__plaquinhas';
   document.body.classList.toggle('aba-calendario', noCal);
-  let pageA3 = document.getElementById('page-a3');
-  if (noCal && !pageA3) { pageA3 = document.createElement('style'); pageA3.id = 'page-a3'; pageA3.textContent = '@page { size: A3 portrait; margin: 8mm; }'; document.head.appendChild(pageA3); }
-  if (!noCal && pageA3) pageA3.remove();
+  document.body.classList.toggle('aba-plaquinhas', noPlaq);
+  let pageCss = document.getElementById('page-css');
+  const regra = noCal ? '@page { size: A3 portrait; margin: 8mm; }' : noPlaq ? '@page { size: A4 portrait; margin: 10mm; }' : '';
+  if (regra) {
+    if (!pageCss) { pageCss = document.createElement('style'); pageCss.id = 'page-css'; document.head.appendChild(pageCss); }
+    pageCss.textContent = regra;
+  } else if (pageCss) pageCss.remove();
   if (BUSCA.length >= 2) { contEl.innerHTML = buscaHTML(); return; }
   if (abaAtual === '__todos') {
     contEl.innerHTML = CATEGORIAS.map(cat => {
@@ -2209,6 +2249,8 @@ function render(){
     contEl.innerHTML = ordenamentoHTML();
   } else if (abaAtual === '__calendario') {
     contEl.innerHTML = calendarioHTML();
+  } else if (abaAtual === '__plaquinhas') {
+    contEl.innerHTML = plaquinhasHTML();
   } else if (abaAtual === '__desativados') {
     contEl.innerHTML = desativadosHTML();
   } else if (abaAtual === '__upload') {
@@ -2283,7 +2325,7 @@ async function apagarUpload(id){
   // fichas ativas do mural sem Nº ganham o próximo (uma vez; nada a fazer quando todas já têm)
   await numerarAtivasSemNumero();
   // link direto para uma aba especial (ex.: .../terrazza/#calendario para imprimir)
-  const hashAba = { '#calendario': '__calendario', '#ordenamento': '__ordenamento' }[location.hash];
+  const hashAba = { '#calendario': '__calendario', '#ordenamento': '__ordenamento', '#plaquinhas': '__plaquinhas' }[location.hash];
   if (hashAba) abaAtual = hashAba;
   renderAbas(); render();
   // fichas presas neste navegador sobem para o mural (dedup por título)
