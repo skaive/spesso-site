@@ -402,7 +402,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-compras-por-prato</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-compras-fechadas</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1728,6 +1728,15 @@ function salvarCompras(){
   }, 600);
 }
 function totalInsumo(it){ return Math.round((it.linhas || []).reduce((s, l) => s + (l.qtd || 0), 0) * 1000) / 1000; }
+// detalhamento fechado por padrão: só a lista efetiva de compras; abre por insumo
+const __comprasAbertos = new Set();
+function comprasToggle(idx){
+  const abrir = !__comprasAbertos.has(idx);
+  if (abrir) __comprasAbertos.add(idx); else __comprasAbertos.delete(idx);
+  document.querySelectorAll('.cmp-det-' + idx).forEach(tr => { tr.style.display = abrir ? '' : 'none'; });
+  const seta = document.getElementById('cmp-seta-' + idx);
+  if (seta) seta.textContent = abrir ? '▾' : '▸';
+}
 function compraMudou(idx, li, valor){
   const it = COMPRAS.itens[idx]; if (!it) return;
   if (li === 'ok') { it.ok = !!valor; salvarCompras(); return; }
@@ -1750,24 +1759,26 @@ function comprasHTML(){
     linhas += `<tr class="orden-grupo"><td colspan="6">${cat}</td></tr>`;
     doCat.sort((a, b) => totalInsumo(b.it) - totalInsumo(a.it));
     for (const { it, idx } of doCat) {
+      const aberto = __comprasAbertos.has(idx);
+      // linha do TOTAL primeiro = a lista efetiva de compras; clique abre o detalhamento por prato
+      linhas += `<tr class="orden-fixo-on" style="cursor:pointer" onclick="comprasToggle(${idx})" title="Clique para ${aberto ? 'fechar' : 'abrir'} o detalhamento por prato">
+        <td style="text-align:center" onclick="event.stopPropagation()"><input type="checkbox" ${it.ok ? 'checked' : ''} onchange="compraMudou(${idx},'ok',this.checked)" title="Comprado"></td>
+        <td><span id="cmp-seta-${idx}" style="display:inline-block; width:14px; color:#8a6508">${aberto ? '▾' : '▸'}</span><b>${it.insumo}</b></td>
+        <td class="cat-col">${(it.linhas || []).length} prato${(it.linhas || []).length > 1 ? 's' : ''}</td>
+        <td class="num" id="cmp-tot-${idx}">${fmtQtd(totalInsumo(it))}</td>
+        <td class="cat-col"><b>${it.unidade}</b></td>
+        <td class="cat-col">${(it.obs || []).join('; ')}</td>
+      </tr>`;
       (it.linhas || []).forEach((l, li) => {
-        linhas += `<tr>
+        linhas += `<tr class="cmp-det-${idx}" style="${aberto ? '' : 'display:none'}">
           <td></td>
-          <td>${li === 0 ? '<b>' + it.insumo + '</b>' : ''}</td>
+          <td class="cat-col" style="padding-left:24px">↳</td>
           <td class="cat-col">${l.prato}</td>
           <td><input type="number" min="0" step="0.05" value="${l.qtd}" style="width:74px" onchange="compraMudou(${idx},${li},this.value)"></td>
           <td class="cat-col">${it.unidade}</td>
-          <td class="cat-col">${li === 0 ? (it.obs || []).join('; ') : ''}</td>
+          <td></td>
         </tr>`;
       });
-      linhas += `<tr class="orden-fixo-on">
-        <td style="text-align:center"><input type="checkbox" ${it.ok ? 'checked' : ''} onchange="compraMudou(${idx},'ok',this.checked)" title="Comprado"></td>
-        <td><b>TOTAL — ${it.insumo}</b></td>
-        <td></td>
-        <td class="num" id="cmp-tot-${idx}">${fmtQtd(totalInsumo(it))}</td>
-        <td class="cat-col"><b>${it.unidade}</b></td>
-        <td></td>
-      </tr>`;
     }
   }
   const avisos = (COMPRAS.avisos || []).map(a => `<li>${a}</li>`).join('');
@@ -1777,11 +1788,11 @@ function comprasHTML(){
     ${avisos ? `<div class="plan-secao" style="max-width:1360px; background:#fdf6e3; border-color:#b8860b"><b style="color:#8a6508">Atenção antes de fechar a compra:</b><ul style="margin:6px 0 0 20px; font-size:.85rem">${avisos}</ul></div>` : ''}
     <div class="plan-secao" style="max-width:1360px">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px">
-        <span class="plan-aviso" style="margin:0">${itens.length} insumos · quantidades PARA 1 DIA · ✓ na linha de TOTAL = já comprado.</span>
+        <span class="plan-aviso" style="margin:0">${itens.length} insumos · quantidades PARA 1 DIA · clique no insumo p/ abrir o detalhamento por prato · ✓ = já comprado.</span>
         <button class="btn-orden-copiar" onclick="copiarComprasExcel(this)">⧉ Copiar para Excel</button>
       </div>
       <div style="overflow-x:auto"><table class="orden-tabela">
-        <thead><tr><th>✓</th><th>Insumo</th><th>Prato</th><th>Qtd (1 dia)</th><th>Un</th><th>Obs</th></tr></thead>
+        <thead><tr><th>✓</th><th>Insumo</th><th>Detalhe</th><th>Qtd (1 dia)</th><th>Un</th><th>Obs</th></tr></thead>
         <tbody>${linhas}</tbody>
       </table></div>
     </div>`;
