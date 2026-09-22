@@ -286,11 +286,11 @@
   .btn-orden-copiar:hover { background:#2e3d6b; }
   /* plaquinhas de buffet 6×3cm (nome + posição) */
   .plaq-grid { display:flex; flex-wrap:wrap; gap:4mm; background:#fff; border:1px solid var(--line); border-radius:12px; padding:6mm; }
-  .plaq { width:60mm; height:30mm; flex:none; border:1.2px solid var(--navy); background:#fff; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2mm 3mm; break-inside:avoid; }
+  .plaq { width:60mm; height:30mm; flex:none; border:1.2px solid var(--navy); background:#fff; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2mm 2.5mm; break-inside:avoid; }
   .plaq::before { content:''; position:absolute; inset:1.3mm; border:.4px solid var(--navy); pointer-events:none; }
-  .plaq-nome { font-family:'Libre Bodoni','Times New Roman',serif; font-weight:700; color:var(--navy); font-size:12.5pt; line-height:1.08; text-transform:uppercase; }
-  .plaq-nome.plaq-longo { font-size:10pt; }
-  .plaq-pos { margin-top:1.4mm; font-size:7.5pt; letter-spacing:.22em; color:#7a745f; text-transform:uppercase; }
+  /* UMA fonte e UM tamanho para todas (pedido do Renato): nome longo quebra em 2–3 linhas, nunca encolhe */
+  .plaq-nome { font-family:'Libre Bodoni','Times New Roman',serif; font-weight:700; color:var(--navy); font-size:11pt; line-height:1.12; text-transform:uppercase; letter-spacing:.02em; word-spacing:.14em; overflow-wrap:break-word; max-width:54mm; }
+  .plaq-pos { margin-top:1.2mm; font-family:'Libre Bodoni','Times New Roman',serif; font-size:8pt; letter-spacing:.14em; color:#7a745f; text-transform:uppercase; }
   /* calendário semanal do buffet */
   .cal-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:12px; align-items:start; }
   .cal-dia { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
@@ -402,7 +402,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-compras-num</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-compras-por-prato</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1727,14 +1727,17 @@ function salvarCompras(){
     } catch(e) { alert('Não consegui salvar a lista de compras: ' + e.message); }
   }, 600);
 }
-function compraMudou(idx, campo, valor){
+function totalInsumo(it){ return Math.round((it.linhas || []).reduce((s, l) => s + (l.qtd || 0), 0) * 1000) / 1000; }
+function compraMudou(idx, li, valor){
   const it = COMPRAS.itens[idx]; if (!it) return;
-  if (campo === 'qtdDia') it.qtdDia = parseFloat(String(valor).replace(',', '.')) || 0;
-  else if (campo === 'ok') it.ok = !!valor;
+  if (li === 'ok') { it.ok = !!valor; salvarCompras(); return; }
+  const linha = it.linhas[li]; if (!linha) return;
+  linha.qtd = parseFloat(String(valor).replace(',', '.')) || 0;
   salvarCompras();
-  if (campo === 'qtdDia') { const el = document.getElementById('cmp-sem-' + idx); if (el) el.textContent = fmtQtd(it.qtdDia * 5); }
+  const el = document.getElementById('cmp-tot-' + idx);
+  if (el) el.textContent = fmtQtd(totalInsumo(it)); // total refeito na hora
 }
-function fmtQtd(v){ return (Math.round(v * 100) / 100).toLocaleString('pt-BR'); }
+function fmtQtd(v){ return (Math.round(v * 1000) / 1000).toLocaleString('pt-BR'); }
 const COMPRAS_CATS = ['Hortifruti', 'Proteínas', 'Laticínios e Frios', 'Mercearia', 'Padaria', 'Outros'];
 function comprasHTML(){
   if (COMPRAS === null) { carregarCompras(); return `<h2 class="grupo">Lista de Compras — Inauguração</h2><div class="regua"><span>🛒</span></div><p class="plan-aviso" style="text-align:center">Carregando a lista do mural…</p>`; }
@@ -1744,32 +1747,41 @@ function comprasHTML(){
   for (const cat of COMPRAS_CATS) {
     const doCat = itens.map((it, idx) => ({ it, idx })).filter(x => (x.it.categoria || 'Outros') === cat);
     if (!doCat.length) continue;
-    linhas += `<tr class="orden-grupo"><td colspan="7">${cat}</td></tr>`;
-    doCat.sort((a, b) => b.it.qtdDia - a.it.qtdDia);
+    linhas += `<tr class="orden-grupo"><td colspan="6">${cat}</td></tr>`;
+    doCat.sort((a, b) => totalInsumo(b.it) - totalInsumo(a.it));
     for (const { it, idx } of doCat) {
-      linhas += `<tr>
+      (it.linhas || []).forEach((l, li) => {
+        linhas += `<tr>
+          <td></td>
+          <td>${li === 0 ? '<b>' + it.insumo + '</b>' : ''}</td>
+          <td class="cat-col">${l.prato}</td>
+          <td><input type="number" min="0" step="0.05" value="${l.qtd}" style="width:74px" onchange="compraMudou(${idx},${li},this.value)"></td>
+          <td class="cat-col">${it.unidade}</td>
+          <td class="cat-col">${li === 0 ? (it.obs || []).join('; ') : ''}</td>
+        </tr>`;
+      });
+      linhas += `<tr class="orden-fixo-on">
         <td style="text-align:center"><input type="checkbox" ${it.ok ? 'checked' : ''} onchange="compraMudou(${idx},'ok',this.checked)" title="Comprado"></td>
-        <td>${it.insumo}</td>
-        <td><input type="number" min="0" step="0.1" value="${it.qtdDia}" style="width:74px" onchange="compraMudou(${idx},'qtdDia',this.value)"></td>
-        <td class="num" id="cmp-sem-${idx}">${fmtQtd(it.qtdDia * 5)}</td>
-        <td class="cat-col">${it.unidade}</td>
-        <td class="cat-col" style="max-width:420px">${(it.pratos || []).join(' · ')}</td>
-        <td class="cat-col">${(it.obs || []).join('; ')}</td>
+        <td><b>TOTAL — ${it.insumo}</b></td>
+        <td></td>
+        <td class="num" id="cmp-tot-${idx}">${fmtQtd(totalInsumo(it))}</td>
+        <td class="cat-col"><b>${it.unidade}</b></td>
+        <td></td>
       </tr>`;
     }
   }
   const avisos = (COMPRAS.avisos || []).map(a => `<li>${a}</li>`).join('');
   return `<h2 class="grupo">Lista de Compras — Inauguração</h2>
-    <p class="grupo-sub">Gerada das fichas da Inauguração${COMPRAS.geradoEm ? ' em ' + COMPRAS.geradoEm : ''} · ${COMPRAS.premissas || '100 clientes/dia × 450 g'} · quantidades são SUGESTÃO — ajuste na própria tabela (salva para todos) · Semana = dia × 5</p>
+    <p class="grupo-sub">Gerada das fichas da Inauguração${COMPRAS.geradoEm ? ' em ' + COMPRAS.geradoEm : ''} · ${COMPRAS.premissas || '100 clientes/dia × 450 g'} · uma linha por prato — ajuste qualquer quantidade e o TOTAL do insumo refaz na hora (salva para todos)</p>
     <div class="regua"><span>🛒</span></div>
     ${avisos ? `<div class="plan-secao" style="max-width:1360px; background:#fdf6e3; border-color:#b8860b"><b style="color:#8a6508">Atenção antes de fechar a compra:</b><ul style="margin:6px 0 0 20px; font-size:.85rem">${avisos}</ul></div>` : ''}
     <div class="plan-secao" style="max-width:1360px">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px">
-        <span class="plan-aviso" style="margin:0">${itens.length} insumos · ✓ = já comprado · hortifruti melhor comprar 2×/semana em vez do total da semana de uma vez.</span>
+        <span class="plan-aviso" style="margin:0">${itens.length} insumos · quantidades PARA 1 DIA · ✓ na linha de TOTAL = já comprado.</span>
         <button class="btn-orden-copiar" onclick="copiarComprasExcel(this)">⧉ Copiar para Excel</button>
       </div>
       <div style="overflow-x:auto"><table class="orden-tabela">
-        <thead><tr><th>✓</th><th>Insumo</th><th>Qtd/dia</th><th>Semana (5d)</th><th>Un</th><th>Pratos que usam</th><th>Obs</th></tr></thead>
+        <thead><tr><th>✓</th><th>Insumo</th><th>Prato</th><th>Qtd (1 dia)</th><th>Un</th><th>Obs</th></tr></thead>
         <tbody>${linhas}</tbody>
       </table></div>
     </div>`;
@@ -1778,11 +1790,12 @@ function copiarComprasExcel(btn){
   const itens = (COMPRAS && COMPRAS.itens) || [];
   const linhas = [];
   for (const cat of COMPRAS_CATS) {
-    for (const it of itens.filter(x => (x.categoria || 'Outros') === cat).sort((a, b) => b.qtdDia - a.qtdDia)) {
-      linhas.push([cat, it.insumo, String(it.qtdDia).replace('.', ','), String(Math.round(it.qtdDia * 5 * 100) / 100).replace('.', ','), it.unidade, (it.pratos || []).join(' · '), (it.obs || []).join('; ')].join('\t'));
+    for (const it of itens.filter(x => (x.categoria || 'Outros') === cat).sort((a, b) => totalInsumo(b) - totalInsumo(a))) {
+      for (const l of (it.linhas || [])) linhas.push([cat, it.insumo, l.prato, String(l.qtd).replace('.', ','), it.unidade, (it.obs || []).join('; ')].join('\t'));
+      linhas.push([cat, it.insumo, 'TOTAL', String(totalInsumo(it)).replace('.', ','), it.unidade, ''].join('\t'));
     }
   }
-  const tsv = ['Categoria\tInsumo\tQtd/dia\tSemana (5d)\tUn\tPratos que usam\tObs'].concat(linhas).join('\n');
+  const tsv = ['Categoria\tInsumo\tPrato\tQtd (1 dia)\tUn\tObs'].concat(linhas).join('\n');
   navigator.clipboard.writeText(tsv).then(() => {
     btn.textContent = '✓ Copiado!';
     setTimeout(() => { btn.textContent = '⧉ Copiar para Excel'; }, 2000);
@@ -1842,7 +1855,7 @@ function plaquinhasHTML(){
   });
   const cards = itens.map(x => {
     const f = x.f;
-    return `<div class="plaq"><div class="plaq-nome${(f.t || '').length > 24 ? ' plaq-longo' : ''}">${f.t}</div><div class="plaq-pos">Posição ${f.bufPos ?? '—'}</div></div>`;
+    return `<div class="plaq"><div class="plaq-nome">${f.t}</div><div class="plaq-pos">Posição ${f.bufPos ?? '—'}</div></div>`;
   }).join('');
   return `<h2 class="grupo">Plaquinhas do Buffet</h2>
     <p class="grupo-sub">Etiquetas de 6 × 3 cm com nome e posição, na ordem do salão (pista → posição) — recortar na borda e colocar na frente de cada posição</p>
