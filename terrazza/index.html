@@ -402,7 +402,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-compras</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-compras-num</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1758,9 +1758,11 @@ function comprasHTML(){
       </tr>`;
     }
   }
+  const avisos = (COMPRAS.avisos || []).map(a => `<li>${a}</li>`).join('');
   return `<h2 class="grupo">Lista de Compras — Inauguração</h2>
-    <p class="grupo-sub">Gerada das fichas da Inauguração · premissas: 100 clientes/dia × 450 g = ~45 kg servidos/dia · quantidades são SUGESTÃO — ajuste na própria tabela (salva para todos) · Semana = dia × 5</p>
+    <p class="grupo-sub">Gerada das fichas da Inauguração${COMPRAS.geradoEm ? ' em ' + COMPRAS.geradoEm : ''} · ${COMPRAS.premissas || '100 clientes/dia × 450 g'} · quantidades são SUGESTÃO — ajuste na própria tabela (salva para todos) · Semana = dia × 5</p>
     <div class="regua"><span>🛒</span></div>
+    ${avisos ? `<div class="plan-secao" style="max-width:1360px; background:#fdf6e3; border-color:#b8860b"><b style="color:#8a6508">Atenção antes de fechar a compra:</b><ul style="margin:6px 0 0 20px; font-size:.85rem">${avisos}</ul></div>` : ''}
     <div class="plan-secao" style="max-width:1360px">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px">
         <span class="plan-aviso" style="margin:0">${itens.length} insumos · ✓ = já comprado · hortifruti melhor comprar 2×/semana em vez do total da semana de uma vez.</span>
@@ -1876,6 +1878,22 @@ async function persistirCamposFicha(tituloCod, dbId, campos){
     FICHAS_COMPLETAS[titulo] = Object.assign(FICHAS_COMPLETAS[titulo] || {}, campos);
     try { localStorage.setItem(FICHAS_COMPLETAS_KEY, JSON.stringify(FICHAS_COMPLETAS)); } catch(e) {}
   }
+}
+// número da ficha editável no card: clica na pílula Nº → prompt → grava no mural
+async function numEditar(dbId, tituloCod){
+  const row = FICHAS_DB.find(r => r.id === dbId); if (!row) return;
+  const atual = row.dados.num || '';
+  const novo = (prompt('Número da ficha "' + decodeURIComponent(tituloCod) + '":', atual) || '').trim();
+  if (!novo || novo === atual) return;
+  const outra = FICHAS_DB.find(r => r !== row && !r.desativada && String(r.dados.num) === novo);
+  if (outra && !confirm('O número ' + novo + ' já é da ficha "' + (outra.dados.t || '?') + '". Usar mesmo assim (fica duplicado)?')) return;
+  row.dados.num = novo;
+  try { await dbPatch(dbId, { dados: row.dados }); } catch(e) { alert('Não consegui salvar o número: ' + e.message); return; }
+  renderAbas(); render();
+  setTimeout(() => {
+    const art = document.querySelector(`article.ficha[data-chave="${tituloCod}"]`);
+    if (art) { art.scrollIntoView({ block: 'start' }); art.classList.add('destaque'); setTimeout(() => art.classList.remove('destaque'), 2000); }
+  }, 150);
 }
 // renomear direto no card: clica no título, edita, sai do campo → confirma e grava
 async function tituloEditado(el, tituloCod, dbId){
@@ -2069,7 +2087,9 @@ function fichaHTML(f, inativa){
       </select>
     </div>
   </span>`;
-  const numPill = f.num ? `<span class="num-ficha">Nº ${f.num}</span>` : '';
+  const numPill = f._dbId && !inativa
+    ? `<span class="num-ficha" style="cursor:pointer" title="Clique para mudar o número da ficha" onclick="numEditar('${dbid}','${cod}')">Nº ${f.num || '—'}</span>`
+    : (f.num ? `<span class="num-ficha">Nº ${f.num}</span>` : '');
   const barra = (esq, dir) => `<div class="card-acoes"><span class="acoes-esq">${numPill}${esq}</span><span class="acoes-dir">${dir}</span></div>`;
   const estado = f._dbId
     ? (inativa
