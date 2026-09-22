@@ -402,7 +402,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-a3-paisagem</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-compras</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1700,6 +1700,93 @@ function ordenamentoHTML(){
       </table></div>
     </div>`;
 }
+/* ══════════ LISTA DE COMPRAS DA INAUGURAÇÃO (aba 🛒) ══════════
+   Gerada a partir das fichas marcadas como Inauguração: consumo estimado
+   p/ 100 clientes × 450 g, receitas escaladas e insumos consolidados.
+   Vive em terrazza_config (chave 'compras_inauguracao'); qtd/dia editável. */
+let COMPRAS = null, __comprasCarregando = false
+async function carregarCompras(){
+  if (__comprasCarregando) return; __comprasCarregando = true;
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/terrazza_config?chave=eq.compras_inauguracao&select=valor', { headers: { apikey: SB_KEY } });
+    if (r.ok) { const [row] = await r.json(); COMPRAS = row ? row.valor : { itens: [] }; }
+  } catch(e) { console.warn('compras indisponível:', e); COMPRAS = { itens: [] }; }
+  finally { __comprasCarregando = false; if (abaAtual === '__compras') render(); }
+}
+let __comprasTimer = null;
+function salvarCompras(){
+  clearTimeout(__comprasTimer);
+  __comprasTimer = setTimeout(async () => {
+    __comprasTimer = null;
+    try {
+      await fetch(SB_URL + '/rest/v1/terrazza_config?on_conflict=chave', {
+        method: 'POST', keepalive: true,
+        headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify({ chave: 'compras_inauguracao', valor: COMPRAS, atualizado_em: new Date().toISOString() })
+      });
+    } catch(e) { alert('Não consegui salvar a lista de compras: ' + e.message); }
+  }, 600);
+}
+function compraMudou(idx, campo, valor){
+  const it = COMPRAS.itens[idx]; if (!it) return;
+  if (campo === 'qtdDia') it.qtdDia = parseFloat(String(valor).replace(',', '.')) || 0;
+  else if (campo === 'ok') it.ok = !!valor;
+  salvarCompras();
+  if (campo === 'qtdDia') { const el = document.getElementById('cmp-sem-' + idx); if (el) el.textContent = fmtQtd(it.qtdDia * 5); }
+}
+function fmtQtd(v){ return (Math.round(v * 100) / 100).toLocaleString('pt-BR'); }
+const COMPRAS_CATS = ['Hortifruti', 'Proteínas', 'Laticínios e Frios', 'Mercearia', 'Padaria', 'Outros'];
+function comprasHTML(){
+  if (COMPRAS === null) { carregarCompras(); return `<h2 class="grupo">Lista de Compras — Inauguração</h2><div class="regua"><span>🛒</span></div><p class="plan-aviso" style="text-align:center">Carregando a lista do mural…</p>`; }
+  const itens = COMPRAS.itens || [];
+  if (!itens.length) return `<h2 class="grupo">Lista de Compras — Inauguração</h2><div class="regua"><span>🛒</span></div><p class="plan-aviso" style="text-align:center">Lista ainda não gerada.</p>`;
+  let linhas = '';
+  for (const cat of COMPRAS_CATS) {
+    const doCat = itens.map((it, idx) => ({ it, idx })).filter(x => (x.it.categoria || 'Outros') === cat);
+    if (!doCat.length) continue;
+    linhas += `<tr class="orden-grupo"><td colspan="7">${cat}</td></tr>`;
+    doCat.sort((a, b) => b.it.qtdDia - a.it.qtdDia);
+    for (const { it, idx } of doCat) {
+      linhas += `<tr>
+        <td style="text-align:center"><input type="checkbox" ${it.ok ? 'checked' : ''} onchange="compraMudou(${idx},'ok',this.checked)" title="Comprado"></td>
+        <td>${it.insumo}</td>
+        <td><input type="number" min="0" step="0.1" value="${it.qtdDia}" style="width:74px" onchange="compraMudou(${idx},'qtdDia',this.value)"></td>
+        <td class="num" id="cmp-sem-${idx}">${fmtQtd(it.qtdDia * 5)}</td>
+        <td class="cat-col">${it.unidade}</td>
+        <td class="cat-col" style="max-width:420px">${(it.pratos || []).join(' · ')}</td>
+        <td class="cat-col">${(it.obs || []).join('; ')}</td>
+      </tr>`;
+    }
+  }
+  return `<h2 class="grupo">Lista de Compras — Inauguração</h2>
+    <p class="grupo-sub">Gerada das fichas da Inauguração · premissas: 100 clientes/dia × 450 g = ~45 kg servidos/dia · quantidades são SUGESTÃO — ajuste na própria tabela (salva para todos) · Semana = dia × 5</p>
+    <div class="regua"><span>🛒</span></div>
+    <div class="plan-secao" style="max-width:1360px">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px">
+        <span class="plan-aviso" style="margin:0">${itens.length} insumos · ✓ = já comprado · hortifruti melhor comprar 2×/semana em vez do total da semana de uma vez.</span>
+        <button class="btn-orden-copiar" onclick="copiarComprasExcel(this)">⧉ Copiar para Excel</button>
+      </div>
+      <div style="overflow-x:auto"><table class="orden-tabela">
+        <thead><tr><th>✓</th><th>Insumo</th><th>Qtd/dia</th><th>Semana (5d)</th><th>Un</th><th>Pratos que usam</th><th>Obs</th></tr></thead>
+        <tbody>${linhas}</tbody>
+      </table></div>
+    </div>`;
+}
+function copiarComprasExcel(btn){
+  const itens = (COMPRAS && COMPRAS.itens) || [];
+  const linhas = [];
+  for (const cat of COMPRAS_CATS) {
+    for (const it of itens.filter(x => (x.categoria || 'Outros') === cat).sort((a, b) => b.qtdDia - a.qtdDia)) {
+      linhas.push([cat, it.insumo, String(it.qtdDia).replace('.', ','), String(Math.round(it.qtdDia * 5 * 100) / 100).replace('.', ','), it.unidade, (it.pratos || []).join(' · '), (it.obs || []).join('; ')].join('\t'));
+    }
+  }
+  const tsv = ['Categoria\tInsumo\tQtd/dia\tSemana (5d)\tUn\tPratos que usam\tObs'].concat(linhas).join('\n');
+  navigator.clipboard.writeText(tsv).then(() => {
+    btn.textContent = '✓ Copiado!';
+    setTimeout(() => { btn.textContent = '⧉ Copiar para Excel'; }, 2000);
+  }).catch(() => alert('Não consegui copiar — selecione a tabela manualmente.'));
+}
+
 /* ══════════ CALENDÁRIO SEMANAL DO BUFFET (aba 📆) ══════════
    Uma coluna por dia (Inauguração = menu fixo da 1ª semana, depois seg–sex):
    fixos + os que rodam naquele dia, na ordem das posições, agrupados por
@@ -1954,6 +2041,7 @@ function renderAbas(){
   mk('🧭 Ordenamento', null, '__ordenamento', 'especial');
   mk('📆 Calendário', null, '__calendario', 'especial');
   mk('🏷 Plaquinhas', null, '__plaquinhas', 'especial');
+  mk('🛒 Compras', null, '__compras', 'especial');
   mk('✕ Desativados', contarDesativados(), '__desativados', 'especial');
   mk('⬆ Upload', null, '__upload', 'especial');
 }
@@ -2251,6 +2339,8 @@ function render(){
     contEl.innerHTML = calendarioHTML();
   } else if (abaAtual === '__plaquinhas') {
     contEl.innerHTML = plaquinhasHTML();
+  } else if (abaAtual === '__compras') {
+    contEl.innerHTML = comprasHTML();
   } else if (abaAtual === '__desativados') {
     contEl.innerHTML = desativadosHTML();
   } else if (abaAtual === '__upload') {
@@ -2325,7 +2415,7 @@ async function apagarUpload(id){
   // fichas ativas do mural sem Nº ganham o próximo (uma vez; nada a fazer quando todas já têm)
   await numerarAtivasSemNumero();
   // link direto para uma aba especial (ex.: .../terrazza/#calendario para imprimir)
-  const hashAba = { '#calendario': '__calendario', '#ordenamento': '__ordenamento', '#plaquinhas': '__plaquinhas' }[location.hash];
+  const hashAba = { '#calendario': '__calendario', '#ordenamento': '__ordenamento', '#plaquinhas': '__plaquinhas', '#compras': '__compras' }[location.hash];
   if (hashAba) abaAtual = hashAba;
   renderAbas(); render();
   // fichas presas neste navegador sobem para o mural (dedup por título)
