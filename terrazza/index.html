@@ -335,13 +335,13 @@
     body.aba-calendario .cal-aviso-print, body.aba-calendario .btn-orden-copiar { display:none !important; }
     body.aba-calendario .cal-grid { display:block; }
     body.aba-calendario .cal-dia { border:none; border-radius:0; page-break-after:always; width:100%; }
-    body.aba-calendario .cal-dia > header { -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:15pt; padding:4mm 6mm; }
-    body.aba-calendario .cal-corpo { column-count:2; column-gap:7mm; }
-    body.aba-calendario .cal-pista { break-inside:avoid; -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:8pt; padding:1.6mm 2mm; column-span:none; }
-    body.aba-calendario .cal-item { break-inside:avoid; padding:1.1mm 1mm; font-size:8.6pt; cursor:default; }
-    body.aba-calendario .cal-item img, body.aba-calendario .cal-item .sem-thumb { width:10mm; height:10mm; }
-    body.aba-calendario .cal-item .cal-meta { font-size:7.2pt; }
-    body.aba-calendario .cal-item .cal-nome small { font-size:6.4pt; }
+    body.aba-calendario .cal-dia > header { -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:17pt; padding:4mm 7mm; }
+    body.aba-calendario .cal-corpo { column-count:4; column-gap:6mm; }
+    body.aba-calendario .cal-pista { break-inside:avoid; -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:10pt; padding:2mm 2.5mm; column-span:none; }
+    body.aba-calendario .cal-item { break-inside:avoid; padding:1.8mm 1.2mm; font-size:12pt; cursor:default; gap:2.5mm; }
+    body.aba-calendario .cal-item img, body.aba-calendario .cal-item .sem-thumb { width:15mm; height:15mm; }
+    body.aba-calendario .cal-item .cal-meta { font-size:9.5pt; }
+    body.aba-calendario .cal-item .cal-nome small { font-size:8pt; }
     /* plaquinhas: grade limpa em A4, bordas = guia de corte */
     body.aba-plaquinhas .plan-secao { border:none; padding:0; margin:0; max-width:none; background:#fff; }
     body.aba-plaquinhas .plaq-aviso { display:none !important; }
@@ -402,7 +402,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-22-plaquinhas</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-a3-paisagem</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1736,7 +1736,7 @@ function calendarioHTML(){
     <div class="regua"><span>📆</span></div>
     <div class="plan-secao" style="max-width:1600px; background:transparent; border:none; padding:0">
       <div class="cal-aviso-print" style="display:flex; justify-content:flex-end; margin-bottom:10px">
-        <button class="btn-orden-copiar" onclick="window.print()">🖨 Imprimir (1 dia por folha A3 retrato)</button>
+        <button class="btn-orden-copiar" onclick="window.print()">🖨 Imprimir (1 dia por folha A3 paisagem)</button>
       </div>
       <div class="cal-grid">${colunas.join('')}</div>
     </div>`;
@@ -2233,7 +2233,7 @@ function render(){
   document.body.classList.toggle('aba-calendario', noCal);
   document.body.classList.toggle('aba-plaquinhas', noPlaq);
   let pageCss = document.getElementById('page-css');
-  const regra = noCal ? '@page { size: A3 portrait; margin: 8mm; }' : noPlaq ? '@page { size: A4 portrait; margin: 10mm; }' : '';
+  const regra = noCal ? '@page { size: A3 landscape; margin: 8mm; }' : noPlaq ? '@page { size: A4 portrait; margin: 10mm; }' : '';
   if (regra) {
     if (!pageCss) { pageCss = document.createElement('style'); pageCss.id = 'page-css'; document.head.appendChild(pageCss); }
     pageCss.textContent = regra;
