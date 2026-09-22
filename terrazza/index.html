@@ -402,7 +402,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-compras-links</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-volta-compras</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1646,6 +1646,12 @@ window.addEventListener('pagehide', () => {
     });
   }
 });
+// botão 🛒 do card: volta pra lista de compras (o que estava aberto lá continua aberto)
+function irParaCompras(){
+  abaAtual = '__compras';
+  renderAbas(); render();
+  window.scrollTo({ top: 0 });
+}
 // botão 🧭 do card: abre a aba Ordenamento já com a linha do produto em destaque
 function irParaOrdenamento(tituloCod){
   abaAtual = '__ordenamento';
@@ -2119,11 +2125,11 @@ function fichaHTML(f, inativa){
     ? (inativa
       ? barra(`<span class="badge-origem">${f.cat && f.cat !== 'Sem categoria' ? 'aba sugerida: ' + f.cat : 'sem categoria — escolher ao habilitar'}</span>`,
               `<button class="btn-estado reativar" onclick="abrirEditorDb('${f._dbId}')">↩ habilitar</button>`)
-      : barra(chip, `<button class="btn-editar" onclick="irParaOrdenamento('${cod}')" title="Ver esta ficha no planejamento do buffet">🧭 planejamento</button><button class="btn-editar" onclick="abrirEditorDb('${f._dbId}')">✎ editar tudo</button><button class="btn-estado" onclick="dbDesativar('${f._dbId}')" title="Mover para Desativados">✕ desativar</button>`))
+      : barra(chip, `<button class="btn-editar" onclick="irParaOrdenamento('${cod}')" title="Ver esta ficha no planejamento do buffet">🧭 planejamento</button><button class="btn-editar" onclick="irParaCompras()" title="Voltar para a lista de compras">🛒 compras</button><button class="btn-editar" onclick="abrirEditorDb('${f._dbId}')">✎ editar tudo</button><button class="btn-estado" onclick="dbDesativar('${f._dbId}')" title="Mover para Desativados">✕ desativar</button>`))
     : inativa
     ? barra(`<span class="badge-origem">era: ${f.cat}</span>`,
             `<button class="btn-estado reativar" onclick="reativarFicha(decodeURIComponent('${codT(f.t)}'))">↩ reativar</button>`)
-    : barra(chip, `<button class="btn-editar" onclick="irParaOrdenamento('${cod}')" title="Ver esta ficha no planejamento do buffet">🧭 planejamento</button><button class="btn-editar" onclick="abrirEditorFicha(decodeURIComponent('${codT(f.t)}'))">✎ editar tudo</button><button class="btn-estado" onclick="desativarFicha(decodeURIComponent('${codT(f.t)}'))" title="Mover para Desativados">✕ desativar</button>`);
+    : barra(chip, `<button class="btn-editar" onclick="irParaOrdenamento('${cod}')" title="Ver esta ficha no planejamento do buffet">🧭 planejamento</button><button class="btn-editar" onclick="irParaCompras()" title="Voltar para a lista de compras">🛒 compras</button><button class="btn-editar" onclick="abrirEditorFicha(decodeURIComponent('${codT(f.t)}'))">✎ editar tudo</button><button class="btn-estado" onclick="desativarFicha(decodeURIComponent('${codT(f.t)}'))" title="Mover para Desativados">✕ desativar</button>`);
   return `
   <article class="ficha${inativa ? ' inativa' : ''}" data-chave="${codT(f.t)}">
     ${estado}
