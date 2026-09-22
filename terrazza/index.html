@@ -379,7 +379,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-22-calendario</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-22-arancine</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1623,13 +1623,25 @@ window.addEventListener('pagehide', () => {
     });
   }
 });
+// botão 🧭 do card: abre a aba Ordenamento já com a linha do produto em destaque
+function irParaOrdenamento(tituloCod){
+  abaAtual = '__ordenamento';
+  renderAbas(); render();
+  setTimeout(() => {
+    const tr = document.querySelector(`.orden-tabela tr[data-chave="${tituloCod}"]`);
+    if (!tr) return;
+    tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    tr.style.outline = '3px solid #b8860b';
+    setTimeout(() => { tr.style.outline = ''; }, 2500);
+  }, 150);
+}
 function ordenLinha(x){
   const f = x.f, o = { fixo: f.bufFixo === true, dias: f.bufDias || [], pos: f.bufPos, gn: f.bufGn || gnPadrao(f), pista: f.bufPista || '', inaug: f.bufInaug === true };
   const cod = codT(f.t), dbid = x.dbRow ? x.dbRow.id : '';
   const dias = [1,2,3,4,5].map(d => `<label title="${DIAS_SEMANA[d-1]}">${d}<input type="checkbox" ${o.dias.includes(d) ? 'checked' : ''} onchange="ordenMudou('${cod}','${dbid}','dia',{dia:${d},on:this.checked})"></label>`).join('');
   const gnSel = GN_OPCOES.map(g => `<option value="${g}"${o.gn === g ? ' selected' : ''}>${g}</option>`).join('');
   const pistaSel = [''].concat(PISTAS).map(p => `<option value="${p}"${o.pista === p ? ' selected' : ''}>${p || '—'}</option>`).join('');
-  return `<tr class="${o.fixo ? 'orden-fixo-on' : ''}">
+  return `<tr class="${o.fixo ? 'orden-fixo-on' : ''}" data-chave="${cod}">
     <td class="num">${f.num || '—'}</td>
     <td class="prod" title="Abrir a ficha" onclick="irParaFicha('${cod}','${f.cat}')">${f.t}</td>
     <td class="cat-col">${f.cat}</td>
@@ -1889,10 +1901,8 @@ function renderAbas(){
   };
   mk('Todos os Produtos', FICHAS.filter(fichaAtiva).length + FICHAS_DB.filter(r => !r.desativada).length, '__todos');
   CATEGORIAS.forEach(c => { const n = contar(c); if (n) mk(c, n, c); }); // categoria zerada não polui o menu
-  mk('📅 Planejamento', null, '__planejamento', 'especial');
   mk('🧭 Ordenamento', null, '__ordenamento', 'especial');
   mk('📆 Calendário', null, '__calendario', 'especial');
-  mk('Montagem de Buffet', MONTAGENS.length + upsDe(MONTAGEM_KEY).length, '__montagem', 'especial');
   mk('✕ Desativados', contarDesativados(), '__desativados', 'especial');
   mk('⬆ Upload', null, '__upload', 'especial');
 }
@@ -1926,11 +1936,11 @@ function fichaHTML(f, inativa){
     ? (inativa
       ? barra(`<span class="badge-origem">${f.cat && f.cat !== 'Sem categoria' ? 'aba sugerida: ' + f.cat : 'sem categoria — escolher ao habilitar'}</span>`,
               `<button class="btn-estado reativar" onclick="abrirEditorDb('${f._dbId}')">↩ habilitar</button>`)
-      : barra(chip, `<button class="btn-editar" onclick="abrirEditorDb('${f._dbId}')">✎ editar tudo</button><button class="btn-estado" onclick="dbDesativar('${f._dbId}')" title="Mover para Desativados">✕ desativar</button>`))
+      : barra(chip, `<button class="btn-editar" onclick="irParaOrdenamento('${cod}')" title="Ver esta ficha no planejamento do buffet">🧭 planejamento</button><button class="btn-editar" onclick="abrirEditorDb('${f._dbId}')">✎ editar tudo</button><button class="btn-estado" onclick="dbDesativar('${f._dbId}')" title="Mover para Desativados">✕ desativar</button>`))
     : inativa
     ? barra(`<span class="badge-origem">era: ${f.cat}</span>`,
             `<button class="btn-estado reativar" onclick="reativarFicha(decodeURIComponent('${codT(f.t)}'))">↩ reativar</button>`)
-    : barra(chip, `<button class="btn-editar" onclick="abrirEditorFicha(decodeURIComponent('${codT(f.t)}'))">✎ editar tudo</button><button class="btn-estado" onclick="desativarFicha(decodeURIComponent('${codT(f.t)}'))" title="Mover para Desativados">✕ desativar</button>`);
+    : barra(chip, `<button class="btn-editar" onclick="irParaOrdenamento('${cod}')" title="Ver esta ficha no planejamento do buffet">🧭 planejamento</button><button class="btn-editar" onclick="abrirEditorFicha(decodeURIComponent('${codT(f.t)}'))">✎ editar tudo</button><button class="btn-estado" onclick="desativarFicha(decodeURIComponent('${codT(f.t)}'))" title="Mover para Desativados">✕ desativar</button>`);
   return `
   <article class="ficha${inativa ? ' inativa' : ''}" data-chave="${codT(f.t)}">
     ${estado}
@@ -2024,7 +2034,6 @@ function uploadTabHTML(){
       <label>2 · O que é?</label>
       <select id="upTipo">
         <option value="ficha" selected>Ficha de produto (vira ficha automaticamente)</option>
-        <option value="montagem">Foto de montagem do buffet</option>
       </select>
       <br>
       <button class="enviar" onclick="enviarUploads()">Enviar</button>
@@ -2175,14 +2184,10 @@ function render(){
       if (!n) return '';
       return `<h2 class="grupo">${cat}</h2><div class="regua"><span>❧</span></div>` + catHTML(cat);
     }).join('');
-  } else if (abaAtual === '__planejamento') {
-    contEl.innerHTML = planejamentoHTML();
   } else if (abaAtual === '__ordenamento') {
     contEl.innerHTML = ordenamentoHTML();
   } else if (abaAtual === '__calendario') {
     contEl.innerHTML = calendarioHTML();
-  } else if (abaAtual === '__montagem') {
-    contEl.innerHTML = montagemHTML();
   } else if (abaAtual === '__desativados') {
     contEl.innerHTML = desativadosHTML();
   } else if (abaAtual === '__upload') {
