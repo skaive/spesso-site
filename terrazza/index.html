@@ -402,7 +402,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-compras-fechadas</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-compras-links</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1773,7 +1773,7 @@ function comprasHTML(){
         linhas += `<tr class="cmp-det-${idx}" style="${aberto ? '' : 'display:none'}">
           <td></td>
           <td class="cat-col" style="padding-left:24px">↳</td>
-          <td class="cat-col">${l.prato}</td>
+          <td class="prod" title="Abrir a ficha — corrija o insumo lá se estiver errado" onclick="irParaFicha('${codT(l.prato)}','')">${l.prato}</td>
           <td><input type="number" min="0" step="0.05" value="${l.qtd}" style="width:74px" onchange="compraMudou(${idx},${li},this.value)"></td>
           <td class="cat-col">${it.unidade}</td>
           <td></td>
@@ -1798,15 +1798,15 @@ function comprasHTML(){
     </div>`;
 }
 function copiarComprasExcel(btn){
+  // exporta a LISTA EFETIVA: só insumo + total do dia (pedido do Renato)
   const itens = (COMPRAS && COMPRAS.itens) || [];
   const linhas = [];
   for (const cat of COMPRAS_CATS) {
     for (const it of itens.filter(x => (x.categoria || 'Outros') === cat).sort((a, b) => totalInsumo(b) - totalInsumo(a))) {
-      for (const l of (it.linhas || [])) linhas.push([cat, it.insumo, l.prato, String(l.qtd).replace('.', ','), it.unidade, (it.obs || []).join('; ')].join('\t'));
-      linhas.push([cat, it.insumo, 'TOTAL', String(totalInsumo(it)).replace('.', ','), it.unidade, ''].join('\t'));
+      linhas.push([cat, it.insumo, String(totalInsumo(it)).replace('.', ','), it.unidade].join('\t'));
     }
   }
-  const tsv = ['Categoria\tInsumo\tPrato\tQtd (1 dia)\tUn\tObs'].concat(linhas).join('\n');
+  const tsv = ['Categoria\tInsumo\tQtd (1 dia)\tUn'].concat(linhas).join('\n');
   navigator.clipboard.writeText(tsv).then(() => {
     btn.textContent = '✓ Copiado!';
     setTimeout(() => { btn.textContent = '⧉ Copiar para Excel'; }, 2000);
