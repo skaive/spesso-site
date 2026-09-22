@@ -281,6 +281,7 @@
   .orden-dias { display:flex; gap:4px; }
   .orden-dias label { display:flex; flex-direction:column; align-items:center; font-size:.6rem; color:#7a745f; cursor:pointer; }
   .orden-fixo-on td { background:#eef2e6 !important; }
+  .orden-grupo td { background:var(--navy) !important; color:#fff; font-weight:600; letter-spacing:.08em; font-size:.72rem; text-transform:uppercase; padding:6px 10px; }
   .btn-orden-copiar { font-family:'Jost', sans-serif; font-size:.85rem; letter-spacing:.04em; background:var(--navy); color:#fff; border:none; border-radius:999px; padding:8px 22px; cursor:pointer; }
   .btn-orden-copiar:hover { background:#2e3d6b; }
   .plan-dia .p-fixo, .plan-dia .p-rot { cursor:pointer; padding:1px 0; }
@@ -364,7 +365,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-21-ordenamento-2</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-22-ordenamento-3</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1525,6 +1526,10 @@ function ordenLista(){
   return fichasUniverso().slice().sort((a, b) => {
     const ra = ordemBuffet(a.f), rb = ordemBuffet(b.f);
     if (ra !== rb) return ra - rb;
+    if (ra === 5) { // fora do bloco prioritário: agrupado por categoria, na ordem das abas
+      const ca = CATEGORIAS.indexOf(a.f.cat), cb = CATEGORIAS.indexOf(b.f.cat);
+      if (ca !== cb) return ca - cb;
+    }
     return (a.f.t || '').localeCompare(b.f.t || '');
   });
 }
@@ -1537,7 +1542,7 @@ function ordenMudou(tituloCod, dbId, campo, valor){
   const alvo = row ? row.dados : FICHAS.find(x => x.t === titulo);
   if (!alvo) return;
   const campos = {};
-  if (campo === 'fixo') campos.plano = valor ? 'fixo' : 'rotativo';
+  if (campo === 'fixo') campos.bufFixo = !!valor; // próprio da tabela — NÃO mexe no ★/↻ do Planejamento
   else if (campo === 'pos') campos.bufPos = valor === '' ? null : (parseInt(valor, 10) || null);
   else if (campo === 'gn') campos.bufGn = valor;
   else if (campo === 'dia') {
@@ -1568,7 +1573,7 @@ async function adotarLocalParaMural(f){
   const tit = (f.t || '').trim().toLowerCase();
   const existente = FICHAS_DB.find(r => ((r.dados && r.dados.t) || '').trim().toLowerCase() === tit);
   if (existente) {
-    ['plano','bufDias','bufPos','bufGn'].forEach(k => { if (f[k] !== undefined) existente.dados[k] = f[k]; });
+    ['bufFixo','bufDias','bufPos','bufGn'].forEach(k => { if (f[k] !== undefined) existente.dados[k] = f[k]; });
     dbPatch(existente.id, { dados: existente.dados }).catch(e => console.warn('sincronizar ordenamento falhou:', e));
     const i = FICHAS.indexOf(f);
     if (i >= 0) FICHAS.splice(i, 1);
@@ -1610,7 +1615,7 @@ window.addEventListener('pagehide', () => {
   }
 });
 function ordenLinha(x){
-  const f = x.f, o = { fixo: f.plano === 'fixo', dias: f.bufDias || [], pos: f.bufPos, gn: f.bufGn || gnPadrao(f) };
+  const f = x.f, o = { fixo: f.bufFixo === true, dias: f.bufDias || [], pos: f.bufPos, gn: f.bufGn || gnPadrao(f) };
   const cod = codT(f.t), dbid = x.dbRow ? x.dbRow.id : '';
   const dias = [1,2,3,4,5].map(d => `<label title="${DIAS_SEMANA[d-1]}">${d}<input type="checkbox" ${o.dias.includes(d) ? 'checked' : ''} onchange="ordenMudou('${cod}','${dbid}','dia',{dia:${d},on:this.checked})"></label>`).join('');
   const gnSel = GN_OPCOES.map(g => `<option value="${g}"${o.gn === g ? ' selected' : ''}>${g}</option>`).join('');
@@ -1625,9 +1630,18 @@ function ordenLinha(x){
   </tr>`;
 }
 function ordenamentoHTML(){
-  const linhas = ordenLista().map(ordenLinha).join('');
+  let linhas = '', ultimaCat = null, cabecalhoTopo = false;
+  for (const x of ordenLista()) {
+    if (ordemBuffet(x.f) < 5) {
+      if (!cabecalhoTopo) { linhas += `<tr class="orden-grupo"><td colspan="7">Início do buffet — saladas · arroz · feijão · legumes · farofa</td></tr>`; cabecalhoTopo = true; }
+    } else if (x.f.cat !== ultimaCat) {
+      linhas += `<tr class="orden-grupo"><td colspan="7">${x.f.cat}</td></tr>`;
+      ultimaCat = x.f.cat;
+    }
+    linhas += ordenLinha(x);
+  }
   return `<h2 class="grupo">Ordenamento Inicial do Buffet</h2>
-    <p class="grupo-sub">Na ordem do buffet: saladas → arroz → feijão → legumes → farofa de ovos → resto em ordem alfabética · marque se é fixa (★, todo dia), os dias que roda (1=seg … 5=sex), a posição e a GN — salva sozinho para todos</p>
+    <p class="grupo-sub">Início do buffet primeiro (saladas → arroz → feijão → legumes → farofa de ovos) e o resto separado por categoria · marque se é fixa (todo dia), os dias que roda (1=seg … 5=sex), a posição e a GN — salva sozinho para todos</p>
     <div class="regua"><span>🧭</span></div>
     <div class="plan-secao" style="max-width:1160px">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px">
@@ -1643,7 +1657,7 @@ function ordenamentoHTML(){
 function copiarOrdenExcel(btn){
   const linhas = ordenLista().map(x => {
     const f = x.f;
-    return [f.num || '', f.t, f.cat, f.plano === 'fixo' ? 'FIXO' : '', (f.bufDias || []).join(','), f.bufPos ?? '', f.bufGn || gnPadrao(f)].join('\t');
+    return [f.num || '', f.t, f.cat, f.bufFixo === true ? 'FIXO' : '', (f.bufDias || []).join(','), f.bufPos ?? '', f.bufGn || gnPadrao(f)].join('\t');
   });
   const tsv = ['Nº\tProduto\tCategoria\tFixo\tDias\tPosição\tGN'].concat(linhas).join('\n');
   navigator.clipboard.writeText(tsv).then(() => {
