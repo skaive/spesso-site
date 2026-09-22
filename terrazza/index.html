@@ -323,6 +323,18 @@
     header.topo,nav.abas-zona,footer,h2.grupo,p.grupo-sub,.regua,.btn-topo,.btn-nova { display:none !important; }
     .wrap { max-width:none; padding:0; }
     .ficha { box-shadow:none; width:210mm; min-height:297mm; max-width:none; margin:0; page-break-after:always; }
+    /* calendário: 1 dia por folha A3 retrato (o @page A3 entra por JS só nesta aba) */
+    body.aba-calendario .plan-secao { border:none; padding:0; margin:0; max-width:none; background:#fff; }
+    body.aba-calendario .cal-aviso-print, body.aba-calendario .btn-orden-copiar { display:none !important; }
+    body.aba-calendario .cal-grid { display:block; }
+    body.aba-calendario .cal-dia { border:none; border-radius:0; page-break-after:always; width:100%; }
+    body.aba-calendario .cal-dia > header { -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:15pt; padding:4mm 6mm; }
+    body.aba-calendario .cal-corpo { column-count:2; column-gap:7mm; }
+    body.aba-calendario .cal-pista { break-inside:avoid; -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:8pt; padding:1.6mm 2mm; column-span:none; }
+    body.aba-calendario .cal-item { break-inside:avoid; padding:1.1mm 1mm; font-size:8.6pt; cursor:default; }
+    body.aba-calendario .cal-item img, body.aba-calendario .cal-item .sem-thumb { width:10mm; height:10mm; }
+    body.aba-calendario .cal-item .cal-meta { font-size:7.2pt; }
+    body.aba-calendario .cal-item .cal-nome small { font-size:6.4pt; }
   }
   .btn-nova { position:fixed; right:22px; bottom:22px; z-index:30; border:0; border-radius:999px; background:var(--navy); color:#fff; padding:13px 22px; font:700 .9rem inherit; box-shadow:0 4px 18px rgba(0,0,0,.28); cursor:pointer; }
   .editor-modal { position:fixed; inset:0; z-index:100; background:rgba(15,20,38,.78); display:none; overflow:auto; padding:24px; }
@@ -379,7 +391,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-22-arancine</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-22-calendario-a3</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1699,7 +1711,7 @@ function calColunaHTML(titulo, sub, itens, inaug){
     if (!doPista.length) return '';
     return `<div class="cal-pista">Pista ${p}</div>` + doPista.map(calItemHTML).join('');
   }).join('');
-  return `<div class="cal-dia${inaug ? ' inaug' : ''}"><header>${titulo}<small>${itens.length} itens${sub ? ' · ' + sub : ''}</small></header>${blocos || '<div class="cal-item">—</div>'}</div>`;
+  return `<div class="cal-dia${inaug ? ' inaug' : ''}"><header>${titulo}<small>${itens.length} itens${sub ? ' · ' + sub : ''}</small></header><div class="cal-corpo">${blocos || '<div class="cal-item">—</div>'}</div></div>`;
 }
 function calendarioHTML(){
   const ativas = fichasUniverso();
@@ -1712,6 +1724,9 @@ function calendarioHTML(){
     <p class="grupo-sub">Cada dia mostra os fixos + os que rodam naquele dia, na ordem das posições · pistas na ordem do salão: Fria Grande → Quente → Fria Pequena · a Inauguração é o menu fixo da 1ª semana (o rodízio entra na 2ª)</p>
     <div class="regua"><span>📆</span></div>
     <div class="plan-secao" style="max-width:1600px; background:transparent; border:none; padding:0">
+      <div class="cal-aviso-print" style="display:flex; justify-content:flex-end; margin-bottom:10px">
+        <button class="btn-orden-copiar" onclick="window.print()">🖨 Imprimir (1 dia por folha A3 retrato)</button>
+      </div>
       <div class="cal-grid">${colunas.join('')}</div>
     </div>`;
 }
@@ -2177,6 +2192,12 @@ function desativadosHTML(){
 }
 
 function render(){
+  // impressão do calendário sai em A3 retrato, 1 dia por folha; nas demais abas as fichas seguem A4
+  const noCal = abaAtual === '__calendario';
+  document.body.classList.toggle('aba-calendario', noCal);
+  let pageA3 = document.getElementById('page-a3');
+  if (noCal && !pageA3) { pageA3 = document.createElement('style'); pageA3.id = 'page-a3'; pageA3.textContent = '@page { size: A3 portrait; margin: 8mm; }'; document.head.appendChild(pageA3); }
+  if (!noCal && pageA3) pageA3.remove();
   if (BUSCA.length >= 2) { contEl.innerHTML = buscaHTML(); return; }
   if (abaAtual === '__todos') {
     contEl.innerHTML = CATEGORIAS.map(cat => {
@@ -2261,6 +2282,9 @@ async function apagarUpload(id){
   }
   // fichas ativas do mural sem Nº ganham o próximo (uma vez; nada a fazer quando todas já têm)
   await numerarAtivasSemNumero();
+  // link direto para uma aba especial (ex.: .../terrazza/#calendario para imprimir)
+  const hashAba = { '#calendario': '__calendario', '#ordenamento': '__ordenamento' }[location.hash];
+  if (hashAba) abaAtual = hashAba;
   renderAbas(); render();
   // fichas presas neste navegador sobem para o mural (dedup por título)
   sincronizarMuralAutomatico().catch(e => console.warn('sincronização do mural:', e));
