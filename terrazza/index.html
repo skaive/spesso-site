@@ -284,13 +284,18 @@
   .orden-grupo td { background:var(--navy) !important; color:#fff; font-weight:600; letter-spacing:.08em; font-size:.72rem; text-transform:uppercase; padding:6px 10px; }
   .btn-orden-copiar { font-family:'Jost', sans-serif; font-size:.85rem; letter-spacing:.04em; background:var(--navy); color:#fff; border:none; border-radius:999px; padding:8px 22px; cursor:pointer; }
   .btn-orden-copiar:hover { background:#2e3d6b; }
-  /* plaquinhas de buffet 6×3cm (nome + posição) */
+  /* plaquinhas de buffet 6×3cm — programação visual do cardápio Spesso Cucina:
+     azul cobalto sobre creme de azulejo, moldura dupla de cantos arredondados */
   .plaq-grid { display:flex; flex-wrap:wrap; gap:4mm; background:#fff; border:1px solid var(--line); border-radius:12px; padding:6mm; }
-  .plaq { width:60mm; height:30mm; flex:none; border:1.2px solid var(--navy); background:#fff; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2mm 2.5mm; break-inside:avoid; }
-  .plaq::before { content:''; position:absolute; inset:1.3mm; border:.4px solid var(--navy); pointer-events:none; }
+  .plaq { width:60mm; height:30mm; flex:none; border:1.5px solid var(--navy); border-radius:2.6mm; background:#f9f6ec; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2mm 3mm; break-inside:avoid; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .plaq::before { content:''; position:absolute; inset:1.1mm; border:.5px solid var(--navy); border-radius:1.8mm; pointer-events:none; }
   /* UMA fonte e UM tamanho para todas (pedido do Renato): nome longo quebra em 2–3 linhas, nunca encolhe */
-  .plaq-nome { font-family:'Libre Bodoni','Times New Roman',serif; font-weight:700; color:var(--navy); font-size:11pt; line-height:1.12; text-transform:uppercase; letter-spacing:.02em; word-spacing:.14em; overflow-wrap:break-word; max-width:54mm; }
-  .plaq-pos { margin-top:1.2mm; font-family:'Libre Bodoni','Times New Roman',serif; font-size:8pt; letter-spacing:.14em; color:#7a745f; text-transform:uppercase; }
+  .plaq-nome { font-family:'Libre Bodoni','Times New Roman',serif; font-weight:700; color:var(--navy); font-size:11pt; line-height:1.12; text-transform:uppercase; letter-spacing:.02em; word-spacing:.14em; overflow-wrap:break-word; max-width:52mm; }
+  .plaq-pos { margin-top:1.4mm; display:flex; align-items:center; gap:2mm; font-family:'Libre Bodoni','Times New Roman',serif; font-weight:700; font-size:8.5pt; letter-spacing:.22em; color:var(--navy); }
+  .plaq-pos .fio { display:inline-block; width:7mm; border-top:.5px solid var(--navy); opacity:.65; }
+  .plaq-filtros { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .plaq-filtros button { border:1px solid var(--navy); background:#fff; color:var(--navy); border-radius:999px; font-size:.8rem; padding:5px 16px; cursor:pointer; font-family:'Jost',sans-serif; letter-spacing:.04em; }
+  .plaq-filtros button.on { background:var(--navy); color:#fff; }
   /* calendário semanal do buffet */
   .cal-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:12px; align-items:start; }
   .cal-dia { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
@@ -402,7 +407,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-volta-compras</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-plaquinhas-3</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1863,8 +1868,15 @@ function calendarioHTML(){
 /* ══════════ PLAQUINHAS DE BUFFET (aba 🏷) ══════════
    Etiquetas 6×3cm (nome + posição) para a frente de cada posição,
    na ordem física do salão (pista → posição → nº); imprimir em A4. */
+let __plaqFiltro = 'todos'; // 'todos' | 'inaug' | 1..5
+function plaqFiltrar(v){ __plaqFiltro = v; render(); }
+function plaqEntraNoDia(f){
+  if (__plaqFiltro === 'todos') return true;
+  if (__plaqFiltro === 'inaug') return f.bufInaug === true;
+  return f.bufFixo === true || (f.bufDias || []).includes(__plaqFiltro);
+}
 function plaquinhasHTML(){
-  const itens = fichasUniverso().slice().sort((a, b) => {
+  const itens = fichasUniverso().filter(x => plaqEntraNoDia(x.f)).sort((a, b) => {
     const pa = CAL_PISTAS.indexOf(a.f.bufPista || ''), pb = CAL_PISTAS.indexOf(b.f.bufPista || '');
     if (pa !== pb) return (pa < 0 ? 9 : pa) - (pb < 0 ? 9 : pb);
     if ((a.f.bufPos ?? 999) !== (b.f.bufPos ?? 999)) return (a.f.bufPos ?? 999) - (b.f.bufPos ?? 999);
@@ -1872,14 +1884,18 @@ function plaquinhasHTML(){
   });
   const cards = itens.map(x => {
     const f = x.f;
-    return `<div class="plaq"><div class="plaq-nome">${f.t}</div><div class="plaq-pos">Posição ${f.bufPos ?? '—'}</div></div>`;
+    const p = f.bufPos != null ? 'P' + String(f.bufPos).padStart(2, '0') : 'P—';
+    return `<div class="plaq"><div class="plaq-nome">${f.t}</div><div class="plaq-pos"><span class="fio"></span>${p}<span class="fio"></span></div></div>`;
   }).join('');
+  const filtros = [['todos', 'Todos'], ['inaug', '🎉 Inauguração'], [1, 'Seg'], [2, 'Ter'], [3, 'Qua'], [4, 'Qui'], [5, 'Sex']]
+    .map(([v, rot]) => `<button class="${String(__plaqFiltro) === String(v) ? 'on' : ''}" onclick="plaqFiltrar(${typeof v === 'string' ? `'${v}'` : v})">${rot}</button>`).join('');
   return `<h2 class="grupo">Plaquinhas do Buffet</h2>
-    <p class="grupo-sub">Etiquetas de 6 × 3 cm com nome e posição, na ordem do salão (pista → posição) — recortar na borda e colocar na frente de cada posição</p>
+    <p class="grupo-sub">Etiquetas de 6 × 3 cm com nome e posição, na ordem do salão (pista → posição) — escolha o dia, imprima e recorte na borda</p>
     <div class="regua"><span>🏷</span></div>
     <div class="plan-secao" style="max-width:1260px">
-      <div class="plaq-aviso" style="display:flex; justify-content:flex-end; margin-bottom:10px">
-        <button class="btn-orden-copiar" onclick="window.print()">🖨 Imprimir plaquinhas (A4)</button>
+      <div class="plaq-aviso" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px">
+        <div class="plaq-filtros"><span class="plan-aviso" style="margin:0">Dia:</span>${filtros}<span class="plan-aviso" style="margin:0">· ${itens.length} plaquinhas</span></div>
+        <button class="btn-orden-copiar" onclick="window.print()">🖨 Imprimir (A4)</button>
       </div>
       <div class="plaq-grid">${cards}</div>
     </div>`;
