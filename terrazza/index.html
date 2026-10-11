@@ -407,7 +407,7 @@
 <button class="btn-topo" id="btnTopo" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
 <div class="editor-modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorTitulo"></div>
 
-<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-09-23-plaquinhas-3</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
+<footer>Spesso Cucina · Planejamento do Buffet Mediterrâneo · <span id="terrazza-versao">v2026-10-11-compras-por-menu</span><br>Tudo por quilo — rendimento pesado pela chef no 1º preparo. Ingredientes e tempos são estimativas iniciais; fichas vivem no mural compartilhado.</footer>
 
 <script>
 const PIN = 'pinterest-medito/produtos/';
@@ -1711,18 +1711,28 @@ function ordenamentoHTML(){
       </table></div>
     </div>`;
 }
-/* ══════════ LISTA DE COMPRAS DA INAUGURAÇÃO (aba 🛒) ══════════
-   Gerada a partir das fichas marcadas como Inauguração: consumo estimado
-   p/ 100 clientes × 450 g, receitas escaladas e insumos consolidados.
-   Vive em terrazza_config (chave 'compras_inauguracao'); qtd/dia editável. */
-let COMPRAS = null, __comprasCarregando = false
+/* ══════════ LISTA DE COMPRAS POR MENU (aba 🛒) ══════════
+   Cada ficha tem seus insumos em FORMA DE COMPRA por kg de prato pronto
+   (terrazza_config chave 'compras_pratos', pratos[id da ficha]). A lista do
+   menu escolhido (Inauguração, Seg–Sex ou a semana) reparte o consumo do dia
+   (clientes × g/cliente) entre os pratos do menu pelo peso da categoria
+   (o mesmo do Planejamento) e soma por insumo. Ficha sem ingrediente não
+   gera compra — vira aviso (regra: nunca inventar insumo). */
+let COMPRAS = null, __comprasCarregando = false;
+let __comprasMenu = 'inaug'; // 'inaug' | 1..5 | 'semana'
+let __comprasLista = [];     // insumos do menu na tela (índice = id no DOM)
 async function carregarCompras(){
   if (__comprasCarregando) return; __comprasCarregando = true;
   try {
-    const r = await fetch(SB_URL + '/rest/v1/terrazza_config?chave=eq.compras_inauguracao&select=valor', { headers: { apikey: SB_KEY } });
-    if (r.ok) { const [row] = await r.json(); COMPRAS = row ? row.valor : { itens: [] }; }
-  } catch(e) { console.warn('compras indisponível:', e); COMPRAS = { itens: [] }; }
-  finally { __comprasCarregando = false; if (abaAtual === '__compras') render(); }
+    const r = await fetch(SB_URL + '/rest/v1/terrazza_config?chave=eq.compras_pratos&select=valor', { headers: { apikey: SB_KEY } });
+    if (r.ok) { const [row] = await r.json(); COMPRAS = row ? row.valor : { pratos: {} }; }
+  } catch(e) { console.warn('compras indisponível:', e); COMPRAS = { pratos: {} }; }
+  finally {
+    COMPRAS = COMPRAS || { pratos: {} };
+    COMPRAS.pratos = COMPRAS.pratos || {}; COMPRAS.ok = COMPRAS.ok || {};
+    COMPRAS.premissas = Object.assign({ clientes: 100, gCliente: 450 }, COMPRAS.premissas || {});
+    __comprasCarregando = false; if (abaAtual === '__compras') render();
+  }
 }
 let __comprasTimer = null;
 function salvarCompras(){
@@ -1733,91 +1743,167 @@ function salvarCompras(){
       await fetch(SB_URL + '/rest/v1/terrazza_config?on_conflict=chave', {
         method: 'POST', keepalive: true,
         headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
-        body: JSON.stringify({ chave: 'compras_inauguracao', valor: COMPRAS, atualizado_em: new Date().toISOString() })
+        body: JSON.stringify({ chave: 'compras_pratos', valor: COMPRAS, atualizado_em: new Date().toISOString() })
       });
     } catch(e) { alert('Não consegui salvar a lista de compras: ' + e.message); }
   }, 600);
 }
-function totalInsumo(it){ return Math.round((it.linhas || []).reduce((s, l) => s + (l.qtd || 0), 0) * 1000) / 1000; }
+const COMPRAS_MENUS = [['inaug', '🎉 Inauguração'], [1, 'Segunda'], [2, 'Terça'], [3, 'Quarta'], [4, 'Quinta'], [5, 'Sexta'], ['semana', 'Semana (seg–sex)']];
+function comprasMenuNome(m){ const x = COMPRAS_MENUS.find(([v]) => String(v) === String(m)); return x ? x[1].replace('🎉 ', '') : String(m); }
+function comprasMenuEscolher(v){ __comprasMenu = v; __comprasAbertos.clear(); render(); }
+function noMenu(f, m){
+  if (m === 'inaug') return f.bufInaug === true;
+  return f.bufFixo === true || (f.bufDias || []).includes(m);
+}
+function pesoCompra(f){
+  if (/^MOLHO\b/i.test(f.t || '')) return 0.3; // molho acompanha, não é prato
+  const r = PLANO_CFG.regras && PLANO_CFG.regras[f.cat];
+  return (r && Number(r.peso) > 0) ? Number(r.peso) : (PESOS_SUGERIDOS[f.cat] || (f.cat === 'Risoto' ? 1.2 : 1));
+}
+function calcPratoDe(f){ return (f._dbId && COMPRAS.pratos[f._dbId]) || Object.values(COMPRAS.pratos).find(p => p.prato === f.t) || null; }
+// um dia de menu → { itens: Map(chave → {insumo,categoria,unidade,obs,linhas}), semCalc, kgDia, nPratos }
+function comprasDoDia(m){
+  const pr = COMPRAS.premissas, kgDia = (Number(pr.clientes) || 0) * (Number(pr.gCliente) || 0) / 1000;
+  const pratos = fichasUniverso().map(x => x.f).filter(f => noMenu(f, m));
+  const somaPeso = pratos.reduce((s, f) => s + pesoCompra(f), 0) || 1;
+  const itens = new Map(), semCalc = [];
+  for (const f of pratos) {
+    const consumo = kgDia * pesoCompra(f) / somaPeso;
+    const calc = calcPratoDe(f);
+    if (!calc || !(calc.insumos || []).length) { semCalc.push(f); continue; }
+    calc.insumos.forEach(ins => {
+      const chave = ins.insumo + '|' + ins.unidade;
+      if (!itens.has(chave)) itens.set(chave, { chave, insumo: ins.insumo, categoria: ins.categoria, unidade: ins.unidade, linhas: [] });
+      const it = itens.get(chave);
+      it.linhas.push({ f, ins, consumo, qtd: (Number(ins.porKg) || 0) * consumo });
+    });
+  }
+  return { itens, semCalc, kgDia, nPratos: pratos.length };
+}
+function comprasDoMenu(m){
+  if (m !== 'semana') return comprasDoDia(m);
+  // semana = soma de seg a sex; mesmo prato em vários dias vira uma linha só
+  const tot = { itens: new Map(), semCalc: [], kgDia: 0, nPratos: 0 };
+  for (let d = 1; d <= 5; d++) {
+    const dia = comprasDoDia(d);
+    tot.kgDia += dia.kgDia; tot.nPratos += dia.nPratos;
+    dia.semCalc.forEach(f => { if (!tot.semCalc.includes(f)) tot.semCalc.push(f); });
+    dia.itens.forEach((it, chave) => {
+      if (!tot.itens.has(chave)) tot.itens.set(chave, Object.assign({}, it, { linhas: [] }));
+      const alvo = tot.itens.get(chave);
+      it.linhas.forEach(l => {
+        const ja = alvo.linhas.find(x => x.ins === l.ins);
+        if (ja) { ja.qtd += l.qtd; ja.consumo += l.consumo; ja.dias++; } else alvo.linhas.push(Object.assign({ dias: 1 }, l));
+      });
+    });
+  }
+  return tot;
+}
+function totalInsumo(it){ return Math.round(it.linhas.reduce((s, l) => s + (l.qtd || 0), 0) * 1000) / 1000; }
 // detalhamento fechado por padrão: só a lista efetiva de compras; abre por insumo
 const __comprasAbertos = new Set();
 function comprasToggle(idx){
-  const abrir = !__comprasAbertos.has(idx);
-  if (abrir) __comprasAbertos.add(idx); else __comprasAbertos.delete(idx);
+  const it = __comprasLista[idx]; if (!it) return;
+  const abrir = !__comprasAbertos.has(it.chave);
+  if (abrir) __comprasAbertos.add(it.chave); else __comprasAbertos.delete(it.chave);
   document.querySelectorAll('.cmp-det-' + idx).forEach(tr => { tr.style.display = abrir ? '' : 'none'; });
   const seta = document.getElementById('cmp-seta-' + idx);
   if (seta) seta.textContent = abrir ? '▾' : '▸';
 }
 function compraMudou(idx, li, valor){
-  const it = COMPRAS.itens[idx]; if (!it) return;
-  if (li === 'ok') { it.ok = !!valor; salvarCompras(); return; }
-  const linha = it.linhas[li]; if (!linha) return;
-  linha.qtd = parseFloat(String(valor).replace(',', '.')) || 0;
+  const it = __comprasLista[idx]; if (!it) return;
+  if (li === 'ok') {
+    const ok = COMPRAS.ok[__comprasMenu] = COMPRAS.ok[__comprasMenu] || {};
+    if (valor) ok[it.chave] = true; else delete ok[it.chave];
+    salvarCompras(); return;
+  }
+  const l = it.linhas[li]; if (!l) return;
+  // a quantidade digitada vira a proporção do insumo por kg do prato — vale para todos os menus
+  l.qtd = parseFloat(String(valor).replace(',', '.')) || 0;
+  l.ins.porKg = l.consumo > 0 ? Math.round(l.qtd / l.consumo * 100000) / 100000 : 0;
   salvarCompras();
   const el = document.getElementById('cmp-tot-' + idx);
   if (el) el.textContent = fmtQtd(totalInsumo(it)); // total refeito na hora
 }
+function comprasPremissa(campo, valor){
+  COMPRAS.premissas[campo] = parseFloat(String(valor).replace(',', '.')) || 0;
+  salvarCompras(); render();
+}
 function fmtQtd(v){ return (Math.round(v * 1000) / 1000).toLocaleString('pt-BR'); }
 const COMPRAS_CATS = ['Hortifruti', 'Proteínas', 'Laticínios e Frios', 'Mercearia', 'Padaria', 'Outros'];
-function comprasHTML(){
-  if (COMPRAS === null) { carregarCompras(); return `<h2 class="grupo">Lista de Compras — Inauguração</h2><div class="regua"><span>🛒</span></div><p class="plan-aviso" style="text-align:center">Carregando a lista do mural…</p>`; }
-  const itens = COMPRAS.itens || [];
-  if (!itens.length) return `<h2 class="grupo">Lista de Compras — Inauguração</h2><div class="regua"><span>🛒</span></div><p class="plan-aviso" style="text-align:center">Lista ainda não gerada.</p>`;
-  let linhas = '';
+function comprasOrdenadas(itensMap){
+  const lista = [];
   for (const cat of COMPRAS_CATS) {
-    const doCat = itens.map((it, idx) => ({ it, idx })).filter(x => (x.it.categoria || 'Outros') === cat);
-    if (!doCat.length) continue;
-    linhas += `<tr class="orden-grupo"><td colspan="6">${cat}</td></tr>`;
-    doCat.sort((a, b) => totalInsumo(b.it) - totalInsumo(a.it));
-    for (const { it, idx } of doCat) {
-      const aberto = __comprasAbertos.has(idx);
-      // linha do TOTAL primeiro = a lista efetiva de compras; clique abre o detalhamento por prato
-      linhas += `<tr class="orden-fixo-on" style="cursor:pointer" onclick="comprasToggle(${idx})" title="Clique para ${aberto ? 'fechar' : 'abrir'} o detalhamento por prato">
-        <td style="text-align:center" onclick="event.stopPropagation()"><input type="checkbox" ${it.ok ? 'checked' : ''} onchange="compraMudou(${idx},'ok',this.checked)" title="Comprado"></td>
-        <td><span id="cmp-seta-${idx}" style="display:inline-block; width:14px; color:#8a6508">${aberto ? '▾' : '▸'}</span><b>${it.insumo}</b></td>
-        <td class="cat-col">${(it.linhas || []).length} prato${(it.linhas || []).length > 1 ? 's' : ''}</td>
-        <td class="num" id="cmp-tot-${idx}">${fmtQtd(totalInsumo(it))}</td>
-        <td class="cat-col"><b>${it.unidade}</b></td>
-        <td class="cat-col">${(it.obs || []).join('; ')}</td>
-      </tr>`;
-      (it.linhas || []).forEach((l, li) => {
-        linhas += `<tr class="cmp-det-${idx}" style="${aberto ? '' : 'display:none'}">
-          <td></td>
-          <td class="cat-col" style="padding-left:24px">↳</td>
-          <td class="prod" title="Abrir a ficha — corrija o insumo lá se estiver errado" onclick="irParaFicha('${codT(l.prato)}','')">${l.prato}</td>
-          <td><input type="number" min="0" step="0.05" value="${l.qtd}" style="width:74px" onchange="compraMudou(${idx},${li},this.value)"></td>
-          <td class="cat-col">${it.unidade}</td>
-          <td></td>
-        </tr>`;
-      });
-    }
+    lista.push(...[...itensMap.values()].filter(it => (COMPRAS_CATS.includes(it.categoria) ? it.categoria : 'Outros') === cat)
+      .sort((a, b) => totalInsumo(b) - totalInsumo(a)));
   }
-  const avisos = (COMPRAS.avisos || []).map(a => `<li>${a}</li>`).join('');
-  return `<h2 class="grupo">Lista de Compras — Inauguração</h2>
-    <p class="grupo-sub">Gerada das fichas da Inauguração${COMPRAS.geradoEm ? ' em ' + COMPRAS.geradoEm : ''} · ${COMPRAS.premissas || '100 clientes/dia × 450 g'} · uma linha por prato — ajuste qualquer quantidade e o TOTAL do insumo refaz na hora (salva para todos)</p>
+  return lista;
+}
+function comprasHTML(){
+  const titulo = `<h2 class="grupo">Lista de Compras — ${comprasMenuNome(__comprasMenu)}</h2>`;
+  if (COMPRAS === null) { carregarCompras(); return `${titulo}<div class="regua"><span>🛒</span></div><p class="plan-aviso" style="text-align:center">Carregando a lista do mural…</p>`; }
+  const { itens, semCalc, kgDia, nPratos } = comprasDoMenu(__comprasMenu);
+  const semana = __comprasMenu === 'semana';
+  const okMenu = COMPRAS.ok[__comprasMenu] || {};
+  __comprasLista = comprasOrdenadas(itens);
+  let linhas = '', catAtual = null;
+  __comprasLista.forEach((it, idx) => {
+    const cat = COMPRAS_CATS.includes(it.categoria) ? it.categoria : 'Outros';
+    if (cat !== catAtual) { catAtual = cat; linhas += `<tr class="orden-grupo"><td colspan="6">${cat}</td></tr>`; }
+    const aberto = __comprasAbertos.has(it.chave);
+    // linha do TOTAL primeiro = a lista efetiva de compras; clique abre o detalhamento por prato
+    linhas += `<tr class="orden-fixo-on" style="cursor:pointer" onclick="comprasToggle(${idx})" title="Clique para abrir/fechar o detalhamento por prato">
+      <td style="text-align:center" onclick="event.stopPropagation()"><input type="checkbox" ${okMenu[it.chave] ? 'checked' : ''} onchange="compraMudou(${idx},'ok',this.checked)" title="Comprado"></td>
+      <td><span id="cmp-seta-${idx}" style="display:inline-block; width:14px; color:#8a6508">${aberto ? '▾' : '▸'}</span><b>${it.insumo}</b></td>
+      <td class="cat-col">${it.linhas.length} prato${it.linhas.length > 1 ? 's' : ''}</td>
+      <td class="num" id="cmp-tot-${idx}">${fmtQtd(totalInsumo(it))}</td>
+      <td class="cat-col"><b>${it.unidade}</b></td>
+      <td></td>
+    </tr>`;
+    it.linhas.forEach((l, li) => {
+      const info = `${fmtQtd(Math.round(l.consumo * 10) / 10)} kg pronto${semana ? ' · ' + l.dias + ' dia' + (l.dias > 1 ? 's' : '') : ''}`;
+      linhas += `<tr class="cmp-det-${idx}" style="${aberto ? '' : 'display:none'}">
+        <td></td>
+        <td class="cat-col" style="padding-left:24px">↳ <small>${info}</small></td>
+        <td class="prod" title="Abrir a ficha — corrija o insumo lá se estiver errado" onclick="irParaFicha('${codT(l.f.t)}','${l.f.cat}')">${l.f.t}</td>
+        <td>${semana ? fmtQtd(l.qtd) : `<input type="number" min="0" step="0.01" value="${Math.round(l.qtd * 1000) / 1000}" style="width:80px" onchange="compraMudou(${idx},${li},this.value)">`}</td>
+        <td class="cat-col">${it.unidade}</td>
+        <td class="cat-col">${l.ins.obs || ''}</td>
+      </tr>`;
+    });
+  });
+  const menus = COMPRAS_MENUS.map(([v, rot]) => `<button class="${String(__comprasMenu) === String(v) ? 'on' : ''}" onclick="comprasMenuEscolher(${typeof v === 'string' ? `'${v}'` : v})">${rot}</button>`).join('');
+  const pr = COMPRAS.premissas;
+  const avisos = [];
+  if (semCalc.length) avisos.push(`<b>${semCalc.length} prato${semCalc.length > 1 ? 's' : ''} deste menu NÃO entra${semCalc.length > 1 ? 'm' : ''} na lista</b> (ficha sem ingredientes ou ainda não calculada — nada de suposição): `
+    + semCalc.map(f => `<a href="javascript:void 0" onclick="irParaFicha('${codT(f.t)}','${f.cat}')">${f.t}</a>`).join(', ') + '. Preencham a ficha e peçam para recalcular.');
+  avisos.push('A lista cobre SÓ o que está nas fichas: pães/couvert, bebidas, café, açúcar de serviço e descartáveis não entram — comprar por fora.');
+  avisos.push('Óleo de fritura: conferir o volume do banho da fritadeira (a conta cobre o que a receita usa, não o primeiro enchimento).');
+  return `${titulo}
+    <p class="grupo-sub">Escolha o menu · ${pr.clientes} clientes × ${pr.gCliente} g = ${fmtQtd(kgDia)} kg servidos${semana ? ' na semana' : '/dia'}, repartidos entre os ${nPratos} pratos${semana ? ' (somando os 5 dias)' : ''} pelo peso da categoria · ajuste qualquer quantidade e o TOTAL refaz na hora (salva para todos)</p>
     <div class="regua"><span>🛒</span></div>
-    ${avisos ? `<div class="plan-secao" style="max-width:1360px; background:#fdf6e3; border-color:#b8860b"><b style="color:#8a6508">Atenção antes de fechar a compra:</b><ul style="margin:6px 0 0 20px; font-size:.85rem">${avisos}</ul></div>` : ''}
+    <div class="plan-secao" style="max-width:1360px">
+      <div class="plaq-filtros" style="margin-bottom:10px"><span class="plan-aviso" style="margin:0">Menu:</span>${menus}</div>
+      <div class="plaq-filtros"><span class="plan-aviso" style="margin:0">Clientes/dia</span><input type="number" min="0" step="5" value="${pr.clientes}" style="width:70px" onchange="comprasPremissa('clientes',this.value)">
+        <span class="plan-aviso" style="margin:0">g por cliente</span><input type="number" min="0" step="10" value="${pr.gCliente}" style="width:70px" onchange="comprasPremissa('gCliente',this.value)"></div>
+    </div>
+    <div class="plan-secao" style="max-width:1360px; background:#fdf6e3; border-color:#b8860b"><b style="color:#8a6508">Atenção antes de fechar a compra:</b><ul style="margin:6px 0 0 20px; font-size:.85rem">${avisos.map(a => `<li>${a}</li>`).join('')}</ul></div>
     <div class="plan-secao" style="max-width:1360px">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px">
-        <span class="plan-aviso" style="margin:0">${itens.length} insumos · quantidades PARA 1 DIA · clique no insumo p/ abrir o detalhamento por prato · ✓ = já comprado.</span>
+        <span class="plan-aviso" style="margin:0">${__comprasLista.length} insumos · quantidades ${semana ? 'DA SEMANA (seg–sex)' : 'PARA 1 DIA'} · clique no insumo p/ abrir o detalhamento por prato · ✓ = já comprado${semana ? ' · para ajustar uma quantidade, abra o dia' : ''}.</span>
         <button class="btn-orden-copiar" onclick="copiarComprasExcel(this)">⧉ Copiar para Excel</button>
       </div>
-      <div style="overflow-x:auto"><table class="orden-tabela">
-        <thead><tr><th>✓</th><th>Insumo</th><th>Detalhe</th><th>Qtd (1 dia)</th><th>Un</th><th>Obs</th></tr></thead>
+      ${__comprasLista.length ? `<div style="overflow-x:auto"><table class="orden-tabela">
+        <thead><tr><th>✓</th><th>Insumo</th><th>Detalhe</th><th>Qtd (${semana ? 'semana' : '1 dia'})</th><th>Un</th><th>Obs (por prato)</th></tr></thead>
         <tbody>${linhas}</tbody>
-      </table></div>
+      </table></div>` : '<p class="plan-aviso" style="text-align:center">Nenhum prato calculado neste menu.</p>'}
     </div>`;
 }
 function copiarComprasExcel(btn){
-  // exporta a LISTA EFETIVA: só insumo + total do dia (pedido do Renato)
-  const itens = (COMPRAS && COMPRAS.itens) || [];
-  const linhas = [];
-  for (const cat of COMPRAS_CATS) {
-    for (const it of itens.filter(x => (x.categoria || 'Outros') === cat).sort((a, b) => totalInsumo(b) - totalInsumo(a))) {
-      linhas.push([cat, it.insumo, String(totalInsumo(it)).replace('.', ','), it.unidade].join('\t'));
-    }
-  }
-  const tsv = ['Categoria\tInsumo\tQtd (1 dia)\tUn'].concat(linhas).join('\n');
+  // exporta a LISTA EFETIVA do menu na tela: só insumo + total (pedido do Renato)
+  const col = __comprasMenu === 'semana' ? 'Qtd (semana)' : 'Qtd (1 dia)';
+  const linhas = __comprasLista.map(it => [COMPRAS_CATS.includes(it.categoria) ? it.categoria : 'Outros', it.insumo, String(totalInsumo(it)).replace('.', ','), it.unidade].join('\t'));
+  const tsv = [`Menu: ${comprasMenuNome(__comprasMenu)}`, `Categoria\tInsumo\t${col}\tUn`].concat(linhas).join('\n');
   navigator.clipboard.writeText(tsv).then(() => {
     btn.textContent = '✓ Copiado!';
     setTimeout(() => { btn.textContent = '⧉ Copiar para Excel'; }, 2000);
