@@ -2,6 +2,10 @@
   "trailingSlash": true,
   "redirects": [
     { "source": "/app", "destination": "https://skaive.spesso.com.br", "permanent": false },
-    { "source": "/skaive", "destination": "https://skaive.spesso.com.br", "permanent": false }
+    { "source": "/app/", "destination": "https://skaive.spesso.com.br", "permanent": false },
+    { "source": "/app/:path+", "destination": "https://skaive.spesso.com.br/:path+", "permanent": false },
+    { "source": "/skaive", "destination": "https://skaive.spesso.com.br", "permanent": false },
+    { "source": "/skaive/", "destination": "https://skaive.spesso.com.br", "permanent": false },
+    { "source": "/skaive/:path+", "destination": "https://skaive.spesso.com.br/:path+", "permanent": false }
   ]
 }
