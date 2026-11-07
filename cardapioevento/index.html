@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Cardápio do Evento · Spesso Cucina</title>
-<meta name="description" content="Cardápio do evento no Spesso Cucina Italiana — entradas, saladas, pratos principais, pizzas, sobremesas, bebidas e vinhos."/>
-<meta property="og:title" content="Cardápio do Evento · Spesso Cucina Italiana"/>
+<title>Cardápio do Aniversário da Jandira · Spesso Cucina</title>
+<meta name="description" content="Cardápio do Aniversário da Jandira no Spesso Cucina Italiana — entradas, saladas, pratos principais, pizzas, sobremesas, bebidas e vinhos."/>
+<meta property="og:title" content="Cardápio do Aniversário da Jandira · Spesso Cucina Italiana"/>
 <meta property="og:description" content="Entradas, saladas, massas, risotos, pizzas, sobremesas, bebidas e vinhos."/>
 <meta property="og:image" content="https://spesso.com.br/cardapioevento/img/fettuccine-fiorentina.jpg"/>
 <meta name="theme-color" content="#FBF7EE"/>
@@ -47,36 +47,37 @@ svg{display:block;}
   font-size:clamp(13px,3.4vw,16px);letter-spacing:.24em;margin-top:6px;}
 .sub::before,.sub::after{content:"";width:26px;height:1.2px;background:var(--rule);}
 .capa .divisor{margin-top:26px;max-width:220px;}
-.apresenta{font-family:'Alegreya SC',serif;font-weight:700;font-size:clamp(14px,3.6vw,17px);letter-spacing:.2em;margin-top:26px;}
-.capa h1{font-family:'Alegreya SC',serif;font-weight:700;font-size:clamp(40px,11vw,68px);line-height:1.02;letter-spacing:.01em;margin-top:14px;}
+.apresenta{font-family:'Alegreya SC',serif;font-weight:700;font-size:clamp(15px,3.9vw,18px);letter-spacing:.2em;margin-top:26px;}
+.capa h1{font-family:'Alegreya SC',serif;font-weight:700;font-size:clamp(38px,10.4vw,64px);line-height:1.02;letter-spacing:.01em;margin-top:14px;}
+.capa h1 .pre{display:block;font-size:.46em;font-weight:500;letter-spacing:.12em;margin-bottom:.22em;}
 .vila{width:min(560px,108%);max-width:none;margin:18px 0 0 50%;transform:translateX(-50%);
   -webkit-mask-image:linear-gradient(to right,transparent,#000 14%,#000 86%,transparent),linear-gradient(to bottom,#000 80%,transparent);
   -webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent,#000 14%,#000 86%,transparent),linear-gradient(to bottom,#000 80%,transparent);mask-composite:intersect;}
 
 /* computador: capa vira uma faixa baixa, com o cardápio logo abaixo */
 @media(min-width:860px){
-  .capa .painel{display:grid;grid-template-columns:1fr auto 1.15fr;align-items:center;column-gap:clamp(24px,4vw,56px);
+  .capa .painel{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1.15fr);align-items:center;column-gap:clamp(24px,4vw,56px);
     padding:30px clamp(28px,4vw,56px) 0;min-height:0;}
   .capa .cm{padding-bottom:30px;}
   .capa .oliveira{width:78px;}
-  .capa .marca{font-size:clamp(46px,4.6vw,62px);}
+  .capa .marca{font-size:clamp(40px,4.6vw,62px);}
   .capa .sub{white-space:nowrap;font-size:clamp(11px,1.15vw,15px);}
   .capa .d1,.capa .d2{display:none;}
   .capa .ct{padding:0 0 30px clamp(24px,4vw,56px);border-left:1.4px solid var(--rule);text-align:left;}
   .capa .apresenta{margin-top:0;}
-  .capa h1{font-size:clamp(40px,4.4vw,58px);margin-top:8px;}
+  .capa h1{font-size:clamp(36px,4vw,54px);margin-top:8px;}
   .capa .vila{grid-column:3;grid-row:1;justify-self:end;align-self:end;width:min(330px,100%);margin:0;transform:none;opacity:.95;}
   .capa .ct{grid-column:2;grid-row:1;}
   .capa .cm{grid-column:1;grid-row:1;}
 }
-@media(min-width:860px) and (max-width:1060px){.capa .vila{width:min(260px,100%);}}
+@media(min-width:860px) and (max-width:1060px){.capa .vila{width:min(230px,100%);} .capa .painel{column-gap:22px;} .capa .ct{padding-left:22px;}}
 
 /* ---------- abas ---------- */
 .abas{position:sticky;top:0;z-index:20;background:rgba(251,247,238,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   border-bottom:1.4px solid var(--rule);margin-top:14px;}
 .abas .in{max-width:1104px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding:9px 12px;scrollbar-width:none;}
 .abas .in::-webkit-scrollbar{display:none;}
-.abas a{flex:none;text-decoration:none;font-family:'Alegreya SC',serif;font-weight:700;font-size:15px;letter-spacing:.08em;
+.abas a{flex:none;text-decoration:none;font-family:'Alegreya SC',serif;font-weight:700;font-size:16px;letter-spacing:.08em;
   padding:6px 13px 7px;border-radius:999px;border:1.2px solid transparent;white-space:nowrap;transition:background .15s ease,color .15s ease;}
 .abas a.on{background:var(--ink);color:var(--paper);}
 @media(hover:hover){.abas a:not(.on):hover{border-color:var(--ink);}}
@@ -84,6 +85,8 @@ svg{display:block;}
 /* ---------- seções ---------- */
 main{padding:18px 12px 0;display:flex;flex-direction:column;gap:18px;}
 .titulo{text-align:center;}
+.titulo .divisor,.subtitulo .divisor{margin:0 auto 12px;}
+.titulo + .subtitulo .divisor{display:none;}
 .titulo h2{font-family:'Alegreya SC',serif;font-weight:700;font-size:clamp(28px,7.4vw,38px);letter-spacing:.12em;line-height:1.1;margin-right:-.12em;}
 .titulo + .lista{margin-top:28px;}
 .subtitulo{margin-top:40px;}
@@ -91,26 +94,26 @@ main{padding:18px 12px 0;display:flex;flex-direction:column;gap:18px;}
 .subtitulo + .lista{margin-top:22px;}
 
 .lista{display:grid;grid-template-columns:1fr;gap:30px;}
-@media(min-width:720px){.lista{grid-template-columns:1fr 1fr;gap:34px 40px;}}
+@media(min-width:720px){.lista{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:34px 40px;}}
 .lista.texto{gap:18px;}
 @media(min-width:720px){.lista.texto{gap:20px 40px;}}
 
 .prato .foto{position:relative;aspect-ratio:800/637;overflow:hidden;border-radius:2px;margin-bottom:12px;
   box-shadow:0 0 0 1.4px var(--ink),0 0 0 5px var(--paper),0 0 0 5.8px rgba(31,43,94,.35);}
 .prato .foto img{width:100%;height:100%;object-fit:cover;}
-.prato h4{font-weight:700;font-size:20px;line-height:1.22;}
+.prato h4{font-weight:700;font-size:21.5px;line-height:1.22;overflow-wrap:break-word;}
 .prato h4 .pr{white-space:nowrap;}
 .prato h4 .sep{font-weight:500;margin:0 .32em;opacity:.8;}
-.prato p{font-style:italic;font-size:16.5px;line-height:1.35;color:var(--ink-soft);margin-top:3px;}
-.lista.texto .prato h4{font-size:18.5px;}
-.lista.texto .prato p{font-size:15.5px;}
+.prato p{font-style:italic;font-size:17.8px;line-height:1.35;color:var(--ink-soft);margin-top:3px;}
+.lista.texto .prato h4{font-size:20px;}
+.lista.texto .prato p{font-size:16.8px;}
 .prato .foto.vazia{display:flex;align-items:center;justify-content:center;background:var(--paper-2);}
 .prato .foto.vazia img{width:46%;height:auto;opacity:.5;object-fit:contain;}
 
 /* computador: linhas de cardápio em duas colunas, foto ao lado do texto */
 @media(min-width:860px){
-  .lista.fotos{grid-template-columns:1fr 1fr;gap:34px 48px;}
-  .lista.fotos .prato{display:grid;grid-template-columns:clamp(170px,19vw,220px) 1fr;grid-template-rows:auto 1fr;column-gap:22px;align-items:start;}
+  .lista.fotos{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:34px 48px;}
+  .lista.fotos .prato{display:grid;grid-template-columns:clamp(150px,19vw,220px) minmax(0,1fr);grid-template-rows:auto 1fr;column-gap:22px;align-items:start;}
   .lista.fotos .prato .foto{grid-row:1 / span 2;margin:0;}
   .lista.fotos .prato h4,.lista.fotos .prato p{grid-column:2;}
   .lista.fotos .prato h4{padding-top:4px;}
@@ -121,11 +124,11 @@ main{padding:18px 12px 0;display:flex;flex-direction:column;gap:18px;}
 .fecho{padding:18px 12px calc(18px + env(safe-area-inset-bottom));}
 .fecho .painel{text-align:center;padding-bottom:0;overflow:hidden;}
 .insta{display:flex;align-items:center;justify-content:center;gap:16px;max-width:460px;margin:0 auto;text-align:left;
-  font-style:italic;font-size:17px;line-height:1.35;color:var(--ink-soft);}
+  font-style:italic;font-size:18.5px;line-height:1.35;color:var(--ink-soft);}
 .insta svg{width:46px;height:46px;flex:none;color:var(--ink);}
 .insta b{font-style:normal;font-weight:700;color:var(--ink);}
 .insta .barra{width:1.4px;align-self:stretch;background:var(--rule);flex:none;}
-.endereco{font-family:'Alegreya SC',serif;font-weight:500;letter-spacing:.08em;font-size:15px;margin-top:26px;display:flex;flex-direction:column;gap:4px;}
+.endereco{font-family:'Alegreya SC',serif;font-weight:500;letter-spacing:.08em;font-size:16.5px;margin-top:26px;display:flex;flex-direction:column;gap:4px;}
 .endereco a{text-decoration:none;}
 .vinhedo{width:min(520px,112%);max-width:none;margin:18px 0 0 50%;transform:translateX(-50%);
   -webkit-mask-image:linear-gradient(to right,transparent,#000 12%,#000 88%,transparent),linear-gradient(to bottom,#000 82%,transparent);
@@ -163,8 +166,8 @@ main{padding:18px 12px 0;display:flex;flex-direction:column;gap:18px;}
     </div>
     <div class="divisor d1"><svg><use href="#flor"/></svg></div>
     <div class="ct">
-      <div class="apresenta">Spesso apresenta:</div>
-      <h1>Cardápio<br/>do Evento</h1>
+      <div class="apresenta">Apresenta:</div>
+      <h1><span class="pre">Cardápio do</span>Aniversário<br/>da Jandira</h1>
     </div>
     <div class="divisor d2" style="margin-top:20px"><svg><use href="#flor"/></svg></div>
     <img class="vila" src="img/vila.png" alt="Ilustração de uma vila italiana à beira-mar" width="900" height="756"/>
@@ -189,7 +192,7 @@ main{padding:18px 12px 0;display:flex;flex-direction:column;gap:18px;}
     </div>
     <img class="vinhedo" src="img/vinhedo.png" alt="Ilustração de um vinhedo italiano" width="896" height="680" loading="lazy"/>
   </div>
-  <div class="ver">skv-versao cardapioevento-v10 07/11/2026</div>
+  <div class="ver">skv-versao cardapioevento-v11 07/11/2026</div>
 </footer>
 
 <script>
@@ -275,10 +278,10 @@ const prato = (comFoto) => ([foto,nome,preco,desc]) => `
 
 document.getElementById('cardapio').innerHTML = CARDAPIO.map(s => `
   <section class="painel" id="${slug(s.cat)}">${cantos}
-    <div class="titulo"><h2>${esc(s.cat)}</h2>${flor}</div>
+    <div class="titulo">${flor}<h2>${esc(s.cat)}</h2></div>
     ${s.grupos.map(g => {
       const temFoto = g.itens.some(i => i[0]);
-      return (g.nome ? `<div class="subtitulo"><h3>${esc(g.nome)}</h3>${flor}</div>` : '') +
+      return (g.nome ? `<div class="subtitulo">${flor}<h3>${esc(g.nome)}</h3></div>` : '') +
         `<div class="lista ${temFoto ? 'fotos' : 'texto'}">${g.itens.map(prato(temFoto)).join('')}</div>`;
     }).join('')}
   </section>`).join('');
