@@ -53,6 +53,24 @@ svg{display:block;}
   -webkit-mask-image:linear-gradient(to right,transparent,#000 14%,#000 86%,transparent),linear-gradient(to bottom,#000 80%,transparent);
   -webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent,#000 14%,#000 86%,transparent),linear-gradient(to bottom,#000 80%,transparent);mask-composite:intersect;}
 
+/* computador: capa vira uma faixa baixa, com o cardápio logo abaixo */
+@media(min-width:860px){
+  .capa .painel{display:grid;grid-template-columns:1fr auto 1.15fr;align-items:center;column-gap:clamp(24px,4vw,56px);
+    padding:30px clamp(28px,4vw,56px) 0;min-height:0;}
+  .capa .cm{padding-bottom:30px;}
+  .capa .oliveira{width:78px;}
+  .capa .marca{font-size:clamp(46px,4.6vw,62px);}
+  .capa .sub{white-space:nowrap;font-size:clamp(11px,1.15vw,15px);}
+  .capa .d1,.capa .d2{display:none;}
+  .capa .ct{padding:0 0 30px clamp(24px,4vw,56px);border-left:1.4px solid var(--rule);text-align:left;}
+  .capa .apresenta{margin-top:0;}
+  .capa h1{font-size:clamp(40px,4.4vw,58px);margin-top:8px;}
+  .capa .vila{grid-column:3;grid-row:1;justify-self:end;align-self:end;width:min(330px,100%);margin:0;transform:none;opacity:.95;}
+  .capa .ct{grid-column:2;grid-row:1;}
+  .capa .cm{grid-column:1;grid-row:1;}
+}
+@media(min-width:860px) and (max-width:1060px){.capa .vila{width:min(260px,100%);}}
+
 /* ---------- abas ---------- */
 .abas{position:sticky;top:0;z-index:20;background:rgba(251,247,238,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   border-bottom:1.4px solid var(--rule);margin-top:14px;}
@@ -138,13 +156,17 @@ main{padding:18px 12px 0;display:flex;flex-direction:column;gap:18px;}
 
 <header class="capa">
   <div class="painel">
-    <img class="oliveira" src="img/oliveira.png" alt="" width="444" height="234"/>
-    <div class="marca" aria-label="Spesso">SPESSO</div>
-    <div class="sub">cucina italiana</div>
-    <div class="divisor"><svg><use href="#flor"/></svg></div>
-    <div class="apresenta">Spesso apresenta:</div>
-    <h1>Cardápio<br/>do Evento</h1>
-    <div class="divisor" style="margin-top:20px"><svg><use href="#flor"/></svg></div>
+    <div class="cm">
+      <img class="oliveira" src="img/oliveira.png" alt="" width="444" height="234"/>
+      <div class="marca" aria-label="Spesso">SPESSO</div>
+      <div class="sub">cucina italiana</div>
+    </div>
+    <div class="divisor d1"><svg><use href="#flor"/></svg></div>
+    <div class="ct">
+      <div class="apresenta">Spesso apresenta:</div>
+      <h1>Cardápio<br/>do Evento</h1>
+    </div>
+    <div class="divisor d2" style="margin-top:20px"><svg><use href="#flor"/></svg></div>
     <img class="vila" src="img/vila.png" alt="Ilustração de uma vila italiana à beira-mar" width="900" height="756"/>
   </div>
 </header>
@@ -167,7 +189,7 @@ main{padding:18px 12px 0;display:flex;flex-direction:column;gap:18px;}
     </div>
     <img class="vinhedo" src="img/vinhedo.png" alt="Ilustração de um vinhedo italiano" width="896" height="680" loading="lazy"/>
   </div>
-  <div class="ver">skv-versao cardapioevento-v8 07/11/2026</div>
+  <div class="ver">skv-versao cardapioevento-v9 07/11/2026</div>
 </footer>
 
 <script>
