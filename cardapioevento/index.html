@@ -104,7 +104,8 @@ main{padding:18px 12px 0;display:flex;flex-direction:column;gap:18px;}
 .prato p{font-style:italic;font-size:16.5px;line-height:1.35;color:var(--ink-soft);margin-top:3px;}
 .lista.texto .prato h4{font-size:18.5px;}
 .lista.texto .prato p{font-size:15.5px;}
-.prato .foto.vazia{display:none;}
+.prato .foto.vazia{display:flex;align-items:center;justify-content:center;background:var(--paper-2);}
+.prato .foto.vazia img{width:46%;height:auto;opacity:.5;object-fit:contain;}
 
 /* computador: linhas de cardápio em duas colunas, foto ao lado do texto */
 @media(min-width:860px){
@@ -113,8 +114,7 @@ main{padding:18px 12px 0;display:flex;flex-direction:column;gap:18px;}
   .lista.fotos .prato .foto{grid-row:1 / span 2;margin:0;}
   .lista.fotos .prato h4,.lista.fotos .prato p{grid-column:2;}
   .lista.fotos .prato h4{padding-top:4px;}
-  .prato .foto.vazia{display:flex;align-items:center;justify-content:center;background:var(--paper-2);}
-  .prato .foto.vazia img{width:58%;height:auto;opacity:.5;object-fit:contain;}
+  .prato .foto.vazia img{width:58%;}
 }
 
 /* ---------- rodapé ---------- */
@@ -189,7 +189,7 @@ main{padding:18px 12px 0;display:flex;flex-direction:column;gap:18px;}
     </div>
     <img class="vinhedo" src="img/vinhedo.png" alt="Ilustração de um vinhedo italiano" width="896" height="680" loading="lazy"/>
   </div>
-  <div class="ver">skv-versao cardapioevento-v9 07/11/2026</div>
+  <div class="ver">skv-versao cardapioevento-v10 07/11/2026</div>
 </footer>
 
 <script>
