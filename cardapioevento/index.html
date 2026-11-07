@@ -3,157 +3,254 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Cardápio · Spesso Cucina</title>
-<meta name="description" content="Cardápio do Spesso Cucina — entradas, insalate, piatti principali, pizze e sobremesas. Edifício Argentina, Praia de Botafogo 228."/>
-<meta property="og:title" content="Cardápio · Spesso Cucina"/>
-<meta property="og:description" content="Spesso apresenta: Resumo do Mostarda. Entradas, massas, risotos, pizze e sobremesas."/>
-<meta property="og:image" content="https://spesso.com.br/cardapioevento/img/pizza-mostarda.jpg"/>
-<meta name="theme-color" content="#1C2749"/>
+<title>Cardápio do Evento · Spesso Cucina</title>
+<meta name="description" content="Cardápio do evento no Spesso Cucina Italiana — entradas, saladas, pratos principais, pizzas, sobremesas, bebidas e vinhos."/>
+<meta property="og:title" content="Cardápio do Evento · Spesso Cucina Italiana"/>
+<meta property="og:description" content="Entradas, saladas, massas, risotos, pizzas, sobremesas, bebidas e vinhos."/>
+<meta property="og:image" content="https://spesso.com.br/cardapioevento/img/fettuccine-fiorentina.jpg"/>
+<meta name="theme-color" content="#FBF7EE"/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍋</text></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;1,400;1,500&family=Alegreya+SC:wght@500;700&family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --navy:#1C2749; --navy-deep:#12172E; --paper:#F6F0E1; --paper-hi:#FBF7EC; --cream:#EFE6CE;
-  --ink:#1B2437; --sub:#5C6373; --line:#E3D9C0;
+  --ink:#1F2B5E; --ink-soft:#3B4675; --paper:#FBF7EE; --paper-2:#F6F0E2; --rule:rgba(31,43,94,.85);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;scroll-padding-top:64px;-webkit-text-size-adjust:100%;}
-body{font-family:'Montserrat',sans-serif;background:var(--paper);color:var(--ink);line-height:1.5;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;scroll-padding-top:62px;-webkit-text-size-adjust:100%;}
+body{font-family:'Alegreya',Georgia,serif;background:var(--paper-2);color:var(--ink);line-height:1.4;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(rgba(31,43,94,.035) 1px,transparent 1px);background-size:5px 5px;}
 a{color:inherit;}
-img{display:block;max-width:100%;}
-
-/* barra de cima */
-.top{background:var(--navy);color:var(--cream);font-size:12.5px;font-weight:600;letter-spacing:.04em;}
-.top .in{max-width:1120px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.top .loc{display:flex;gap:6px;align-items:center;opacity:.9;}
-.top a.ig{display:flex;align-items:center;gap:6px;text-decoration:none;opacity:.9;}
-.top svg{width:15px;height:15px;flex:none;}
-
-/* hero */
-.hero{background:var(--navy);color:var(--cream);text-align:center;padding:28px 16px 44px;border-top:1px solid rgba(239,230,206,.12);}
-.hero .logo{width:130px;margin:0 auto 18px;opacity:.95;}
-.hero .selo{width:min(760px,100%);height:auto;margin:0 auto;}
+img{display:block;max-width:100%;height:auto;}
+svg{display:block;}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
 
-/* abas das categorias */
-.tabs{position:sticky;top:0;z-index:20;background:rgba(246,240,225,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
-.tabs .in{max-width:1120px;margin:0 auto;display:flex;gap:6px;overflow-x:auto;padding:10px 16px;scrollbar-width:none;}
-.tabs .in::-webkit-scrollbar{display:none;}
-.tabs a{flex:none;text-decoration:none;font-size:13px;font-weight:600;padding:8px 14px;border-radius:999px;color:var(--navy);border:1px solid transparent;white-space:nowrap;transition:background .15s ease,color .15s ease;}
-.tabs a.on{background:var(--navy);color:var(--cream);}
-@media(hover:hover){.tabs a:not(.on):hover{border-color:var(--navy);}}
+/* ---------- painel com moldura, como as colunas do impresso ---------- */
+.painel{position:relative;background:var(--paper);border:1.6px solid var(--rule);border-radius:3px;
+  margin:0 auto;padding:44px clamp(18px,4vw,44px) 40px;max-width:1080px;}
+.painel::before{content:"";position:absolute;inset:5px;border:.6px solid rgba(31,43,94,.35);pointer-events:none;border-radius:2px;}
+.canto{position:absolute;width:46px;height:46px;color:var(--ink);background:var(--paper);}
+.canto.tl{top:-3px;left:-3px;} .canto.tr{top:-3px;right:-3px;transform:scaleX(-1);}
+.canto.bl{bottom:-3px;left:-3px;transform:scaleY(-1);} .canto.br{bottom:-3px;right:-3px;transform:scale(-1);}
 
-/* seções */
-main{max-width:1120px;margin:0 auto;padding:8px 16px 40px;}
-section{padding-top:36px;}
-section h2{font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(26px,4vw,34px);color:var(--navy);text-align:center;}
-section h2::after{content:"";display:block;width:40px;height:3px;background:var(--navy);margin:10px auto 0;border-radius:2px;}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-top:24px;}
-@media(max-width:360px){.grid{grid-template-columns:1fr;}}
-.card{background:var(--paper-hi);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
-.card .ph{aspect-ratio:800/637;background:var(--cream);overflow:hidden;}
-.card .ph img{width:100%;height:100%;object-fit:cover;}
-img[width]{height:auto;}
-.card .tx{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;}
-.card .hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
-.card h3{font-family:'Playfair Display',serif;font-weight:600;font-size:18px;line-height:1.25;color:var(--navy);}
-.card .pr{flex:none;font-weight:700;font-size:15px;color:var(--navy);font-variant-numeric:tabular-nums;white-space:nowrap;}
-.card p{font-size:13.5px;color:var(--sub);}
+.divisor{display:flex;align-items:center;gap:10px;color:var(--ink);margin:10px auto 0;max-width:360px;}
+.divisor::before,.divisor::after{content:"";flex:1;height:1.4px;background:var(--rule);}
+.divisor svg{width:52px;height:16px;flex:none;}
 
-/* rodapé */
-footer{background:var(--navy);color:var(--cream);text-align:center;padding:36px 16px calc(28px + env(safe-area-inset-bottom));font-size:14px;}
-footer .logo{width:120px;margin:0 auto 18px;}
-footer .info{display:flex;flex-direction:column;gap:8px;align-items:center;}
-footer a{text-decoration:none;opacity:.9;}
-footer .ver{margin-top:22px;font-size:11px;opacity:.45;}
+/* ---------- capa ---------- */
+.capa{padding:14px 12px 0;}
+.capa .painel{text-align:center;padding:40px 18px 0;overflow:hidden;}
+.oliveira{width:104px;margin:0 auto 6px;}
+.marca{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(46px,12vw,72px);letter-spacing:.2em;line-height:1;margin-right:-.2em;}
+.sub{display:flex;align-items:center;justify-content:center;gap:10px;font-family:'Alegreya SC',serif;font-weight:500;
+  font-size:clamp(13px,3.4vw,16px);letter-spacing:.24em;margin-top:6px;}
+.sub::before,.sub::after{content:"";width:26px;height:1.2px;background:var(--rule);}
+.capa .divisor{margin-top:26px;max-width:220px;}
+.apresenta{font-family:'Alegreya SC',serif;font-weight:700;font-size:clamp(14px,3.6vw,17px);letter-spacing:.2em;margin-top:26px;}
+.capa h1{font-family:'Alegreya SC',serif;font-weight:700;font-size:clamp(40px,11vw,68px);line-height:1.02;letter-spacing:.01em;margin-top:14px;}
+.vila{width:min(560px,108%);max-width:none;margin:18px 0 0 50%;transform:translateX(-50%);
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 14%,#000 86%,transparent),linear-gradient(to bottom,#000 80%,transparent);
+  -webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent,#000 14%,#000 86%,transparent),linear-gradient(to bottom,#000 80%,transparent);mask-composite:intersect;}
+
+/* ---------- abas ---------- */
+.abas{position:sticky;top:0;z-index:20;background:rgba(251,247,238,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border-bottom:1.4px solid var(--rule);margin-top:14px;}
+.abas .in{max-width:1104px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding:9px 12px;scrollbar-width:none;}
+.abas .in::-webkit-scrollbar{display:none;}
+.abas a{flex:none;text-decoration:none;font-family:'Alegreya SC',serif;font-weight:700;font-size:15px;letter-spacing:.08em;
+  padding:6px 13px 7px;border-radius:999px;border:1.2px solid transparent;white-space:nowrap;transition:background .15s ease,color .15s ease;}
+.abas a.on{background:var(--ink);color:var(--paper);}
+@media(hover:hover){.abas a:not(.on):hover{border-color:var(--ink);}}
+
+/* ---------- seções ---------- */
+main{padding:18px 12px 0;display:flex;flex-direction:column;gap:18px;}
+.titulo{text-align:center;}
+.titulo h2{font-family:'Alegreya SC',serif;font-weight:700;font-size:clamp(28px,7.4vw,38px);letter-spacing:.12em;line-height:1.1;margin-right:-.12em;}
+.titulo + .lista{margin-top:28px;}
+.subtitulo{margin-top:40px;}
+.subtitulo h3{font-family:'Alegreya SC',serif;font-weight:700;font-size:clamp(21px,5.6vw,26px);letter-spacing:.12em;text-align:center;margin-right:-.12em;}
+.subtitulo + .lista{margin-top:22px;}
+
+.lista{display:grid;grid-template-columns:1fr;gap:30px;}
+@media(min-width:720px){.lista{grid-template-columns:1fr 1fr;gap:34px 40px;}}
+@media(min-width:1020px){.lista.fotos{grid-template-columns:1fr 1fr 1fr;}}
+.lista.texto{gap:18px;}
+@media(min-width:720px){.lista.texto{gap:20px 40px;}}
+
+.prato .foto{position:relative;aspect-ratio:800/637;overflow:hidden;border-radius:2px;margin-bottom:12px;
+  box-shadow:0 0 0 1.4px var(--ink),0 0 0 5px var(--paper),0 0 0 5.8px rgba(31,43,94,.35);}
+.prato .foto img{width:100%;height:100%;object-fit:cover;}
+.prato h4{font-weight:700;font-size:20px;line-height:1.22;}
+.prato h4 .pr{white-space:nowrap;}
+.prato h4 .sep{font-weight:500;margin:0 .32em;opacity:.8;}
+.prato p{font-style:italic;font-size:16.5px;line-height:1.35;color:var(--ink-soft);margin-top:3px;}
+.lista.texto .prato h4{font-size:18.5px;}
+.lista.texto .prato p{font-size:15.5px;}
+
+/* ---------- rodapé ---------- */
+.fecho{padding:18px 12px calc(18px + env(safe-area-inset-bottom));}
+.fecho .painel{text-align:center;padding-bottom:0;overflow:hidden;}
+.insta{display:flex;align-items:center;justify-content:center;gap:16px;max-width:460px;margin:0 auto;text-align:left;
+  font-style:italic;font-size:17px;line-height:1.35;color:var(--ink-soft);}
+.insta svg{width:46px;height:46px;flex:none;color:var(--ink);}
+.insta b{font-style:normal;font-weight:700;color:var(--ink);}
+.insta .barra{width:1.4px;align-self:stretch;background:var(--rule);flex:none;}
+.endereco{font-family:'Alegreya SC',serif;font-weight:500;letter-spacing:.08em;font-size:15px;margin-top:26px;display:flex;flex-direction:column;gap:4px;}
+.endereco a{text-decoration:none;}
+.vinhedo{width:min(520px,112%);max-width:none;margin:18px 0 0 50%;transform:translateX(-50%);
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 12%,#000 88%,transparent),linear-gradient(to bottom,#000 82%,transparent);
+  -webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent,#000 12%,#000 88%,transparent),linear-gradient(to bottom,#000 82%,transparent);mask-composite:intersect;}
+.ver{text-align:center;font-size:11px;opacity:.4;margin-top:12px;}
 </style>
 </head>
 <body>
 
-<div class="top"><div class="in">
-  <span class="loc"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>Spesso Cucina · Botafogo</span>
-  <a class="ig" href="https://www.instagram.com/spesso.rio/" target="_blank" rel="noopener" aria-label="Instagram do Spesso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>@spesso.rio</a>
-</div></div>
+<!-- ornamentos reutilizados -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="canto" viewBox="0 0 46 46">
+      <path d="M3 44V12C3 7 7 3 12 3h32" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M9 30c0-11 6-19 19-21" fill="none" stroke="currentColor" stroke-width="1.3"/>
+      <path d="M17 18c-4 0-6 3-5 6s5 3 6 0-2-4-3-2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M9 30c-2 3-1 6 1 7M28 9c3-2 6-1 7 1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M21 11c2-4 6-5 8-3-3 0-5 1-8 3zM11 21c-4 2-5 6-3 8 0-3 1-5 3-8z" fill="currentColor"/>
+    </symbol>
+    <symbol id="flor" viewBox="0 0 52 16">
+      <path d="M26 4l2.6 4L26 12l-2.6-4z" fill="currentColor"/>
+      <path d="M22 8c-3-5-9-6-11-2s3 6 5 3-1-4-2-2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M30 8c3-5 9-6 11-2s-3 6-5 3 1-4 2-2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M11 9c-3 3-7 3-10 1M41 9c3 3 7 3 10 1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
 
-<header class="hero">
-  <img class="logo" src="/logo-cream.png" alt="Spesso"/>
-  <h1 class="vh">Spesso apresenta: Resumo do Mostarda</h1>
-  <img class="selo" src="img/mostarda.png" alt="Spesso apresenta: Resumo do Mostarda 2000 · 90 + 80" width="800" height="374"/>
+<header class="capa">
+  <div class="painel">
+    <img class="oliveira" src="img/oliveira.png" alt="" width="444" height="234"/>
+    <div class="marca" aria-label="Spesso">SPESSO</div>
+    <div class="sub">cucina italiana</div>
+    <div class="divisor"><svg><use href="#flor"/></svg></div>
+    <div class="apresenta">Spesso apresenta:</div>
+    <h1>Cardápio<br/>do Evento</h1>
+    <div class="divisor" style="margin-top:20px"><svg><use href="#flor"/></svg></div>
+    <img class="vila" src="img/vila.png" alt="Ilustração de uma vila italiana à beira-mar" width="900" height="756"/>
+  </div>
 </header>
 
-<nav class="tabs" aria-label="Categorias"><div class="in" id="abas"></div></nav>
+<nav class="abas" aria-label="Categorias"><div class="in" id="abas"></div></nav>
 
 <main id="cardapio"></main>
 
-<footer>
-  <img class="logo" src="/logo-cream.png" alt="Spesso" loading="lazy"/>
-  <div class="info">
-    <span>Edifício Argentina · Praia de Botafogo, 228</span>
-    <a href="tel:+5521968831580">+55 (21) 96883-1580</a>
-    <a href="mailto:contato@spesso.com.br">contato@spesso.com.br</a>
-    <a href="https://www.instagram.com/spesso.rio/" target="_blank" rel="noopener">@spesso.rio</a>
+<footer class="fecho">
+  <div class="painel">
+    <div class="insta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+      <span class="barra"></span>
+      <span>Momentos especiais merecem ser lembrados. Marque <a href="https://www.instagram.com/spesso.rio/" target="_blank" rel="noopener"><b>@spesso.rio</b></a> nas suas fotos e permita que a gente compartilhe essa memória com você!</span>
+    </div>
+    <div class="divisor" style="margin-top:26px;max-width:220px"><svg><use href="#flor"/></svg></div>
+    <div class="endereco">
+      <span>Edifício Argentina</span><span>Praia de Botafogo, 228</span>
+      <a href="tel:+5521968831580">+55 (21) 96883-1580</a>
+    </div>
+    <img class="vinhedo" src="img/vinhedo.png" alt="Ilustração de um vinhedo italiano" width="896" height="680" loading="lazy"/>
   </div>
-  <div class="ver">skv-versao cardapioevento-v1 07/11/2026</div>
+  <div class="ver">skv-versao cardapioevento-v2 07/11/2026</div>
 </footer>
 
 <script>
+/* foto: nome do arquivo em img/ (sem foto = null) */
 const CARDAPIO = [
-  { cat:'Entradas', itens:[
-    ['arancini','Coppia di Arancini',36.90,'Cada porção vem com dois arancini do mesmo sabor. Escolha: recheados com fior di latte, acompanhados de geleia de mel e mostarda, ou recheados com rabada, acompanhados de molho de pomodoro pelati levemente picante.'],
-    ['pizzette','Giro delle Pizzette',49.90,'Quarteto de pizzette: Maiale Reale, Resumo do Mostarda, Calabresa e 4 Formaggi.'],
+  { cat:'Entradas', grupos:[{ itens:[
+    ['arancini','Coppia di Arancini',24.90,'Cada porção vem com dois arancini artesanais recheados com queijo e acompanhados de geleia de mel e mostarda.'],
     ['ciabatta','Sanduíche Ciabatta di Coppa',42.90,'Pão ciabatta artesanal recheado com lombo desfiado, cebola roxa, aioli defumado, parmesão e salada de repolho roxo.'],
-    ['bruschette','Tris di Bruschette',39.90,'Trio de bruschettas: tradicional, funghi e caponata.'],
-    ['sardella','Sardella con Caponata di Melanzane',39.90,'Sardela com caponata de berinjela, cebola roxa, alho, pimentões, maracujá, alcaparras e passas. Acompanha cesta de pães.'],
-    ['carpaccio','Carpaccio di Salmone Affumicato',59.90,'Carpaccio de salmão defumado, azeite extravirgem e alcaparras.'],
-  ]},
-  { cat:'Insalate', itens:[
+    ['bruschette','Tris di Bruschette',39.90,'Trio de bruschettas tradicional, funghi e caponata.'],
+  ]}]},
+  { cat:'Saladas', grupos:[{ itens:[
     ['insalata-foglie','Insalata di Foglie, Rucola, Pere, Gorgonzola e Noci',54.90,'Salada de folhas, rúcula, pera, gorgonzola e nozes.'],
-    ['insalata-salmone','Insalata di Salmone Affumicato',68.00,'Salada com lascas de salmão defumado, folhas verdes, tomates-cereja, cebola roxa e molho de limão-siciliano.'],
-    ['insalata-polvo','Insalata di Polvo, Patate e Limone Siciliano',79.00,'Salada de polvo macio com batatas, tomates confit, azeitonas azapa, pesto fresco, limão-siciliano, dill e salsinha.'],
-  ]},
-  { cat:'Piatti Principali', itens:[
+    [null,'Insalata Mediterranea con Burrata, Pomodorini e Pinoli',58.90,'Salada de folhas frescas com burrata cremosa, tomates confit, cenoura marinada em pesto, pinoli tostados e sementes mediterrâneas, finalizada com azeite extravirgem.'],
+  ]}]},
+  { cat:'Pratos Principais', grupos:[{ itens:[
     ['rosetta','Rosetta di Ricotta e Spinaci al Burro e Salvia',69.90,'Rosetta de ricota e espinafre com molho de manteiga e sálvia.'],
-    ['gnocchi','Gnocchi della Fortuna',69.00,'Nhoque com linguiça, mix de cogumelos e tomates pelati.'],
+    ['gnocchi','Gnocchi della Fortuna',69.90,'Nhoque com linguiça, mix de cogumelos e tomates pelati.'],
     ['fettuccine-fiorentina','Fettuccine alla Fiorentina',78.90,'Fettuccine com molho roti, iscas de filé mignon e espinafre.'],
-    ['fettuccine-neri','Fettuccine Neri al Polvo Mediterraneo',89.00,'Massa fresca de tinta de lula com polvo macio, limão-siciliano e pesto.'],
-    ['risotto-gamberi','Risotto ai Gamberi con Peperoncino',89.00,'Risoto de camarões salteados, pimenta dedo-de-moça e vinho branco.'],
+    [null,'Filetto Mignon alla Griglia con Risotto al Limone Siciliano',82.90,'Filé mignon grelhado acompanhado de risoto cremoso de limão-siciliano.'],
     ['risotto-coda','Risotto di Coda alla Vaccinara con Crescione',87.90,'Risoto de rabada com agrião.'],
     ['risotto-baccala','Risotto di Baccalà e Arancia Cristallizzata',86.90,'Risoto de bacalhau com laranja cristalizada.'],
-  ]},
-  { cat:'Pizze', itens:[
-    ['pizza-mostarda','Resumo do Mostarda',74.92,'Fior di latte, gorgonzola dolce, pera caramelizada, nozes quebradas, mel, mostarda e parmesão.'],
-    ['pizza-maiale','Maiale Reale',76.90,'Lombo suíno desfiado lentamente, picles de cebola roxa, parmesão, repolho roxo, aioli defumado e finalização de mostarda antiga.'],
+  ]}]},
+  { cat:'Pizzas', grupos:[{ itens:[
+    ['pizza-insomma','Insomma',74.90,'Fior di latte, gorgonzola dolce, pera caramelizada, nozes quebradas, mel, mostarda e parmesão.'],
+    ['pizza-maiale','Maiale Reale',76.90,'Lombo suíno desfiado lentamente, picles de cebola roxa, parmesão, repolho roxo, aioli defumado e finalização de mostarda.'],
     ['pizza-margherita','Margherita Speciale',52.90,'Massa madre, tomate pelati italiano, mussarela e manjericão fresco.'],
     ['pizza-parma','Parma e Rúcula',64.90,'Mussarela, parma, rúcula fresca e creme balsâmico.'],
     ['pizza-calabresa','Calabresa',62.90,'Mussarela, calabresa curada fatiada e tapenade de azeitonas.'],
     ['pizza-4formaggi','Pizza 4 Formaggi',67.90,'Mussarela, gorgonzola, grana padano, mel trufado e borda recheada com cream cheese.'],
+  ]}]},
+  { cat:'Sobremesas', grupos:[{ itens:[
+    ['tiramisu','Tiramisù Tradizionale',34.90,'Tiramisù tradicional.'],
+    [null,'Brownie de Chocolate',32.90,'Brownie de chocolate acompanhado de morangos, mirtilos e calda de chocolate.'],
+  ]}]},
+  { cat:'Bebidas', grupos:[
+    { nome:'Bebidas alcoólicas', itens:[
+      [null,'Limoncello Spritz',42.90,'Limoncello, espumante brut e água com gás.'],
+      [null,'Aperol Spritz',42.90,'Aperol, espumante brut e água com gás.'],
+      [null,'Gin Tônica',42.90,'Gin premium, água tônica e finalização cítrica.'],
+      [null,'Caipirinha',39.90,'Cachaça artesanal, limão fresco e açúcar.'],
+      [null,'Caipvodka',42.90,'Vodka premium, frutas selecionadas e açúcar.'],
+      [null,'Chopp Estrella Galicia',16.90,'Chopp claro, leve e refrescante.'],
+      [null,'Long Neck',16.90,'Consultar disponibilidade.'],
+      [null,'Balde com 6 Long Necks',99.90,'Seis garrafas servidas em balde com gelo.'],
+    ]},
+    { nome:'Bebidas não alcoólicas', itens:[
+      [null,'Água Mineral com ou sem Gás',9.90,''],
+      [null,'Refrigerante',12.90,''],
+      [null,'Suco Natural',19.90,'Frutas selecionadas.'],
+      [null,'Mate da Casa',16.90,'Com ou sem limão.'],
+    ]},
   ]},
-  { cat:'Sobremesas', itens:[
-    ['tiramisu','Tiramisù Tradizionale',34.90,'Tiramisu tradicional.'],
-    ['panna-cotta','Panna Cotta ai Frutti di Bosco',29.90,'Panna cotta com frutas do bosque.'],
-    ['semifreddo','Semifreddo',34.90,'Sobremesa gelada com doce de leite, castanhas caramelizadas e caramelo salgado.'],
+  { cat:'Vinhos', grupos:[
+    { nome:'Vinhos brancos', itens:[
+      [null,'Pinot Grigio Pietramerana Terre Siciliane IGT',149.90,'Produzido na Sicília. Fresco e frutado, com notas de maçã, pera e frutas cítricas. Limpo, leve e refrescante.'],
+      [null,'Custoza Corte Noa DOC',159.90,'Produzido na região de Verona, no Vêneto. Leve, fresco e equilibrado, com delicadas notas frutadas e florais.'],
+      [null,'Chardonnay Ciari DOC Venezia',199.90,'Produzido na região de Treviso, no Vêneto. Estruturado e elegante, com notas de frutas maduras e leve tostado.'],
+    ]},
+    { nome:'Vinhos tintos', itens:[
+      [null,'Primitivo Pietramerana Puglia IGT',179.90,'Produzido na Puglia. Encorpado, quente e frutado, com notas de frutas vermelhas, alcaçuz e taninos marcantes.'],
+      [null,'Valpolicella Ripasso “Le Quare” DOC',219.90,'Produzido na região de Valpolicella, em Verona, no Vêneto. Estruturado e elegante, com notas de frutas vermelhas maduras e especiarias.'],
+      [null,'Cabernet Sauvignon Scuri DOC Venezia',199.90,'Produzido na região de Treviso, no Vêneto. Estruturado, com taninos firmes e notas de frutas escuras.'],
+    ]},
+    { nome:'Espumante', itens:[
+      [null,'Prosecco Borgo Molino DOC Treviso Brut',219.90,'Produzido na região de Treviso, no Vêneto. Leve, fresco e aromático, com notas de maçã verde e pera.'],
+    ]},
   ]},
 ];
 
 const brl = v => 'R$ ' + v.toFixed(2).replace('.', ',');
 const slug = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'-');
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const flor = '<div class="divisor"><svg><use href="#flor"/></svg></div>';
+const cantos = ['tl','tr','bl','br'].map(c => `<svg class="canto ${c}" aria-hidden="true"><use href="#canto"/></svg>`).join('');
+
+const prato = ([foto,nome,preco,desc]) => `
+  <article class="prato">
+    ${foto ? `<div class="foto"><img src="img/${foto}.jpg" alt="${esc(nome)}" loading="lazy" width="800" height="637"/></div>` : ''}
+    <h4>${esc(nome)}<span class="sep">|</span><span class="pr">${brl(preco)}</span></h4>
+    ${desc ? `<p>${esc(desc)}</p>` : ''}
+  </article>`;
 
 document.getElementById('cardapio').innerHTML = CARDAPIO.map(s => `
-  <section id="${slug(s.cat)}">
-    <h2>${esc(s.cat)}</h2>
-    <div class="grid">${s.itens.map(([img,nome,preco,desc]) => `
-      <article class="card">
-        <div class="ph"><img src="img/${img}.jpg" alt="${esc(nome)}" loading="lazy" width="800" height="637"/></div>
-        <div class="tx">
-          <div class="hd"><h3>${esc(nome)}</h3><span class="pr">${brl(preco)}</span></div>
-          <p>${esc(desc)}</p>
-        </div>
-      </article>`).join('')}
-    </div>
+  <section class="painel" id="${slug(s.cat)}">${cantos}
+    <div class="titulo"><h2>${esc(s.cat)}</h2>${flor}</div>
+    ${s.grupos.map(g => {
+      const temFoto = g.itens.some(i => i[0]);
+      return (g.nome ? `<div class="subtitulo"><h3>${esc(g.nome)}</h3>${flor}</div>` : '') +
+        `<div class="lista ${temFoto ? 'fotos' : 'texto'}">${g.itens.map(prato).join('')}</div>`;
+    }).join('')}
   </section>`).join('');
+document.querySelectorAll('.capa .painel, .fecho .painel').forEach(p => p.insertAdjacentHTML('afterbegin', cantos));
+/* tira o primeiro subtítulo do topo colado ao título */
+document.querySelectorAll('.titulo + .subtitulo').forEach(s => s.style.marginTop = '26px');
 
 const abas = document.getElementById('abas');
 abas.innerHTML = CARDAPIO.map(s => `<a href="#${slug(s.cat)}">${esc(s.cat)}</a>`).join('');
