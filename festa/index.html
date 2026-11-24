@@ -157,6 +157,11 @@ img{display:block;max-width:100%;}
 .aniv .rot{margin:0 0 8px;} .aniv .sel{display:flex;gap:8px;}
 .aniv select{flex:1;font:inherit;font-size:16px;padding:10px;border-radius:10px;background:rgba(255,255,255,.06);color:var(--creme);border:1px solid var(--linha);}
 .aniv select option{color:#111;}
+.entrar{margin-top:14px;display:grid;gap:8px;}
+.entrar .linha2{display:grid;grid-template-columns:110px 1fr;gap:8px;}
+.entrar input{width:100%;font:inherit;font-size:18px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.07);color:var(--creme);border:1px solid var(--linha);}
+.entrar input::placeholder{color:rgba(244,232,203,.55);}
+.entrar .nota-in{font-size:14px;color:var(--texto-2,#BFD0BF);margin:0;}
 .erro-tela{padding:28vh 26px 0;text-align:center;}
 .erro-tela h2{font-family:'Kaushan Script',cursive;font-size:30px;color:var(--creme);margin-bottom:10px;}
 .carregando{padding:30vh 20px;text-align:center;color:var(--texto-2);}
@@ -176,8 +181,8 @@ img{display:block;max-width:100%;}
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v2 24/11/2026';
-const MINERVA = 'https://wa.me/5521972031510?text=' + encodeURIComponent('Jardim do Éder: perdi meu link');
+const VER = 'festa-v3 24/11/2026';
+const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
 
 const $ = s => document.querySelector(s);
@@ -218,32 +223,75 @@ async function carregar() {
     if (e.codigo === 'link_invalido') {
       try { localStorage.removeItem('festa_token'); } catch {}
       token = null;
-      return carregarVitrine('Esse link não vale mais. Fale com a Minerva que ela te manda um novo.');
+      return carregarVitrine();
     }
     $('#rede').classList.remove('oculto');
     if (!D) telaErro('Sem conexão', 'Confira a internet do celular e toque para tentar de novo.', true);
   }
 }
 /* sem o link pessoal: o cardápio aparece para olhar; pedir só com o link */
-async function carregarVitrine(msg) {
+async function carregarVitrine() {
   try {
-    const slugEv = new URLSearchParams(location.search).get('e') || 'jardim-eder';
-    const r = await rpc('ev_cardapio_publico', {p_slug: slugEv});
-    D = {vitrine: true, evento: r.evento, cardapio: r.cardapio, eu: null, conta: null, msg};
+    const r = await rpc('ev_cardapio_publico', {p_slug: SLUG});
+    D = {vitrine: true, evento: r.evento, cardapio: r.cardapio, eu: null, conta: null};
     $('#rede').classList.add('oculto');
     desenhar();
   } catch (e) {
     telaErro('Sem conexão', 'Confira a internet do celular e toque para tentar de novo.', true);
   }
 }
-const podePedir = () => !!(D && !D.vitrine && D.eu && D.eu.pulseira != null && !D.eu.liberada);
+/* pode pedir = conta não paga; quem ainda não entrou (ou não disse a pulseira) entra no próprio pedido */
+const podePedir = () => !!(D && (D.vitrine || !D.eu.liberada));
+const precisaEntrar = () => !!(D && D.vitrine);
+const precisaPulseira = () => !!(D && !D.vitrine && D.eu.pulseira == null);
 function conviteHtml() {
-  if (D.vitrine) return `<div class="convite"><b>Para pedir pelo celular</b>
-      <p>${esc(D.msg || 'Abra o link que a Minerva te mandou no WhatsApp. Perdeu? Fale com ela que o link chega na hora.')}</p>
-      <a class="bt ouro" href="${MINERVA}">Falar com a Minerva</a></div>`;
-  if (D.eu.pulseira == null) return `<div class="convite"><b>Falta a sua pulseira</b>
-      <p>Passe na entrada para pegar a sua pulseira. Assim que ela for entregue, os pedidos liberam aqui mesmo.</p></div>`;
+  if (D.vitrine) return `<div class="convite"><b>Escolha e peça por aqui</b>
+      <p>No primeiro pedido você diz o número da sua pulseira e o seu celular. O pedido vai direto para o bar e para a sua conta.</p></div>`;
   return '';
+}
+let lgP = '', lgT = '', lgN = '', pedeNome = false;
+function entrarHtml() {
+  if (precisaEntrar()) return `<div class="entrar">
+      <p class="nota-in">Para lançar na sua mesa:</p>
+      <div class="linha2"><input id="lg-p" inputmode="numeric" placeholder="Pulseira" value="${esc(lgP)}" autocomplete="off"/>
+        <input id="lg-t" inputmode="tel" placeholder="Seu celular com DDD" value="${esc(lgT)}" autocomplete="tel"/></div>
+      ${pedeNome ? `<input id="lg-n" placeholder="Seu nome" value="${esc(lgN)}" autocomplete="name"/>` : ''}</div>`;
+  if (precisaPulseira()) return `<div class="entrar"><p class="nota-in">Qual é o número da sua pulseira?</p>
+      <input id="lg-p" inputmode="numeric" placeholder="Pulseira" value="${esc(lgP)}" autocomplete="off"/></div>`;
+  return '';
+}
+function guardarEntrar() {
+  if ($('#lg-p')) lgP = $('#lg-p').value.trim();
+  if ($('#lg-t')) lgT = $('#lg-t').value.trim();
+  if ($('#lg-n')) lgN = $('#lg-n').value.trim();
+}
+const MOTIVO_ENTRAR = {
+  pulseira_ocupada: 'Essa pulseira já está com outra pessoa. Confira o número no seu braço.',
+  pulseira_invalida: 'Confira o número da pulseira.',
+  celular_invalido: 'Confira o celular, com DDD.',
+  precisa_nome: 'Primeira vez por aqui? Diga o seu nome e toque em Pedir de novo.',
+  evento_fechado: 'Os pedidos pelo celular estão fechados. Fale com um garçom.',
+  sem_celular: 'Fale com alguém da entrada para ligar a sua pulseira.'};
+/* entra (ou liga a pulseira) antes do primeiro pedido; devolve true se pode seguir */
+async function entrarAntes() {
+  guardarEntrar();
+  const n = parseInt(lgP, 10);
+  if (precisaEntrar()) {
+    if (!n || !lgT) throw {aviso: 'Digite o número da pulseira e o seu celular.'};
+    if (pedeNome && !lgN) throw {aviso: 'Diga o seu nome.'};
+    const r = await rpc('ev_entrar', {p_slug: SLUG, p_pulseira: n, p_telefone: lgT, p_nome: pedeNome ? lgN : null});
+    if (!r.ok) {
+      if (r.motivo === 'precisa_nome') pedeNome = true;
+      throw {aviso: r.motivo === 'outra_pulseira' ? `Seu celular já está com a pulseira ${r.pulseira}. Confira o número no braço.` : (MOTIVO_ENTRAR[r.motivo] || 'Não consegui entrar. Tente de novo.'), redesenhar: r.motivo === 'precisa_nome'};
+    }
+    token = r.token; try { localStorage.setItem('festa_token', token); } catch {}
+    return;
+  }
+  if (precisaPulseira()) {
+    if (!n) throw {aviso: 'Digite o número da sua pulseira.'};
+    const r = await rpc('ev_cliente_pulseira', {p_token: token, p_pulseira: n});
+    if (!r.ok) throw {aviso: r.motivo === 'outra_pulseira' ? `Você está com a pulseira ${r.pulseira}.` : (MOTIVO_ENTRAR[r.motivo] || 'Não consegui ligar a pulseira.')};
+  }
 }
 function telaErro(t, d, tentar) {
   $('#app').innerHTML = `<div class="erro-tela"><h2>${esc(t)}</h2><p>${esc(d)}</p>
@@ -419,20 +467,29 @@ function abrirItem(id, codIni, qtdIni) {
       <div class="qtd"><button id="menos" aria-label="menos">−</button><span>${qtd}</span><button id="mais" aria-label="mais">+</button></div>` : ''}
       ${podePedir() && m.tipo === 'comida' && locais.length ? `<div class="rot">Onde você vai estar?</div><div class="chips">${locais.map(l =>
         `<button class="chip ${l===local?'on':''}" data-local="${esc(l)}">${esc(l)}</button>`).join('')}</div>` : ''}
-      ${!podePedir() ? `<div style="margin-top:14px">${conviteHtml() || '<div class="aviso">Sua conta já foi paga. Fale com o caixa para abrir de novo.</div>'}</div>` : `<button class="pedir" id="pedir"><span>${enviando ? 'Enviando…' : 'Pedir'}</span><span>${brl(op.preco * qtd)}</span></button>
+      ${!podePedir() ? `<div style="margin-top:14px"><div class="aviso">Sua conta já foi paga. Fale com o caixa para abrir de novo.</div></div>` : `${entrarHtml()}<button class="pedir" id="pedir"><span>${enviando ? 'Enviando…' : 'Pedir'}</span><span>${brl(op.preco * qtd)}</span></button>
       <div id="msg"></div>
       <p class="d" style="text-align:center;margin-top:10px">${m.tipo === 'bebida'
         ? 'Você recebe um voucher para retirar no bar.'
         : 'Você recebe um voucher: mostre a um garçom e ele leva até você.'}</p>`}`);
-    document.querySelectorAll('[data-cod]').forEach(b => b.onclick = () => { cod = b.dataset.cod; pintar(); });
+    document.querySelectorAll('[data-cod]').forEach(b => b.onclick = () => { guardarEntrar(); cod = b.dataset.cod; pintar(); });
     document.querySelectorAll('[data-local]').forEach(b => b.onclick = () => {
-      local = b.dataset.local; try { localStorage.setItem('festa_local', local); } catch {} pintar(); });
+      guardarEntrar(); local = b.dataset.local; try { localStorage.setItem('festa_local', local); } catch {} pintar(); });
     if (!podePedir()) return;
-    $('#menos').onclick = () => { if (qtd > 1) { qtd--; pintar(); } };
-    $('#mais').onclick = () => { if (qtd < 10) { qtd++; pintar(); } };
+    $('#menos').onclick = () => { guardarEntrar(); if (qtd > 1) { qtd--; pintar(); } };
+    $('#mais').onclick = () => { guardarEntrar(); if (qtd < 10) { qtd++; pintar(); } };
     $('#pedir').onclick = async () => {
       if (enviando) return;
       enviando = true; $('#pedir').disabled = true; $('#pedir span').textContent = 'Enviando…';
+      try {
+        await entrarAntes();
+      } catch (e) {
+        enviando = false;
+        if (e && e.redesenhar) { pintar(); }
+        $('#pedir').disabled = false; $('#pedir span').textContent = 'Pedir';
+        $('#msg').innerHTML = `<div class="aviso">${esc((e && e.aviso) || 'Sem conexão. Confira a internet e tente de novo.')}</div>`;
+        return;
+      }
       try {
         const r = await rpc('ev_pedir', {p_token: token, p_item: m.id, p_cod: cod, p_qtd: qtd, p_local: m.tipo === 'comida' ? local : null});
         D = await rpc('ev_cliente', {p_token: token});
