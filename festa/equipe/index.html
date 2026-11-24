@@ -69,6 +69,10 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 .resumo b{display:block;font-size:20px;color:var(--creme);}
 .resumo span{font-size:12.5px;color:var(--texto-2);}
 .qrbox{background:#fff;border-radius:16px;padding:12px;width:min(70vw,260px);margin:12px auto;}
+.achados{display:grid;gap:8px;margin-top:10px;}
+.achados button{text-align:left;padding:12px 14px;border-radius:14px;background:var(--selva-2);border:1px solid var(--linha);display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.achados button .mut{font-size:13px;}
+.num-grande{font-size:44px;text-align:center;font-weight:800;letter-spacing:.06em;padding:12px;}
 .qrbox svg{width:100%;height:auto;display:block;}
 </style>
 </head>
@@ -89,7 +93,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v1 24/11/2026';
+const VER='festa-equipe-v2 24/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -103,7 +107,8 @@ async function rpc(n,a){
   if(!r.ok){const e=new Error((j&&j.message)||'erro'); e.codigo=j&&j.message; throw e;} return j;
 }
 const MSG={sessao_invalida:'Sua sessão acabou. Entre de novo.',pin_errado:'PIN errado.',sem_alcada:'Só o caixa ou a gestão pode fazer isso.',
-  voucher_invalido:'Voucher não encontrado.',voucher_cancelado:'Esse voucher foi CANCELADO.',conta_nao_encontrada_ou_ja_paga:'Essa conta não existe ou já foi paga.'};
+  voucher_invalido:'Voucher não encontrado.',voucher_cancelado:'Esse voucher foi CANCELADO.',conta_nao_encontrada_ou_ja_paga:'Essa conta não existe ou já foi paga.',
+  convidada_nao_encontrada:'Convidada não encontrada.',sem_pulseira:'Ela ainda não tem pulseira.'};
 const msgErro=e=>MSG[e.codigo]||'Falhou. Confira a internet e tente de novo.';
 
 let S=null; try{S=JSON.parse(localStorage.getItem('festa_eq_'+SLUG)||'null')}catch{}
@@ -163,8 +168,10 @@ function pedidoCard(p){
     ${p.status==='erro'&&(S.papel==='gestao'||S.papel==='caixa')?`<div class="acoes"><button class="bt linha" data-relancar="${p.voucher}">Conferi no Frest: não está lá. Lançar de novo</button></div>`:''}
   </div>`;
 }
+let busca='';
 function desenhar(){
   if($('#res')) return;
+  const foco=document.activeElement; if(foco && (foco.id==='busca'||foco.id==='cx-num')) return;
   const pend=P.pendentes||[];
   let h='';
   if(P.resumo){ const r=P.resumo;
@@ -177,9 +184,17 @@ function desenhar(){
       <div style="text-align:right"><b>${brl(c.total)}</b>${c.frest_total!=null?`<div class="mut">Frest ${brl(c.frest_total)}</div>`:''}</div>
       <div class="puls"><small>PULS.</small>${c.pulseira}</div></div></button>`).join('');
   }
-  if(S.papel==='porta'||S.papel==='gestao'||S.papel==='caixa'){
-    h+=`<h2>Cadastrar na porta</h2><div class="card"><p class="mut">Use quando o WhatsApp da convidada não funcionar.</p>
-      <button class="bt linha" style="width:100%;margin-top:10px" id="porta">Cadastrar pulseira à mão</button></div>`;
+  if(S.papel==='caixa'||S.papel==='gestao'){
+    h+=`<h2>Cobrar pela pulseira</h2><div class="card"><p class="mut">Para quem não pediu pelo celular: o total vem da mesa no Frest.</p>
+      <div class="lin" style="margin-top:8px"><input class="campo" id="cx-num" inputmode="numeric" placeholder="Nº da pulseira" style="margin:0"/>
+      <button class="bt ouro" id="cx-ok">Abrir conta</button></div></div>`;
+  }
+  if(S.papel==='porta'||S.papel==='gestao'){
+    const pt=P.porta||{};
+    h+=`<h2>Entrada${pt.total!=null?` · ${pt.com_pulseira} de ${pt.total} com pulseira`:''}</h2>
+      <div class="card"><input class="campo" id="busca" placeholder="Nome ou celular da convidada" autocomplete="off" value="${esc(busca)}" style="margin:0"/>
+      <div class="achados" id="achados"></div>
+      <button class="bt linha" style="width:100%;margin-top:10px" id="porta">Não está na lista: cadastrar</button></div>`;
   }
   const meus = S.papel==='garcom' ? pend.filter(p=>p.garcom===S.nome) : [];
   const resto = S.papel==='garcom' ? pend.filter(p=>p.garcom!==S.nome) : pend;
@@ -193,7 +208,10 @@ function desenhar(){
     if(!confirm('Você conferiu no Frest que esse item NÃO está na mesa? Se estiver, vai cobrar duas vezes.')) return;
     try{ await rpc('ev_relancar',{p_sessao:S.sessao,p_voucher:b.dataset.relancar}); atualizar(); }catch(e){ alert(msgErro(e)); }
   });
-  const pb=$('#porta'); if(pb) pb.onclick=telaPorta;
+  const pb=$('#porta'); if(pb) pb.onclick=()=>telaPorta();
+  const cx=$('#cx-ok'); if(cx) cx.onclick=()=>{ const n=parseInt($('#cx-num').value,10); if(n) ler(String(n)); };
+  const cn=$('#cx-num'); if(cn) cn.onkeydown=e=>{ if(e.key==='Enter') cx.click(); };
+  const bq=$('#busca'); if(bq){ bq.oninput=()=>{ busca=bq.value; clearTimeout(bq._t); bq._t=setTimeout(buscar,250); }; if(busca) buscar(); }
 }
 
 /* ---------------------------------------------------------------- leitura */
@@ -205,6 +223,7 @@ async function ler(texto){
     const r=await rpc('ev_ler',{p_sessao:S.sessao,p_codigo:cod});
     if(r.tipo==='voucher') return telaVoucher(r);
     if(r.tipo==='conta') return telaConta(r);
+    if(r.pulseira_livre) return resultado(`<div class="card res ruim" id="res"><div class="grande-txt">Pulseira ${r.pulseira_livre} sem dona</div><p class="mut">Ninguém está com essa pulseira. Confira o número no braço dela.</p>${voltar()}</div>`);
     resultado(`<div class="card res ruim" id="res"><div class="grande-txt">QR não reconhecido</div><p class="mut">Não é voucher nem conta desta festa.</p>${voltar()}</div>`);
   }catch(e){ if(e.codigo==='sessao_invalida'){S=null;return telaLogin();} resultado(`<div class="card res ruim" id="res"><div class="grande-txt">${esc(msgErro(e))}</div>${voltar()}</div>`); }
 }
@@ -259,22 +278,31 @@ function telaConta(r){
   const pode=S.papel==='caixa'||S.papel==='gestao';
   const paga=!!c.liberada_em;
   const div = c.frest_total!=null && Math.abs(Number(c.frest_total)-(k.consumo+k.servico))>0.05;
+  // o Frest é o livro: se ele tem mais do que o app (garçom lançou direto), cobra pelo Frest
+  let cobrar=k.total, compl=k.falta_minimo;
+  if(c.frest_total!=null && Number(c.frest_total)>k.consumo+k.servico+0.05){
+    const consumoFrest=Number(c.frest_total)/(1+k.servico_pct/100);
+    compl=Math.max(0, Math.round((k.minimo-consumoFrest)*100)/100);
+    cobrar=Number(c.frest_total)+compl;
+  }
   let forma=null;
   resultado(`<div class="card res ${paga?'ruim':'bom'}" id="res">
     ${paga?`<div class="aviso">JÁ PAGA às ${hora(c.liberada_em)} (${esc(c.liberada_por)}).</div>`:''}
-    <div class="lin"><div><div class="grande-txt">${esc(c.nome)}</div><div class="mut">mesa ${c.mesa}${c.cpf?' · CPF na nota: '+esc(c.cpf):''}</div></div><div class="puls"><small>PULS.</small>${c.pulseira}</div></div>
+    <div class="lin"><div><div class="grande-txt">${esc(c.nome)}</div><div class="mut">mesa ${c.mesa}</div></div><div class="puls"><small>PULS.</small>${c.pulseira}</div></div>
     <div style="margin-top:12px">${k.itens.map(i=>`<div class="lin mut"><span>${i.qtd}× ${esc(i.nome)}${i.status==='erro'?' ⚠︎':''}</span><span>${brl(i.qtd*i.preco)}</span></div>`).join('')}</div>
     <div class="lin" style="margin-top:8px"><span>Consumo</span><b>${brl(k.consumo)}</b></div>
     <div class="lin"><span>Serviço ${k.servico_pct}%</span><b>${brl(k.servico)}</b></div>
-    ${k.falta_minimo>0?`<div class="lin"><span>Complemento da consumação</span><b>${brl(k.falta_minimo)}</b></div>`:''}
-    <div class="lin" style="margin-top:6px;font-size:24px"><span>Cobrar</span><b style="color:var(--ouro-2)">${brl(k.total)}</b></div>
-    ${c.frest_total!=null?`<p class="mut" style="margin-top:6px">Frest (lido ${hora(c.frest_lido_em)}): ${brl(c.frest_total)}</p>`:'<p class="mut" style="margin-top:6px">Total do Frest ainda não lido. Confira na mesa '+c.mesa+'.</p>'}
+    ${compl>0?`<div class="lin"><span>Complemento da consumação</span><b>${brl(compl)}</b></div>`:''}
+    <div class="lin" style="margin-top:6px;font-size:24px"><span>Cobrar</span><b style="color:var(--ouro-2)">${brl(cobrar)}</b></div>
+    ${cobrar!==k.total?`<p class="mut">Pelo Frest (tem item lançado direto na mesa ${c.mesa}).</p>`:''}
+    ${c.frest_total!=null?`<p class="mut" style="margin-top:6px">Frest (lido ${hora(c.frest_lido_em)}): ${brl(c.frest_total)}</p>`:'<p class="mut" style="margin-top:6px">Total do Frest ainda não lido. <a href="#" id="reler" style="color:var(--ouro-2)">Ler de novo</a> ou confira a mesa '+c.mesa+'.</p>'}
     ${div?`<div class="aviso">O Frest e o app estão diferentes. Confira a mesa ${c.mesa} no Frest antes de cobrar.</div>`:''}
-    ${k.falta_minimo>0?`<div class="aviso" style="background:rgba(224,169,63,.14);color:var(--ouro-2)">Lance no Frest o complemento de ${brl(k.falta_minimo)} na mesa ${c.mesa}.</div>`:''}
+    ${compl>0?`<div class="aviso" style="background:rgba(224,169,63,.14);color:var(--ouro-2)">Lance no Frest o complemento de ${brl(compl)} na mesa ${c.mesa}.</div>`:''}
     ${pode&&!paga?`<div class="formas">${['Crédito','Débito','Pix','Dinheiro'].map(f=>`<button class="bt linha" data-f="${f}">${f}</button>`).join('')}</div>
       <div class="acoes"><button class="bt ok grande" id="liberar" disabled>Recebi: liberar</button></div>`:''}
     ${!pode?'<p class="mut" style="margin-top:10px">Leve ao caixa para cobrar.</p>':''}
     <div class="acoes"><button class="bt linha" onclick="fechar()">Voltar</button></div></div>`);
+  const rl=$('#reler'); if(rl) rl.onclick=e=>{ e.preventDefault(); ler('C-'+c.codigo); };
   document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{ forma=b.dataset.f; document.querySelectorAll('[data-f]').forEach(x=>x.classList.toggle('on',x===b)); $('#liberar').disabled=false; });
   const lb=$('#liberar'); if(lb) lb.onclick=async()=>{
     lb.disabled=true;
@@ -285,23 +313,70 @@ function telaConta(r){
 }
 
 /* ---------------------------------------------------------------- porta */
-function telaPorta(){
-  resultado(`<div class="card" id="res"><div class="grande-txt">Cadastrar pulseira</div>
-    <input class="campo" id="pp" inputmode="numeric" placeholder="Número da pulseira"/>
-    <input class="campo" id="pn" placeholder="Nome completo" autocomplete="off"/>
-    <input class="campo" id="pt" inputmode="tel" placeholder="WhatsApp (opcional)"/>
+async function buscar(){
+  const box=$('#achados'); if(!box) return;
+  const q=busca.trim();
+  if(q.length<2 && !/^\d+$/.test(q)){ box.innerHTML=''; return; }
+  try{
+    const r=await rpc('ev_porta_buscar',{p_sessao:S.sessao,p_q:q});
+    if(busca.trim()!==q) return;
+    box.innerHTML = r.length ? r.map(c=>`<button data-conv="${c.id}">
+        <span><b>${esc(c.nome)}</b><div class="mut">cel. final ${esc(c.tel_final||'—')}${c.origem==='lista'?'':' · '+esc(c.origem)}</div></span>
+        ${c.pulseira!=null?`<span class="puls"><small>PULS.</small>${c.pulseira}</span>`:'<span class="tag vivo">sem pulseira</span>'}
+      </button>`).join('')
+      : '<p class="mut">Ninguém com esse nome ou celular. Confira a grafia ou cadastre abaixo.</p>';
+    box.querySelectorAll('[data-conv]').forEach(b=>b.onclick=()=>telaLigar(r.find(c=>String(c.id)===b.dataset.conv)));
+  }catch(e){ box.innerHTML=`<div class="aviso">${esc(msgErro(e))}</div>`; }
+}
+const MOTIVO={pulseira_ocupada:'Essa pulseira já é de outra convidada.',pulseira_invalida:'Número de pulseira inválido.',
+  ja_pediu:'Ela já pediu com a outra pulseira. Fale com a gestão.',ja_tem_pulseira:'Ela já tem outra pulseira.',
+  evento_fechado:'Evento fechado.',sem_nome:'Falta o nome.'};
+function telaLigar(c){
+  if(c.pulseira!=null) return ligar(c, c.pulseira);
+  resultado(`<div class="card" id="res"><div class="grande-txt">${esc(c.nome)}</div>
+    <p class="mut">cel. final ${esc(c.tel_final||'—')}</p>
+    <p style="margin-top:14px">Entregue a pulseira e digite o número dela:</p>
+    <input class="campo num-grande" id="pp" inputmode="numeric" placeholder="nº" autocomplete="off"/>
     <div id="pm"></div>
     <div class="acoes"><button class="bt ouro grande" id="pok">Abrir a mesa</button><button class="bt linha" onclick="fechar()">Voltar</button></div></div>`);
+  $('#pp').focus();
+  $('#pp').onkeydown=e=>{ if(e.key==='Enter') $('#pok').click(); };
+  $('#pok').onclick=()=>{ const n=parseInt($('#pp').value,10); if(!n) return $('#pm').innerHTML='<div class="aviso">Digite o número da pulseira.</div>'; ligar(c,n); };
+}
+async function ligar(c,n){
+  try{
+    const r=await rpc('ev_porta_vincular',{p_sessao:S.sessao,p_conv:c.id,p_pulseira:n});
+    if(!r.ok){ const m=(MOTIVO[r.motivo]||r.motivo)+(r.de?` (${r.de})`:'');
+      if($('#pm')) return $('#pm').innerHTML=`<div class="aviso">${esc(m)}</div>`;
+      return resultado(`<div class="card res ruim" id="res"><div class="grande-txt">${esc(m)}</div>${voltar()}</div>`); }
+    mostrarQr(r);
+  }catch(e){ resultado(`<div class="card res ruim" id="res"><div class="grande-txt">${esc(msgErro(e))}</div>${voltar()}</div>`); }
+}
+function mostrarQr(r){
+  const q=qrcode(0,'M'); q.addData(CLIENTE+r.token); q.make();
+  busca=''; if(navigator.vibrate) navigator.vibrate(60);
+  resultado(`<div class="card res bom" id="res">
+    <div class="lin"><div><div class="grande-txt">${esc(r.nome)}</div><div class="mut">mesa ${r.mesa} aberta</div></div><div class="puls"><small>PULS.</small>${r.pulseira}</div></div>
+    <p style="margin-top:12px">Vire a tela para ela: <b>abra a câmera do celular e aponte para o QR</b>. O cardápio abre já na mesa dela.</p>
+    <div class="qrbox">${q.createSvgTag({cellSize:6,margin:2,scalable:true})}</div>
+    <p class="mut">Não abriu? Ela pode pedir pelo garçom e pagar no caixa dizendo o número da pulseira.</p>
+    <div class="acoes"><button class="bt ok grande" onclick="fechar()">Próxima</button></div></div>`);
+}
+function telaPorta(){
+  resultado(`<div class="card" id="res"><div class="grande-txt">Cadastrar quem não está na lista</div>
+    <input class="campo" id="pn" placeholder="Nome e sobrenome" autocomplete="off"/>
+    <input class="campo" id="pt" inputmode="tel" placeholder="Celular com DDD"/>
+    <input class="campo" id="pp" inputmode="numeric" placeholder="Número da pulseira"/>
+    <div id="pm"></div>
+    <div class="acoes"><button class="bt ouro grande" id="pok">Abrir a mesa</button><button class="bt linha" onclick="fechar()">Voltar</button></div></div>`);
+  $('#pn').focus();
   $('#pok').onclick=async()=>{
-    const n=parseInt($('#pp').value,10), nome=$('#pn').value.trim();
-    if(!n||!nome) return $('#pm').innerHTML='<div class="aviso">Preencha pulseira e nome.</div>';
+    const n=parseInt($('#pp').value,10), nome=$('#pn').value.trim(), tel=$('#pt').value.trim();
+    if(!n||!nome) return $('#pm').innerHTML='<div class="aviso">Preencha nome e pulseira.</div>';
     try{
-      const r=await rpc('ev_porta_cadastrar',{p_sessao:S.sessao,p_pulseira:n,p_nome:nome,p_telefone:$('#pt').value||null});
-      if(!r.ok) return $('#pm').innerHTML=`<div class="aviso">${esc({pulseira_ocupada:'Essa pulseira já tem dona.',pulseira_invalida:'Número de pulseira inválido.',evento_fechado:'Evento fechado.'}[r.motivo]||r.motivo)}</div>`;
-      const q=qrcode(0,'M'); q.addData(CLIENTE+r.token); q.make();
-      resultado(`<div class="card res bom" id="res"><div class="grande-txt">Mesa ${r.mesa} aberta</div>
-        <p>${esc(r.nome)} · pulseira ${r.pulseira}</p><p class="mut">Peça para ela ler este QR com a câmera do celular:</p>
-        <div class="qrbox">${q.createSvgTag({cellSize:6,margin:2,scalable:true})}</div>${voltar()}</div>`);
+      const r=await rpc('ev_porta_cadastrar',{p_sessao:S.sessao,p_pulseira:n,p_nome:nome,p_telefone:tel||null});
+      if(!r.ok) return $('#pm').innerHTML=`<div class="aviso">${esc((MOTIVO[r.motivo]||r.motivo)+(r.motivo==='ja_tem_pulseira'?` É a pulseira ${r.pulseira}.`:''))}</div>`;
+      mostrarQr(r);
     }catch(e){ $('#pm').innerHTML=`<div class="aviso">${esc(msgErro(e))}</div>`; }
   };
 }
@@ -335,7 +410,7 @@ async function laco(){
 }
 const codigoDe=t=>String(t).toUpperCase().replace(/^.*[\/=:#-]/,'').replace(/[^A-Z0-9]/g,'');
 $('#ler').onclick=abrirCamera; $('#scan-fechar').onclick=fecharCamera;
-$('#digitar').onclick=()=>{ const t=prompt('Código do voucher (8 letras) ou da conta (10 letras):'); if(t){ ultimoCodigo=codigoDe(t); ler(t);} };
+$('#digitar').onclick=()=>{ const t=prompt('Código do voucher, da conta ou o número da pulseira:'); if(t){ ultimoCodigo=codigoDe(t); ler(t);} };
 window.addEventListener('hashchange',()=>{ const h=location.hash.slice(1); if(h&&S){ history.replaceState(null,'',location.pathname+location.search); ultimoCodigo=codigoDe(h); ler(h);} });
 
 if(location.hash) ultimoCodigo=codigoDe(location.hash.slice(1));

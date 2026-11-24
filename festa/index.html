@@ -149,6 +149,14 @@ img{display:block;max-width:100%;}
 .voucher .quem{margin-top:6px;color:var(--texto-2);}
 .voucher .usado{display:inline-block;margin-top:10px;padding:6px 14px;border-radius:999px;background:rgba(127,211,154,.15);color:var(--ok);font-weight:700;}
 
+.convite{margin:16px 16px 0;padding:14px 16px;border-radius:16px;background:rgba(224,169,63,.12);border:1px solid rgba(224,169,63,.35);}
+.folha .convite{margin:0;}
+.convite b{color:var(--ouro-2);} .convite p{margin:4px 0 0;font-size:15px;line-height:1.35;}
+.convite .bt{display:inline-block;margin-top:10px;text-decoration:none;}
+.aniv{margin-top:16px;padding:14px;border-radius:14px;border:1px dashed var(--linha);text-align:left;}
+.aniv .rot{margin:0 0 8px;} .aniv .sel{display:flex;gap:8px;}
+.aniv select{flex:1;font:inherit;font-size:16px;padding:10px;border-radius:10px;background:rgba(255,255,255,.06);color:var(--creme);border:1px solid var(--linha);}
+.aniv select option{color:#111;}
 .erro-tela{padding:28vh 26px 0;text-align:center;}
 .erro-tela h2{font-family:'Kaushan Script',cursive;font-size:30px;color:var(--creme);margin-bottom:10px;}
 .carregando{padding:30vh 20px;text-align:center;color:var(--texto-2);}
@@ -168,7 +176,8 @@ img{display:block;max-width:100%;}
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v1 24/11/2026';
+const VER = 'festa-v2 24/11/2026';
+const MINERVA = 'https://wa.me/5521972031510?text=' + encodeURIComponent('Jardim do Éder: perdi meu link');
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
 
 const $ = s => document.querySelector(s);
@@ -200,7 +209,7 @@ let lado = 'bebida';     // bebida | comida
 let local = null; try { local = localStorage.getItem('festa_local'); } catch {}
 
 async function carregar() {
-  if (!token) return telaErro('Abra pelo link do WhatsApp', 'Leia o QR da sua pulseira e a Minerva te manda o link do cardápio.');
+  if (!token) return carregarVitrine();
   try {
     D = await rpc('ev_cliente', {p_token: token});
     $('#rede').classList.add('oculto');
@@ -208,11 +217,33 @@ async function carregar() {
   } catch (e) {
     if (e.codigo === 'link_invalido') {
       try { localStorage.removeItem('festa_token'); } catch {}
-      return telaErro('Esse link não vale mais', 'Leia de novo o QR da sua pulseira que a Minerva te manda um link novo.');
+      token = null;
+      return carregarVitrine('Esse link não vale mais. Fale com a Minerva que ela te manda um novo.');
     }
     $('#rede').classList.remove('oculto');
     if (!D) telaErro('Sem conexão', 'Confira a internet do celular e toque para tentar de novo.', true);
   }
+}
+/* sem o link pessoal: o cardápio aparece para olhar; pedir só com o link */
+async function carregarVitrine(msg) {
+  try {
+    const slugEv = new URLSearchParams(location.search).get('e') || 'jardim-eder';
+    const r = await rpc('ev_cardapio_publico', {p_slug: slugEv});
+    D = {vitrine: true, evento: r.evento, cardapio: r.cardapio, eu: null, conta: null, msg};
+    $('#rede').classList.add('oculto');
+    desenhar();
+  } catch (e) {
+    telaErro('Sem conexão', 'Confira a internet do celular e toque para tentar de novo.', true);
+  }
+}
+const podePedir = () => !!(D && !D.vitrine && D.eu && D.eu.pulseira != null && !D.eu.liberada);
+function conviteHtml() {
+  if (D.vitrine) return `<div class="convite"><b>Para pedir pelo celular</b>
+      <p>${esc(D.msg || 'Abra o link que a Minerva te mandou no WhatsApp. Perdeu? Fale com ela que o link chega na hora.')}</p>
+      <a class="bt ouro" href="${MINERVA}">Falar com a Minerva</a></div>`;
+  if (D.eu.pulseira == null) return `<div class="convite"><b>Falta a sua pulseira</b>
+      <p>Passe na entrada para pegar a sua pulseira. Assim que ela for entregue, os pedidos liberam aqui mesmo.</p></div>`;
+  return '';
 }
 function telaErro(t, d, tentar) {
   $('#app').innerHTML = `<div class="erro-tela"><h2>${esc(t)}</h2><p>${esc(d)}</p>
@@ -222,31 +253,33 @@ function telaErro(t, d, tentar) {
 /* ---------------------------------------------------------------- desenho */
 function desenhar() {
   const eu = D.eu, conta = D.conta;
-  const primeiroNome = (eu.nome || '').split(' ')[0];
-  const ativos = conta.itens.filter(i => !i.entregue).length;
+  const primeiroNome = eu ? (eu.nome || '').split(' ')[0] : '';
+  if (D.vitrine) aba = 'cardapio';
+  const ativos = conta ? conta.itens.filter(i => !i.entregue).length : 0;
   $('#app').innerHTML = `
     <header class="capa"><div class="bg"></div>
       <div class="fita">Abra as suas asas,<br/>solte suas feras</div>
       <h1>Jardim do Éder</h1>
       <div class="marca">SPESSO · 27·11·26</div>
-      <div class="eu"><span class="num">${eu.pulseira}</span><span class="q">Olá, <b>${esc(primeiroNome)}</b></span></div>
+      ${eu ? `<div class="eu">${eu.pulseira != null ? `<span class="num">${eu.pulseira}</span>` : ''}<span class="q">Olá, <b>${esc(primeiroNome)}</b></span></div>` : ''}
     </header>
+    ${conviteHtml()}
     <main id="corpo"></main>
     <div class="espaco"></div>
     <div class="ver">skv-versao ${VER}</div>
-    <nav class="barra">
+    ${D.vitrine ? '' : `<nav class="barra">
       <div class="consumo" id="consumo"></div>
       <div class="nav">
         <button data-aba="cardapio"><b>Cardápio</b>pedir</button>
         <button data-aba="pedidos"><b>Pedidos${ativos ? ' · ' + ativos : ''}</b>vouchers</button>
         <button data-aba="conta"><b>${brl(conta.consumo + conta.servico)}</b>minha conta</button>
       </div>
-    </nav>`;
+    </nav>`}`;
   document.querySelectorAll('.nav button').forEach(b => {
     b.classList.toggle('on', b.dataset.aba === aba);
     b.onclick = () => { aba = b.dataset.aba; desenhar(); window.scrollTo({top: $('#corpo').offsetTop - 8, behavior:'smooth'}); };
   });
-  desenharConsumo();
+  if (!D.vitrine) desenharConsumo();
   ({cardapio: desenharCardapio, pedidos: desenharPedidos, conta: desenharConta})[aba]();
 }
 
@@ -334,7 +367,8 @@ function desenharConta() {
   if (eu.liberada) {
     $('#corpo').innerHTML = `<div class="titulo-bloco">Conta paga</div>
       <div class="conta"><p>Obrigada por virar fera com a gente, ${esc(eu.nome.split(' ')[0])}! 🐆</p>
-      <p class="nota">Marque <b>@spesso.rio</b> nas suas fotos. A gente adora rever essa noite.</p></div>`;
+      <p class="nota">Marque <b>@spesso.rio</b> nas suas fotos. A gente adora rever essa noite.</p>${anivHtml()}</div>`;
+    ligarAniv();
     return;
   }
   const linhas = c.itens.map(p => `<div class="l"><span>${p.qtd}× ${esc(p.nome)}</span><span>${brl(p.qtd*p.preco)}</span></div>`).join('');
@@ -381,18 +415,19 @@ function abrirItem(id, codIni, qtdIni) {
       ${m.descricao ? `<p class="d">${esc(m.descricao)}</p>` : ''}
       ${m.opcoes.length > 1 ? `<div class="rot">Qual?</div><div class="chips">${m.opcoes.map(o =>
         `<button class="chip ${o.cod===cod?'on':''}" data-cod="${o.cod}">${esc(o.rotulo)}</button>`).join('')}</div>` : ''}
-      <div class="rot">Quantos?</div>
-      <div class="qtd"><button id="menos" aria-label="menos">−</button><span>${qtd}</span><button id="mais" aria-label="mais">+</button></div>
-      ${m.tipo === 'comida' && locais.length ? `<div class="rot">Onde você vai estar?</div><div class="chips">${locais.map(l =>
+      ${podePedir() ? `<div class="rot">Quantos?</div>
+      <div class="qtd"><button id="menos" aria-label="menos">−</button><span>${qtd}</span><button id="mais" aria-label="mais">+</button></div>` : ''}
+      ${podePedir() && m.tipo === 'comida' && locais.length ? `<div class="rot">Onde você vai estar?</div><div class="chips">${locais.map(l =>
         `<button class="chip ${l===local?'on':''}" data-local="${esc(l)}">${esc(l)}</button>`).join('')}</div>` : ''}
-      <button class="pedir" id="pedir"><span>${enviando ? 'Enviando…' : 'Pedir'}</span><span>${brl(op.preco * qtd)}</span></button>
+      ${!podePedir() ? `<div style="margin-top:14px">${conviteHtml() || '<div class="aviso">Sua conta já foi paga. Fale com o caixa para abrir de novo.</div>'}</div>` : `<button class="pedir" id="pedir"><span>${enviando ? 'Enviando…' : 'Pedir'}</span><span>${brl(op.preco * qtd)}</span></button>
       <div id="msg"></div>
       <p class="d" style="text-align:center;margin-top:10px">${m.tipo === 'bebida'
         ? 'Você recebe um voucher para retirar no bar.'
-        : 'Você recebe um voucher: mostre a um garçom e ele leva até você.'}</p>`);
+        : 'Você recebe um voucher: mostre a um garçom e ele leva até você.'}</p>`}`);
     document.querySelectorAll('[data-cod]').forEach(b => b.onclick = () => { cod = b.dataset.cod; pintar(); });
     document.querySelectorAll('[data-local]').forEach(b => b.onclick = () => {
       local = b.dataset.local; try { localStorage.setItem('festa_local', local); } catch {} pintar(); });
+    if (!podePedir()) return;
     $('#menos').onclick = () => { if (qtd > 1) { qtd--; pintar(); } };
     $('#mais').onclick = () => { if (qtd < 10) { qtd++; pintar(); } };
     $('#pedir').onclick = async () => {
@@ -407,6 +442,7 @@ function abrirItem(id, codIni, qtdIni) {
       } catch (e) {
         enviando = false; $('#pedir').disabled = false; $('#pedir span').textContent = 'Tentar de novo';
         const txt = {conta_ja_paga:'Sua conta já foi paga. Fale com o caixa para abrir de novo.',
+                     sem_pulseira:'Falta a sua pulseira: passe na entrada e depois peça aqui.',
                      evento_fechado:'Os pedidos pelo celular foram encerrados. Fale com um garçom.',
                      sem_preco:'Esse item saiu do cardápio agora. Escolha outro, por favor.'}[e.codigo]
           || 'Não consegui enviar. O pedido NÃO foi feito. Confira a internet e toque em "Tentar de novo".';
@@ -415,6 +451,34 @@ function abrirItem(id, codIni, qtdIni) {
     };
   };
   pintar();
+}
+
+/* aniversário (dia e mês): para convidar a fazer a festa dela aqui */
+const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+let anivPulou = false; try { anivPulou = !!sessionStorage.getItem('festa_aniv_pulou'); } catch {}
+function anivHtml() {
+  if (!D || D.vitrine || D.eu.tem_aniversario || anivPulou) return '';
+  return `<div class="aniv" id="aniv"><div class="rot">Quando é o seu aniversário?</div>
+    <p class="d" style="margin:0 0 10px">Só dia e mês. A gente adora fazer festa e quer te chamar para a sua.</p>
+    <div class="sel"><select id="aniv-d" aria-label="dia"><option value="">dia</option>${Array.from({length:31},(_,i)=>`<option>${i+1}</option>`).join('')}</select>
+    <select id="aniv-m" aria-label="mês"><option value="">mês</option>${MESES.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('')}</select></div>
+    <div style="display:flex;gap:8px;margin-top:10px"><button class="bt ouro" id="aniv-ok">Salvar</button><button class="bt linha" id="aniv-nao">Agora não</button></div>
+    <div id="aniv-msg"></div></div>`;
+}
+function ligarAniv() {
+  if (!$('#aniv')) return;
+  $('#aniv-nao').onclick = () => { anivPulou = true; try { sessionStorage.setItem('festa_aniv_pulou', '1'); } catch {} $('#aniv').remove(); };
+  $('#aniv-ok').onclick = async () => {
+    const d = +$('#aniv-d').value, m = +$('#aniv-m').value;
+    if (!d || !m) { $('#aniv-msg').innerHTML = '<div class="aviso">Escolha o dia e o mês.</div>'; return; }
+    try {
+      await rpc('ev_cliente_aniversario', {p_token: token, p_dia: d, p_mes: m});
+      D.eu.tem_aniversario = true;
+      $('#aniv').innerHTML = `<p style="margin:0">Anotado: <b>${d} de ${MESES[m-1]}</b>. 🎉</p>`;
+    } catch (e) {
+      $('#aniv-msg').innerHTML = `<div class="aviso">${e.codigo === 'data_invalida' ? 'Essa data não existe. Confira o dia.' : 'Não consegui salvar. Tente de novo.'}</div>`;
+    }
+  };
 }
 
 function qrSvg(texto) {
@@ -435,8 +499,9 @@ function abrirVoucher(p, novo) {
     <div style="display:grid;gap:10px;margin-top:18px">
       <button class="bt ouro" style="padding:14px" id="mais-um">Pedir mais alguma coisa</button>
       <button class="bt linha" style="padding:12px" id="ok">Fechar</button>
-    </div></div>`);
+    </div>${novo ? anivHtml() : ''}</div>`);
   $('#ok').onclick = fecharFolha;
+  ligarAniv();
   $('#mais-um').onclick = () => { fecharFolha(); aba = 'cardapio'; desenhar(); };
 }
 
@@ -464,12 +529,14 @@ async function pedirConta() {
 
 /* atualiza sozinho (status do voucher, conta) sem atrapalhar quem está escolhendo */
 setInterval(() => {
-  if (document.hidden || !token) return;
+  if (document.hidden || !token || !D || D.vitrine) return;
   if (!$('#folha').classList.contains('oculto')) return;
   const y = window.scrollY;
   rpc('ev_cliente', {p_token: token}).then(d => {
     const mudou = JSON.stringify(d) !== JSON.stringify(D);
-    D = d; $('#rede').classList.add('oculto');
+    const virou = D && D.eu && (D.eu.pulseira !== d.eu.pulseira || D.eu.liberada !== d.eu.liberada);
+    D = d;
+    if (virou) { desenhar(); window.scrollTo(0, y); return; } $('#rede').classList.add('oculto');
     if (mudou && aba !== 'cardapio') { desenhar(); window.scrollTo(0, y); }
     else if (mudou) { desenharConsumo(); }
   }).catch(() => $('#rede').classList.remove('oculto'));
