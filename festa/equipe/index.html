@@ -105,7 +105,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v3 24/11/2026';
+const VER='festa-equipe-v4 24/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -349,6 +349,8 @@ function telaConta(r){
 }
 
 /* ---------------------------------------------------------------- lançar pela pulseira */
+/* bebida lançada pela equipe: o papel sai no bar escolhido (quem é do bar entrega na hora: sem papel) */
+let barEq=null; try{ barEq=localStorage.getItem('festa_eq_bar'); }catch{}
 async function telaLancar(n, aviso, ladoIni){
   resultado('<div class="card" id="res"><p class="mut">Abrindo a pulseira '+n+'…</p></div>');
   let r;
@@ -370,17 +372,21 @@ async function telaLancar(n, aviso, ladoIni){
         return `<button data-item="${x.id}" class="${x.id===sel?'on':''}"><span>${esc(x.nome)}</span><span class="mut">${brl(mn)}</span></button>`;}).join('')).join('')}</div>
       ${m?`<div class="escolha"><b>${esc(m.nome)}</b>
         ${m.opcoes.length>1?`<div class="chips">${m.opcoes.map(o=>`<button data-cod="${o.cod}" class="${o.cod===cod?'on':''}">${esc(o.rotulo)}</button>`).join('')}</div>`:''}
+        ${m.tipo==='bebida'&&S.papel!=='bar'?`<div class="mut" style="margin-top:10px">Pegar no</div><div class="chips">${[['baixo','Bar do 1º piso'],['cima','Bar do 2º piso']].map(([k,nb])=>`<button data-bar="${k}" class="${k===barEq?'on':''}">${nb}</button>`).join('')}</div>`:''}
         <div class="qtd"><button id="menos">−</button><span>${qtd}</span><button id="mais">+</button></div>
         <div class="acoes"><button class="bt ok grande" id="lancar">${enviando?'Lançando…':'Lançar '+brl(op.preco*qtd)}</button></div></div>`:''}
       <div class="acoes"><button class="bt linha" onclick="fechar()">Pronto</button></div></div>`);
     document.querySelectorAll('[data-lado]').forEach(b=>b.onclick=()=>{ lado=b.dataset.lado; sel=null; pintar(); });
     document.querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>{ sel=+b.dataset.item; const mm=r.cardapio.find(x=>x.id===sel); cod=mm.opcoes[0].cod; qtd=1; pintar(); });
     document.querySelectorAll('[data-cod]').forEach(b=>b.onclick=()=>{ cod=b.dataset.cod; pintar(); });
+    document.querySelectorAll('[data-bar]').forEach(b=>b.onclick=()=>{ barEq=b.dataset.bar; try{localStorage.setItem('festa_eq_bar',barEq);}catch{} pintar(); });
     const me=$('#menos'); if(me){ me.onclick=()=>{ if(qtd>1){qtd--;pintar();} }; $('#mais').onclick=()=>{ if(qtd<10){qtd++;pintar();} }; }
     const lb=$('#lancar'); if(lb) lb.onclick=async()=>{
-      if(enviando) return; enviando=true; lb.disabled=true; lb.textContent='Lançando…';
+      if(enviando) return;
+      if(m.tipo==='bebida'&&S.papel!=='bar'&&!barEq){ alert('Escolha em qual bar a bebida sai.'); return; }
+      enviando=true; lb.disabled=true; lb.textContent='Lançando…';
       try{
-        const x=await rpc('ev_equipe_pedir',{p_sessao:S.sessao,p_pulseira:r.pulseira,p_item:m.id,p_cod:cod,p_qtd:qtd});
+        const x=await rpc('ev_equipe_pedir',{p_sessao:S.sessao,p_pulseira:r.pulseira,p_item:m.id,p_cod:cod,p_qtd:qtd,p_retirar:m.tipo==='bebida'&&S.papel!=='bar'?barEq:null});
         if(navigator.vibrate) navigator.vibrate(40);
         const nomeItem=m.nome+(op.rotulo?' · '+op.rotulo:'');
         telaLancar(r.pulseira, `${qtd}× ${nomeItem} lançado para ${r.nome.split(' ')[0]}${S.papel==='garcom'&&m.tipo==='comida'?'. A entrega é sua.':'.'}`, lado);
