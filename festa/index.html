@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Jardim do Éder · Spesso</title>
+<meta name="description" content="Jardim do Éder: solte suas feras. Peça bebidas e pratos pelo celular."/>
+<meta name="theme-color" content="#0B2216"/>
+<meta name="color-scheme" content="dark"/>
+<meta name="robots" content="noindex"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐆</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;0,800;1,500&family=Alegreya+SC:wght@700&family=Kaushan+Script&family=Pinyon+Script&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --selva:#0B2216; --selva-2:#113021; --selva-3:#18402C; --linha:#2A5A40;
+  --creme:#F4E8CB; --creme-2:#E9D8AE; --tinta:#3A2312; --ouro:#E0A93F; --ouro-2:#F3C766;
+  --brasa:#D9502E; --texto:#F4EBD6; --texto-2:#BFD0BF; --ok:#7FD39A; --erro:#FF8A6B;
+  --raio:18px; --sab:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{background:var(--selva);}
+body{font-family:'Alegreya',Georgia,serif;color:var(--texto);background:var(--selva);min-height:100dvh;
+  font-size:17px;line-height:1.4;overscroll-behavior-y:none;-webkit-font-smoothing:antialiased;}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;}
+img{display:block;max-width:100%;}
+.oculto{display:none!important;}
+
+/* ---------- capa ---------- */
+.capa{position:relative;min-height:62vh;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 18px 22px;overflow:hidden;isolation:isolate;}
+.capa .bg{position:absolute;inset:0;z-index:-2;background:var(--selva) url(img/selva.jpg) center 30%/cover no-repeat;}
+.capa::after{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(11,34,22,0) 30%,rgba(11,34,22,.55) 62%,var(--selva) 98%);}
+.fita{align-self:center;background:var(--creme);color:var(--tinta);font-family:'Kaushan Script',cursive;
+  font-size:clamp(19px,5.6vw,24px);line-height:1.15;text-align:center;padding:10px 26px 12px;margin-bottom:10px;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);transform:rotate(-2deg);
+  clip-path:polygon(0 0,100% 0,96% 50%,100% 100%,0 100%,4% 50%);}
+.capa h1{font-family:'Pinyon Script',cursive;font-weight:400;text-align:center;color:var(--creme);
+  font-size:clamp(50px,15vw,68px);line-height:1;text-shadow:0 3px 18px rgba(0,0,0,.55);margin:4px 0 6px;}
+.capa .marca{text-align:center;font-family:'Alegreya SC',serif;letter-spacing:.32em;font-size:12px;color:var(--ouro-2);}
+.eu{align-self:center;margin-top:14px;display:flex;align-items:center;gap:10px;background:rgba(11,34,22,.78);
+  border:1px solid var(--linha);border-radius:999px;padding:7px 16px 7px 8px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+.eu .num{background:var(--ouro);color:var(--tinta);font-weight:800;border-radius:999px;min-width:38px;height:38px;
+  display:grid;place-items:center;font-size:17px;padding:0 8px;}
+.eu .q{font-size:15px;line-height:1.15;} .eu .q b{display:block;font-size:17px;}
+
+/* ---------- abas Beber / Comer ---------- */
+.portas{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:6px 16px 4px;}
+.porta{position:relative;height:150px;border-radius:var(--raio);overflow:hidden;text-align:left;
+  border:1px solid var(--linha);box-shadow:0 8px 22px rgba(0,0,0,.3);transition:transform .14s ease-out;}
+.porta:active{transform:scale(.97);}
+.porta img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.porta span{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 12px;
+  background:linear-gradient(180deg,transparent,rgba(6,20,12,.92));}
+.porta b{display:block;font-family:'Kaushan Script',cursive;font-weight:400;font-size:28px;color:var(--creme);line-height:1;}
+.porta small{font-size:14px;color:var(--texto-2);}
+.porta.on{outline:2px solid var(--ouro);outline-offset:2px;}
+
+/* ---------- categorias ---------- */
+.cats{position:sticky;top:0;z-index:5;background:rgba(11,34,22,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--linha);margin-top:16px;}
+.cats .in{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;scrollbar-width:none;}
+.cats .in::-webkit-scrollbar{display:none;}
+.cats a{flex:none;text-decoration:none;color:var(--texto-2);font-size:15px;padding:7px 14px;border-radius:999px;border:1px solid var(--linha);}
+.cats a.on{background:var(--creme);color:var(--tinta);border-color:var(--creme);font-weight:700;}
+
+.secao{padding:22px 16px 4px;scroll-margin-top:62px;}
+.secao h2{display:inline-block;font-family:'Alegreya SC',serif;font-size:15px;letter-spacing:.14em;color:var(--tinta);
+  background:var(--creme);padding:6px 18px 7px;margin:0 0 12px -16px;border-radius:0 999px 999px 0;}
+.item{width:100%;display:flex;gap:14px;align-items:flex-start;text-align:left;padding:14px 0;border-bottom:1px solid rgba(42,90,64,.6);}
+.item:active{background:rgba(255,255,255,.03);}
+.item .foto{flex:none;width:86px;height:86px;border-radius:14px;overflow:hidden;background:var(--selva-2);}
+.item .foto img{width:100%;height:100%;object-fit:cover;}
+.item .tx{flex:1;min-width:0;}
+.item h3{font-size:18px;font-weight:700;line-height:1.2;color:var(--creme);}
+.item .chamada{font-style:italic;color:var(--ouro-2);font-size:15.5px;margin-top:2px;}
+.item p{font-size:14.5px;color:var(--texto-2);margin-top:3px;}
+.item .pr{margin-top:6px;display:flex;align-items:center;gap:10px;font-weight:800;color:var(--ouro);}
+.item .mais{margin-left:auto;flex:none;width:34px;height:34px;border-radius:50%;background:var(--ouro);color:var(--tinta);
+  display:grid;place-items:center;font-size:24px;font-weight:800;line-height:1;align-self:center;}
+
+/* ---------- meus pedidos ---------- */
+.titulo-bloco{font-family:'Kaushan Script',cursive;font-size:26px;color:var(--creme);padding:22px 16px 6px;}
+.vazio{padding:10px 16px 0;color:var(--texto-2);}
+.ped{margin:10px 16px 0;background:var(--selva-2);border:1px solid var(--linha);border-radius:var(--raio);padding:12px 14px;
+  display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;}
+.ped .n{font-weight:700;color:var(--creme);}
+.ped .st{font-size:14px;color:var(--texto-2);}
+.ped .st.ok{color:var(--ok);} .ped .st.vivo{color:var(--ouro-2);}
+.ped .acoes{grid-column:1/-1;display:flex;gap:8px;margin-top:6px;}
+.bt{border-radius:999px;padding:9px 16px;font-weight:700;font-size:15px;}
+.bt.ouro{background:var(--ouro);color:var(--tinta);}
+.bt.linha{border:1px solid var(--linha);color:var(--creme);}
+.bt.creme{background:var(--creme);color:var(--tinta);}
+.bt:active{transform:scale(.97);}
+
+/* ---------- conta ---------- */
+.conta{margin:10px 16px 0;background:var(--creme);color:var(--tinta);border-radius:var(--raio);padding:16px 16px 18px;}
+.conta .l{display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:16px;}
+.conta .l.t{border-top:1px dashed rgba(58,35,18,.35);margin-top:8px;padding-top:10px;font-size:20px;font-weight:800;}
+.conta .nota{font-size:14px;margin-top:8px;color:#6B4A2E;}
+
+/* ---------- barra de baixo ---------- */
+.barra{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(9,27,17,.97);border-top:1px solid var(--linha);
+  padding:8px 12px calc(8px + var(--sab));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
+.consumo{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--texto-2);padding:0 4px 8px;}
+.consumo .trilho{flex:1;height:6px;border-radius:9px;background:var(--selva-3);overflow:hidden;}
+.consumo .trilho i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ouro),var(--ouro-2));transition:width .5s cubic-bezier(.2,.8,.2,1);}
+.consumo b{color:var(--creme);}
+.nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 4px;border-radius:12px;font-size:13px;color:var(--texto-2);}
+.nav button b{font-size:16px;color:var(--creme);}
+.nav button.on{background:var(--selva-3);}
+.nav button.on b{color:var(--ouro-2);}
+.espaco{height:calc(130px + var(--sab));}
+
+/* ---------- folhas (sheet) ---------- */
+.veu{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.55);opacity:0;transition:opacity .2s;}
+.veu.on{opacity:1;}
+.folha{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--selva-2);border-top:1px solid var(--linha);
+  border-radius:22px 22px 0 0;padding:10px 18px calc(18px + var(--sab));max-height:92dvh;overflow:auto;
+  transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);}
+.folha.on{transform:none;}
+.folha .pega{width:44px;height:5px;border-radius:9px;background:var(--linha);margin:0 auto 12px;}
+.folha h3{font-size:22px;color:var(--creme);line-height:1.15;}
+.folha .chamada{font-style:italic;color:var(--ouro-2);margin-top:4px;}
+.folha p.d{color:var(--texto-2);font-size:15px;margin-top:6px;}
+.folha .rot{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--texto-2);margin:16px 0 8px;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{border:1px solid var(--linha);border-radius:999px;padding:9px 14px;font-size:15.5px;color:var(--creme);}
+.chip.on{background:var(--creme);color:var(--tinta);border-color:var(--creme);font-weight:700;}
+.qtd{display:flex;align-items:center;gap:16px;}
+.qtd button{width:44px;height:44px;border-radius:50%;border:1px solid var(--linha);font-size:24px;color:var(--creme);}
+.qtd span{font-size:24px;font-weight:800;min-width:24px;text-align:center;}
+.pedir{width:100%;margin-top:20px;background:var(--ouro);color:var(--tinta);border-radius:16px;padding:16px;font-size:19px;font-weight:800;
+  display:flex;justify-content:space-between;align-items:center;}
+.pedir:disabled{opacity:.6;}
+.aviso{margin-top:12px;font-size:15px;border-radius:12px;padding:10px 12px;background:rgba(255,138,107,.12);color:var(--erro);}
+.aviso.info{background:rgba(224,169,63,.12);color:var(--ouro-2);}
+
+/* ---------- voucher ---------- */
+.voucher{text-align:center;}
+.voucher .qr{background:#fff;border-radius:18px;padding:14px;width:min(78vw,300px);margin:12px auto 10px;}
+.voucher .qr svg,.voucher .qr img{width:100%;height:auto;display:block;}
+.voucher .cod{font-family:ui-monospace,Menlo,monospace;letter-spacing:.2em;font-size:20px;color:var(--creme);}
+.voucher .onde{font-family:'Kaushan Script',cursive;font-size:26px;color:var(--ouro-2);margin-top:4px;}
+.voucher .quem{margin-top:6px;color:var(--texto-2);}
+.voucher .usado{display:inline-block;margin-top:10px;padding:6px 14px;border-radius:999px;background:rgba(127,211,154,.15);color:var(--ok);font-weight:700;}
+
+.erro-tela{padding:28vh 26px 0;text-align:center;}
+.erro-tela h2{font-family:'Kaushan Script',cursive;font-size:30px;color:var(--creme);margin-bottom:10px;}
+.carregando{padding:30vh 20px;text-align:center;color:var(--texto-2);}
+.ver{font-size:11px;color:#4E7360;text-align:center;padding:24px 0 8px;}
+.rede{position:fixed;top:0;left:0;right:0;z-index:50;background:var(--brasa);color:#fff;text-align:center;font-size:14px;padding:6px calc(10px + env(safe-area-inset-right,0px)) 6px;padding-top:calc(6px + env(safe-area-inset-top,0px));}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<div id="rede" class="rede oculto">Sem internet agora. Assim que voltar, a página se atualiza.</div>
+<div id="app"><div class="carregando">Abrindo o seu cardápio…</div></div>
+
+<div id="veu" class="veu oculto"></div>
+<div id="folha" class="folha oculto" role="dialog" aria-modal="true"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
+const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
+const VER = 'festa-v1 24/11/2026';
+const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
+
+const $ = s => document.querySelector(s);
+const brl = v => 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',');
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const slug = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-');
+
+async function rpc(nome, args) {
+  const r = await fetch(`${SB}/rest/v1/rpc/${nome}`, {
+    method:'POST', headers:{apikey:K, Authorization:'Bearer '+K, 'Content-Type':'application/json'},
+    body: JSON.stringify(args)});
+  const t = await r.text();
+  let j = null; try { j = t ? JSON.parse(t) : null; } catch {}
+  if (!r.ok) { const e = new Error((j && j.message) || 'erro'); e.codigo = j && j.message; throw e; }
+  return j;
+}
+
+/* token: vem no link (?t=) e fica guardado para reabrir sem o link */
+let token = new URLSearchParams(location.search).get('t');
+try {
+  if (token) localStorage.setItem('festa_token', token);
+  else token = localStorage.getItem('festa_token');
+} catch {}
+if (token && location.search) history.replaceState(null, '', location.pathname);
+
+let D = null;            // último ev_cliente
+let aba = 'cardapio';    // cardapio | pedidos | conta
+let lado = 'bebida';     // bebida | comida
+let local = null; try { local = localStorage.getItem('festa_local'); } catch {}
+
+async function carregar() {
+  if (!token) return telaErro('Abra pelo link do WhatsApp', 'Leia o QR da sua pulseira e a Minerva te manda o link do cardápio.');
+  try {
+    D = await rpc('ev_cliente', {p_token: token});
+    $('#rede').classList.add('oculto');
+    desenhar();
+  } catch (e) {
+    if (e.codigo === 'link_invalido') {
+      try { localStorage.removeItem('festa_token'); } catch {}
+      return telaErro('Esse link não vale mais', 'Leia de novo o QR da sua pulseira que a Minerva te manda um link novo.');
+    }
+    $('#rede').classList.remove('oculto');
+    if (!D) telaErro('Sem conexão', 'Confira a internet do celular e toque para tentar de novo.', true);
+  }
+}
+function telaErro(t, d, tentar) {
+  $('#app').innerHTML = `<div class="erro-tela"><h2>${esc(t)}</h2><p>${esc(d)}</p>
+    ${tentar ? '<p style="margin-top:18px"><button class="bt ouro" onclick="carregar()">Tentar de novo</button></p>' : ''}</div>`;
+}
+
+/* ---------------------------------------------------------------- desenho */
+function desenhar() {
+  const eu = D.eu, conta = D.conta;
+  const primeiroNome = (eu.nome || '').split(' ')[0];
+  const ativos = conta.itens.filter(i => !i.entregue).length;
+  $('#app').innerHTML = `
+    <header class="capa"><div class="bg"></div>
+      <div class="fita">Abra as suas asas,<br/>solte suas feras</div>
+      <h1>Jardim do Éder</h1>
+      <div class="marca">SPESSO · 27·11·26</div>
+      <div class="eu"><span class="num">${eu.pulseira}</span><span class="q">Olá, <b>${esc(primeiroNome)}</b></span></div>
+    </header>
+    <main id="corpo"></main>
+    <div class="espaco"></div>
+    <div class="ver">skv-versao ${VER}</div>
+    <nav class="barra">
+      <div class="consumo" id="consumo"></div>
+      <div class="nav">
+        <button data-aba="cardapio"><b>Cardápio</b>pedir</button>
+        <button data-aba="pedidos"><b>Pedidos${ativos ? ' · ' + ativos : ''}</b>vouchers</button>
+        <button data-aba="conta"><b>${brl(conta.consumo + conta.servico)}</b>minha conta</button>
+      </div>
+    </nav>`;
+  document.querySelectorAll('.nav button').forEach(b => {
+    b.classList.toggle('on', b.dataset.aba === aba);
+    b.onclick = () => { aba = b.dataset.aba; desenhar(); window.scrollTo({top: $('#corpo').offsetTop - 8, behavior:'smooth'}); };
+  });
+  desenharConsumo();
+  ({cardapio: desenharCardapio, pedidos: desenharPedidos, conta: desenharConta})[aba]();
+}
+
+function desenharConsumo() {
+  const c = D.conta, el = $('#consumo');
+  if (!c.minimo) { el.classList.add('oculto'); return; }
+  const pct = Math.min(100, 100 * c.consumo / c.minimo);
+  el.innerHTML = c.falta_minimo > 0
+    ? `<span>Faltam <b>${brl(c.falta_minimo)}</b> da sua consumação</span><span class="trilho"><i style="width:${pct}%"></i></span>`
+    : `<span>Consumação de <b>${brl(c.minimo)}</b> completa</span><span class="trilho"><i style="width:100%"></i></span>`;
+}
+
+function desenharCardapio() {
+  const itens = D.cardapio.filter(m => m.tipo === lado);
+  const cats = [...new Set(itens.map(m => m.categoria))];
+  $('#corpo').innerHTML = `
+    <div class="portas">
+      <button class="porta ${lado==='bebida'?'on':''}" data-lado="bebida"><img src="img/arara.jpg" alt=""/><span><b>Beber</b><small>drinks, cervejas, vinhos</small></span></button>
+      <button class="porta ${lado==='comida'?'on':''}" data-lado="comida"><img src="img/onca.jpg" alt=""/><span><b>Comer</b><small>entradas, pizzas, pratos</small></span></button>
+    </div>
+    <nav class="cats"><div class="in">${cats.map(c => `<a href="#c-${slug(c)}">${esc(c)}</a>`).join('')}</div></nav>
+    ${cats.map(c => `<section class="secao" id="c-${slug(c)}"><h2>${esc(c)}</h2>
+      ${itens.filter(m => m.categoria === c).map(itemHtml).join('')}</section>`).join('')}`;
+  document.querySelectorAll('.porta').forEach(b => b.onclick = () => { lado = b.dataset.lado; desenharCardapio(); });
+  document.querySelectorAll('.item').forEach(b => b.onclick = () => abrirItem(+b.dataset.id));
+  marcarCats();
+}
+function itemHtml(m) {
+  const precos = m.opcoes.map(o => o.preco);
+  const min = Math.min(...precos), max = Math.max(...precos);
+  return `<button class="item" data-id="${m.id}">
+    ${m.foto ? `<div class="foto"><img src="img/${esc(m.foto)}.jpg" alt="" loading="lazy"/></div>` : ''}
+    <div class="tx"><h3>${esc(m.nome)}</h3>
+      ${m.chamada ? `<div class="chamada">${esc(m.chamada)}</div>` : ''}
+      ${m.descricao ? `<p>${esc(m.descricao)}</p>` : ''}
+      <div class="pr">${min === max ? brl(min) : 'a partir de ' + brl(min)}</div></div>
+    <span class="mais" aria-hidden="true">+</span></button>`;
+}
+function marcarCats() {
+  const links = [...document.querySelectorAll('.cats a')];
+  if (!links.length) return;
+  const io = new IntersectionObserver(es => es.filter(e => e.isIntersecting).forEach(e => {
+    links.forEach(a => {
+      const on = a.getAttribute('href') === '#' + e.target.id;
+      a.classList.toggle('on', on);
+      if (on) a.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
+    });
+  }), {rootMargin:'-70px 0px -70% 0px'});
+  document.querySelectorAll('.secao').forEach(s => io.observe(s));
+}
+
+const STATUS = p => {
+  if (p.entregue) return ['Entregue', 'ok'];
+  if (p.tipo === 'comida') {
+    if (p.garcom) return [`Com ${p.garcom.split(' ')[0]}, que vai levar até você`, 'vivo'];
+    return ['Na cozinha · mostre o voucher a um garçom', 'vivo'];
+  }
+  return ['Pronto para retirar no bar com o voucher', 'vivo'];
+};
+function desenharPedidos() {
+  const its = [...D.conta.itens].reverse();
+  $('#corpo').innerHTML = `<div class="titulo-bloco">Meus pedidos</div>
+    ${its.length ? '' : '<p class="vazio">Nada pedido ainda. Toque em Cardápio e escolha o primeiro.</p>'}
+    ${its.map(p => { const [t, c] = STATUS(p); return `<div class="ped">
+      <div><div class="n">${p.qtd}× ${esc(p.nome)}</div><div class="st ${c}">${esc(t)}</div></div>
+      <div>${brl(p.qtd * p.preco)}</div>
+      <div class="acoes">
+        ${p.entregue ? '' : `<button class="bt ouro" data-v="${p.voucher}">Ver voucher</button>`}
+        <button class="bt linha" data-de-novo="${p.id}">Pedir outro igual</button>
+      </div></div>`; }).join('')}`;
+  document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => {
+    const p = D.conta.itens.find(x => x.voucher === b.dataset.v); abrirVoucher(p);
+  });
+  document.querySelectorAll('[data-de-novo]').forEach(b => b.onclick = () => {
+    const p = D.conta.itens.find(x => String(x.id) === b.dataset.deNovo);
+    const m = D.cardapio.find(m => p.nome.startsWith(m.nome));
+    if (!m) return;
+    const op = m.opcoes.find(o => p.nome === m.nome + (o.rotulo ? ' · ' + o.rotulo : '')) || m.opcoes[0];
+    abrirItem(m.id, op.cod, p.qtd);
+  });
+}
+
+function desenharConta() {
+  const c = D.conta, eu = D.eu;
+  if (eu.liberada) {
+    $('#corpo').innerHTML = `<div class="titulo-bloco">Conta paga</div>
+      <div class="conta"><p>Obrigada por virar fera com a gente, ${esc(eu.nome.split(' ')[0])}! 🐆</p>
+      <p class="nota">Marque <b>@spesso.rio</b> nas suas fotos. A gente adora rever essa noite.</p></div>`;
+    return;
+  }
+  const linhas = c.itens.map(p => `<div class="l"><span>${p.qtd}× ${esc(p.nome)}</span><span>${brl(p.qtd*p.preco)}</span></div>`).join('');
+  $('#corpo').innerHTML = `<div class="titulo-bloco">Minha conta</div>
+    <div class="conta">
+      ${linhas || '<p>Nada pedido ainda.</p>'}
+      <div class="l t" style="font-size:16px;font-weight:700"><span>Consumo</span><span>${brl(c.consumo)}</span></div>
+      <div class="l"><span>Serviço (${String(c.servico_pct).replace('.',',')}%)</span><span>${brl(c.servico)}</span></div>
+      ${c.falta_minimo > 0 ? `<div class="l"><span>Complemento da consumação</span><span>${brl(c.falta_minimo)}</span></div>` : ''}
+      <div class="l t"><span>Total</span><span>${brl(c.total)}</span></div>
+      ${c.falta_minimo > 0 ? `<p class="nota">A consumação mínima da festa é ${brl(c.minimo)} por pessoa. Faltam <b>${brl(c.falta_minimo)}</b>: dá para trocar o complemento por mais um drink ou um prato.</p>` : ''}
+    </div>
+    <div style="padding:18px 16px 0;display:grid;gap:10px">
+      ${c.falta_minimo > 0 ? `<button class="bt ouro" style="padding:14px" id="usar">Usar os ${brl(c.falta_minimo)} que faltam</button>` : ''}
+      <button class="bt ${c.falta_minimo > 0 ? 'linha' : 'ouro'}" style="padding:14px" id="fechar">${eu.conta_pedida ? 'Mostrar o QR da conta' : 'Fechar a conta'}</button>
+    </div>`;
+  const u = $('#usar'); if (u) u.onclick = () => { aba = 'cardapio'; desenhar(); };
+  $('#fechar').onclick = pedirConta;
+}
+
+/* ---------------------------------------------------------------- folhas */
+function abrirFolha(html) {
+  const f = $('#folha'), v = $('#veu');
+  f.innerHTML = '<div class="pega"></div>' + html;
+  f.classList.remove('oculto'); v.classList.remove('oculto');
+  requestAnimationFrame(() => { f.classList.add('on'); v.classList.add('on'); });
+  v.onclick = fecharFolha;
+}
+function fecharFolha() {
+  const f = $('#folha'), v = $('#veu');
+  f.classList.remove('on'); v.classList.remove('on');
+  setTimeout(() => { f.classList.add('oculto'); v.classList.add('oculto'); }, 260);
+}
+
+function abrirItem(id, codIni, qtdIni) {
+  const m = D.cardapio.find(x => x.id === id); if (!m) return;
+  let cod = codIni || m.opcoes[0].cod, qtd = qtdIni || 1, enviando = false;
+  const locais = D.evento.locais || [];
+  const pintar = () => {
+    const op = m.opcoes.find(o => o.cod === cod);
+    abrirFolha(`
+      <h3>${esc(m.nome)}</h3>
+      ${m.chamada ? `<div class="chamada">${esc(m.chamada)}</div>` : ''}
+      ${m.descricao ? `<p class="d">${esc(m.descricao)}</p>` : ''}
+      ${m.opcoes.length > 1 ? `<div class="rot">Qual?</div><div class="chips">${m.opcoes.map(o =>
+        `<button class="chip ${o.cod===cod?'on':''}" data-cod="${o.cod}">${esc(o.rotulo)}</button>`).join('')}</div>` : ''}
+      <div class="rot">Quantos?</div>
+      <div class="qtd"><button id="menos" aria-label="menos">−</button><span>${qtd}</span><button id="mais" aria-label="mais">+</button></div>
+      ${m.tipo === 'comida' && locais.length ? `<div class="rot">Onde você vai estar?</div><div class="chips">${locais.map(l =>
+        `<button class="chip ${l===local?'on':''}" data-local="${esc(l)}">${esc(l)}</button>`).join('')}</div>` : ''}
+      <button class="pedir" id="pedir"><span>${enviando ? 'Enviando…' : 'Pedir'}</span><span>${brl(op.preco * qtd)}</span></button>
+      <div id="msg"></div>
+      <p class="d" style="text-align:center;margin-top:10px">${m.tipo === 'bebida'
+        ? 'Você recebe um voucher para retirar no bar.'
+        : 'Você recebe um voucher: mostre a um garçom e ele leva até você.'}</p>`);
+    document.querySelectorAll('[data-cod]').forEach(b => b.onclick = () => { cod = b.dataset.cod; pintar(); });
+    document.querySelectorAll('[data-local]').forEach(b => b.onclick = () => {
+      local = b.dataset.local; try { localStorage.setItem('festa_local', local); } catch {} pintar(); });
+    $('#menos').onclick = () => { if (qtd > 1) { qtd--; pintar(); } };
+    $('#mais').onclick = () => { if (qtd < 10) { qtd++; pintar(); } };
+    $('#pedir').onclick = async () => {
+      if (enviando) return;
+      enviando = true; $('#pedir').disabled = true; $('#pedir span').textContent = 'Enviando…';
+      try {
+        const r = await rpc('ev_pedir', {p_token: token, p_item: m.id, p_cod: cod, p_qtd: qtd, p_local: m.tipo === 'comida' ? local : null});
+        D = await rpc('ev_cliente', {p_token: token});
+        desenhar();
+        const p = D.conta.itens.find(x => x.voucher === r.voucher);
+        abrirVoucher(p, true);
+      } catch (e) {
+        enviando = false; $('#pedir').disabled = false; $('#pedir span').textContent = 'Tentar de novo';
+        const txt = {conta_ja_paga:'Sua conta já foi paga. Fale com o caixa para abrir de novo.',
+                     evento_fechado:'Os pedidos pelo celular foram encerrados. Fale com um garçom.',
+                     sem_preco:'Esse item saiu do cardápio agora. Escolha outro, por favor.'}[e.codigo]
+          || 'Não consegui enviar. O pedido NÃO foi feito. Confira a internet e toque em "Tentar de novo".';
+        $('#msg').innerHTML = `<div class="aviso">${esc(txt)}</div>`;
+      }
+    };
+  };
+  pintar();
+}
+
+function qrSvg(texto) {
+  const q = qrcode(0, 'M'); q.addData(texto); q.make();
+  return q.createSvgTag({cellSize: 6, margin: 2, scalable: true});
+}
+function abrirVoucher(p, novo) {
+  if (!p) return;
+  const bar = p.tipo === 'bebida';
+  abrirFolha(`<div class="voucher">
+    ${novo ? '<div class="aviso info" style="margin:0 0 6px">Pedido feito! Ele já foi para o ' + (bar ? 'bar.' : 'a cozinha.') + '</div>' : ''}
+    <div class="onde">${bar ? 'Mostre no bar' : 'Mostre a um garçom'}</div>
+    <div class="qr">${qrSvg(EQUIPE + 'V-' + p.voucher)}</div>
+    <div class="cod">${p.voucher}</div>
+    <h3 style="margin-top:10px">${p.qtd}× ${esc(p.nome)}</h3>
+    <div class="quem">Pulseira ${D.eu.pulseira} · ${esc(D.eu.nome)}</div>
+    ${p.entregue ? '<div class="usado">Já entregue</div>' : ''}
+    <div style="display:grid;gap:10px;margin-top:18px">
+      <button class="bt ouro" style="padding:14px" id="mais-um">Pedir mais alguma coisa</button>
+      <button class="bt linha" style="padding:12px" id="ok">Fechar</button>
+    </div></div>`);
+  $('#ok').onclick = fecharFolha;
+  $('#mais-um').onclick = () => { fecharFolha(); aba = 'cardapio'; desenhar(); };
+}
+
+async function pedirConta() {
+  try {
+    const r = await rpc('ev_pedir_conta', {p_token: token});
+    D = await rpc('ev_cliente', {p_token: token});
+    desenhar();
+    const c = r.conta;
+    abrirFolha(`<div class="voucher">
+      <div class="onde">Mostre ao caixa</div>
+      <div class="qr">${qrSvg(EQUIPE + 'C-' + r.conta_codigo)}</div>
+      <div class="cod">${r.conta_codigo}</div>
+      <h3 style="margin-top:10px">Total ${brl(c.total)}</h3>
+      ${c.falta_minimo > 0 ? `<p class="d">Inclui o complemento da consumação mínima: ${brl(c.falta_minimo)}.</p>` : ''}
+      <div class="quem">Pulseira ${D.eu.pulseira} · ${esc(D.eu.nome)}</div>
+      <p class="d" style="margin-top:10px">Se pedir mais alguma coisa, a conta reabre sozinha.</p>
+      <button class="bt linha" style="padding:12px;margin-top:16px;width:100%" id="ok">Fechar</button></div>`);
+    $('#ok').onclick = fecharFolha;
+  } catch (e) {
+    abrirFolha(`<div class="aviso">Não consegui pedir a conta. Confira a internet e tente de novo.</div>
+      <button class="bt linha" style="padding:12px;margin-top:16px;width:100%" onclick="fecharFolha()">Fechar</button>`);
+  }
+}
+
+/* atualiza sozinho (status do voucher, conta) sem atrapalhar quem está escolhendo */
+setInterval(() => {
+  if (document.hidden || !token) return;
+  if (!$('#folha').classList.contains('oculto')) return;
+  const y = window.scrollY;
+  rpc('ev_cliente', {p_token: token}).then(d => {
+    const mudou = JSON.stringify(d) !== JSON.stringify(D);
+    D = d; $('#rede').classList.add('oculto');
+    if (mudou && aba !== 'cardapio') { desenhar(); window.scrollTo(0, y); }
+    else if (mudou) { desenharConsumo(); }
+  }).catch(() => $('#rede').classList.remove('oculto'));
+}, 10000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && D) carregar(); });
+window.addEventListener('online', carregar);
+
+carregar();
+</script>
+</body>
+</html>
