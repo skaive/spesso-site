@@ -73,6 +73,18 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 .achados button{text-align:left;padding:12px 14px;border-radius:14px;background:var(--selva-2);border:1px solid var(--linha);display:flex;justify-content:space-between;align-items:center;gap:10px;}
 .achados button .mut{font-size:13px;}
 .num-grande{font-size:44px;text-align:center;font-weight:800;letter-spacing:.06em;padding:12px;}
+.lado{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 4px;}
+.lado .bt.on{background:var(--creme);color:var(--tinta);}
+.cardap{display:grid;gap:6px;}
+.cardap .cat{margin:14px 0 2px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--texto-2);}
+.cardap button{text-align:left;padding:12px 14px;border-radius:12px;background:var(--selva-2);border:1px solid var(--linha);display:flex;justify-content:space-between;gap:10px;}
+.cardap button.on{border-color:var(--ouro);}
+.escolha{position:sticky;bottom:calc(96px + var(--sab));background:var(--selva-3);border:1px solid var(--ouro);border-radius:16px;padding:12px;margin-top:12px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.chips button{border:1px solid var(--linha);border-radius:999px;padding:8px 12px;font-weight:700;}
+.chips button.on{background:var(--creme);color:var(--tinta);}
+.qtd{display:flex;align-items:center;gap:14px;margin-top:10px;font-size:22px;font-weight:800;}
+.qtd button{width:46px;height:46px;border-radius:50%;border:1px solid var(--linha);font-size:24px;}
 .qrbox svg{width:100%;height:auto;display:block;}
 </style>
 </head>
@@ -93,7 +105,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v2 24/11/2026';
+const VER='festa-equipe-v3 24/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -108,7 +120,9 @@ async function rpc(n,a){
 }
 const MSG={sessao_invalida:'Sua sessão acabou. Entre de novo.',pin_errado:'PIN errado.',sem_alcada:'Só o caixa ou a gestão pode fazer isso.',
   voucher_invalido:'Voucher não encontrado.',voucher_cancelado:'Esse voucher foi CANCELADO.',conta_nao_encontrada_ou_ja_paga:'Essa conta não existe ou já foi paga.',
-  convidada_nao_encontrada:'Convidada não encontrada.',sem_pulseira:'Ela ainda não tem pulseira.'};
+  convidada_nao_encontrada:'Convidada não encontrada.',sem_pulseira:'Ela ainda não tem pulseira.',
+  pulseira_sem_dona:'Ninguém está com essa pulseira. Mande na entrada.',conta_ja_paga:'A conta dela já foi paga. Fale com o caixa.',
+  evento_fechado:'Evento fechado.',item_invalido:'Item fora do cardápio.',sem_preco:'Item sem preço no Frest.'};
 const msgErro=e=>MSG[e.codigo]||'Falhou. Confira a internet e tente de novo.';
 
 let S=null; try{S=JSON.parse(localStorage.getItem('festa_eq_'+SLUG)||'null')}catch{}
@@ -171,7 +185,7 @@ function pedidoCard(p){
 let busca='';
 function desenhar(){
   if($('#res')) return;
-  const foco=document.activeElement; if(foco && (foco.id==='busca'||foco.id==='cx-num')) return;
+  const foco=document.activeElement; if(foco && (foco.id==='busca'||foco.id==='cx-num'||foco.id==='lp-num')) return;
   const pend=P.pendentes||[];
   let h='';
   if(P.resumo){ const r=P.resumo;
@@ -183,6 +197,19 @@ function desenhar(){
       <div class="lin"><div><b>${esc(c.nome)}</b><div class="mut">mesa ${c.mesa} · pediu ${hora(c.pedida_em)}</div></div>
       <div style="text-align:right"><b>${brl(c.total)}</b>${c.frest_total!=null?`<div class="mut">Frest ${brl(c.frest_total)}</div>`:''}</div>
       <div class="puls"><small>PULS.</small>${c.pulseira}</div></div></button>`).join('');
+  }
+  if(S.papel!=='porta'){
+    h+=`<h2>Lançar pedido</h2><div class="card"><div class="lin"><input class="campo" id="lp-num" inputmode="numeric" placeholder="Nº da pulseira" style="margin:0"/>
+      <button class="bt ouro" id="lp-ok">Abrir</button></div><p class="mut" style="margin-top:8px">Vai direto para o Frest, na mesa dela.</p></div>`;
+  }
+  if(P.cancelamentos&&P.cancelamentos.length){
+    h+=`<h2>Cancelamentos no Frest (${P.cancelamentos.length})</h2>`+P.cancelamentos.map(k=>`<div class="card"><div class="lin"><div>
+      <b>${k.qtd}× ${esc(k.nome)}</b><div class="mut">${esc(k.cliente)} · mesa ${k.mesa} · cancelado por ${esc(k.por||'')}</div>
+      <div style="margin-top:4px">${k.estado==='erro'?'<span class="tag erro">NÃO confirmado no Frest</span>':'<span class="tag vivo">saindo do Frest</span>'}</div>
+      ${k.erro?`<div class="mut" style="margin-top:4px">${esc(k.erro)}</div>`:''}</div>
+      <div class="puls"><small>PULS.</small>${k.pulseira}</div></div>
+      ${k.estado==='erro'?`<div class="acoes"><button class="bt linha" data-conf="${k.voucher}" data-saiu="1">Conferi: já saiu do Frest</button>
+        <button class="bt linha" data-conf="${k.voucher}" data-saiu="0">Conferi: continua lá. Cancelar de novo</button></div>`:''}</div>`).join('');
   }
   if(S.papel==='caixa'||S.papel==='gestao'){
     h+=`<h2>Cobrar pela pulseira</h2><div class="card"><p class="mut">Para quem não pediu pelo celular: o total vem da mesa no Frest.</p>
@@ -209,6 +236,13 @@ function desenhar(){
     try{ await rpc('ev_relancar',{p_sessao:S.sessao,p_voucher:b.dataset.relancar}); atualizar(); }catch(e){ alert(msgErro(e)); }
   });
   const pb=$('#porta'); if(pb) pb.onclick=()=>telaPorta();
+  const lp=$('#lp-ok'); if(lp) lp.onclick=()=>{ const n=parseInt($('#lp-num').value,10); if(n) telaLancar(n); };
+  const ln=$('#lp-num'); if(ln) ln.onkeydown=e=>{ if(e.key==='Enter') lp.click(); };
+  document.querySelectorAll('[data-conf]').forEach(b=>b.onclick=async()=>{
+    const saiu=b.dataset.saiu==='1';
+    if(!saiu && !confirm('Você olhou a mesa no Frest e o item CONTINUA lá? O robô vai tentar cancelar de novo.')) return;
+    try{ await rpc('ev_cancelar_conferido',{p_sessao:S.sessao,p_voucher:b.dataset.conf,p_saiu:saiu}); atualizar(); }catch(e){ alert(msgErro(e)); }
+  });
   const cx=$('#cx-ok'); if(cx) cx.onclick=()=>{ const n=parseInt($('#cx-num').value,10); if(n) ler(String(n)); };
   const cn=$('#cx-num'); if(cn) cn.onkeydown=e=>{ if(e.key==='Enter') cx.click(); };
   const bq=$('#busca'); if(bq){ bq.oninput=()=>{ busca=bq.value; clearTimeout(bq._t); bq._t=setTimeout(buscar,250); }; if(busca) buscar(); }
@@ -260,13 +294,15 @@ function telaVoucher(r){
     <div class="acoes">${acoes}<button class="bt linha" onclick="fechar()">Voltar</button></div></div>`);
   document.querySelectorAll('[data-a]').forEach(b=>b.onclick=async()=>{
     const a=b.dataset.a;
-    if(a==='cancelar' && !confirm('Cancelar este pedido? Se já está no Frest, cancele lá também.')) return;
+    if(a==='cancelar' && !confirm('Cancelar este pedido? Se já está no Frest, o robô cancela lá também.')) return;
     b.disabled=true;
     try{
       const x=await rpc('ev_voucher_acao',{p_sessao:S.sessao,p_voucher:p.voucher,p_acao:a});
-      if(x&&x.ok===false){ const m={ja_entregue:`Já entregue às ${hora(x.em)} por ${x.por}.`,ja_tem_garcom:`Já é do(a) ${x.garcom}.`}[x.motivo]||x.motivo;
+      if(x&&x.ok===false){ const m={ja_entregue:`Já entregue às ${hora(x.em)} por ${x.por}.`,ja_tem_garcom:`Já é do(a) ${x.garcom}.`,
+        lancando:'Está entrando no Frest agora. Espere uns segundos e cancele de novo.'}[x.motivo]||x.motivo;
         return resultado(`<div class="card res ruim" id="res"><div class="grande-txt">${esc(m)}</div>${voltar()}</div>`); }
-      const ok={entregar:'Entregue ✓',assumir:'É seu. Leve quando a cozinha soltar.',soltar:'Solto. Outro garçom pode assumir.',desfazer_entrega:'Entrega desfeita.',cancelar:'Cancelado.'}[a];
+      const ok={entregar:'Entregue ✓',assumir:'É seu. Leve quando a cozinha soltar.',soltar:'Solto. Outro garçom pode assumir.',desfazer_entrega:'Entrega desfeita.',
+        cancelar: x&&x.frest==='cancelando' ? 'Cancelado. O robô tira do Frest em segundos.' : p.status==='erro' ? 'Cancelado no app. Confira a mesa no Frest.' : 'Cancelado.'}[a];
       resultado(`<div class="card res bom" id="res"><div class="grande-txt">${ok}</div><p class="mut">${p.qtd}× ${esc(p.nome)} · pulseira ${c.pulseira}</p>${voltar()}</div>`);
       setTimeout(()=>{ if($('#res')) fechar(); }, 2500);
     }catch(e){ b.disabled=false; alert(msgErro(e)); }
@@ -310,6 +346,48 @@ function telaConta(r){
     catch(e){ lb.disabled=false; return alert(msgErro(e)); }
     resultado(`<div class="card res bom" id="res"><div class="grande-txt">Liberada ✓</div><p class="mut">${esc(c.nome)} · pulseira ${c.pulseira} · ${forma}. Feche a mesa ${c.mesa} no Frest.</p>${voltar()}</div>`);
   };
+}
+
+/* ---------------------------------------------------------------- lançar pela pulseira */
+async function telaLancar(n, aviso, ladoIni){
+  resultado('<div class="card" id="res"><p class="mut">Abrindo a pulseira '+n+'…</p></div>');
+  let r;
+  try{ r=await rpc('ev_equipe_cliente',{p_sessao:S.sessao,p_pulseira:n}); }
+  catch(e){ return resultado(`<div class="card res ruim" id="res"><div class="grande-txt">${esc(msgErro(e))}</div>${voltar()}</div>`); }
+  if(!r.ok) return resultado(`<div class="card res ruim" id="res"><div class="grande-txt">${esc(MSG[r.motivo]||r.motivo)}</div>${voltar()}</div>`);
+  if(r.paga) return resultado(`<div class="card res ruim" id="res"><div class="grande-txt">${esc(r.nome)}: conta já paga</div><p class="mut">Fale com o caixa para reabrir.</p>${voltar()}</div>`);
+  let lado=ladoIni||((S.papel==='bar')?'bebida':'comida'), sel=null, cod=null, qtd=1, enviando=false;
+  const pintar=()=>{
+    const itens=r.cardapio.filter(m=>m.tipo===lado), cats=[...new Set(itens.map(m=>m.categoria))];
+    const m=sel&&r.cardapio.find(x=>x.id===sel), op=m&&m.opcoes.find(o=>o.cod===cod);
+    resultado(`<div id="res">
+      ${aviso?`<div class="aviso ok" style="margin:0 0 10px">${esc(aviso)}</div>`:''}
+      <div class="card"><div class="lin"><div><div class="grande-txt">${esc(r.nome)}</div>
+        <div class="mut">mesa ${r.mesa} · consumo ${brl(r.conta.consumo)}</div></div><div class="puls"><small>PULS.</small>${r.pulseira}</div></div></div>
+      <div class="lado"><button class="bt linha ${lado==='bebida'?'on':''}" data-lado="bebida">Beber</button><button class="bt linha ${lado==='comida'?'on':''}" data-lado="comida">Comer</button></div>
+      <div class="cardap">${cats.map(c=>`<div class="cat">${esc(c)}</div>`+itens.filter(x=>x.categoria===c).map(x=>{
+        const ps=x.opcoes.map(o=>o.preco), mn=Math.min(...ps);
+        return `<button data-item="${x.id}" class="${x.id===sel?'on':''}"><span>${esc(x.nome)}</span><span class="mut">${brl(mn)}</span></button>`;}).join('')).join('')}</div>
+      ${m?`<div class="escolha"><b>${esc(m.nome)}</b>
+        ${m.opcoes.length>1?`<div class="chips">${m.opcoes.map(o=>`<button data-cod="${o.cod}" class="${o.cod===cod?'on':''}">${esc(o.rotulo)}</button>`).join('')}</div>`:''}
+        <div class="qtd"><button id="menos">−</button><span>${qtd}</span><button id="mais">+</button></div>
+        <div class="acoes"><button class="bt ok grande" id="lancar">${enviando?'Lançando…':'Lançar '+brl(op.preco*qtd)}</button></div></div>`:''}
+      <div class="acoes"><button class="bt linha" onclick="fechar()">Pronto</button></div></div>`);
+    document.querySelectorAll('[data-lado]').forEach(b=>b.onclick=()=>{ lado=b.dataset.lado; sel=null; pintar(); });
+    document.querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>{ sel=+b.dataset.item; const mm=r.cardapio.find(x=>x.id===sel); cod=mm.opcoes[0].cod; qtd=1; pintar(); });
+    document.querySelectorAll('[data-cod]').forEach(b=>b.onclick=()=>{ cod=b.dataset.cod; pintar(); });
+    const me=$('#menos'); if(me){ me.onclick=()=>{ if(qtd>1){qtd--;pintar();} }; $('#mais').onclick=()=>{ if(qtd<10){qtd++;pintar();} }; }
+    const lb=$('#lancar'); if(lb) lb.onclick=async()=>{
+      if(enviando) return; enviando=true; lb.disabled=true; lb.textContent='Lançando…';
+      try{
+        const x=await rpc('ev_equipe_pedir',{p_sessao:S.sessao,p_pulseira:r.pulseira,p_item:m.id,p_cod:cod,p_qtd:qtd});
+        if(navigator.vibrate) navigator.vibrate(40);
+        const nomeItem=m.nome+(op.rotulo?' · '+op.rotulo:'');
+        telaLancar(r.pulseira, `${qtd}× ${nomeItem} lançado para ${r.nome.split(' ')[0]}${S.papel==='garcom'&&m.tipo==='comida'?'. A entrega é sua.':'.'}`, lado);
+      }catch(e){ enviando=false; lb.disabled=false; lb.textContent='Tentar de novo'; alert(msgErro(e)+' O pedido NÃO foi feito.'); }
+    };
+  };
+  pintar();
 }
 
 /* ---------------------------------------------------------------- porta */
