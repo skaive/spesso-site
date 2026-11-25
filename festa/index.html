@@ -193,7 +193,10 @@ img{display:block;max-width:100%;}
 .seguir-card{margin:18px 16px 4px;padding:14px;border-radius:var(--raio);background:rgba(244,232,203,.06);border:1px dashed rgba(250,126,30,.5);}
 .seguir-card .tx{flex:1;font-size:14.5px;color:var(--texto-2);line-height:1.3;}
 .seguir-card .tx b{display:block;color:var(--creme);font-size:16px;margin-bottom:2px;}
-.voucher .seguir-card,.momento .seguir-card{margin:16px 0 0;text-align:left;}
+.seguir-linha{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;padding-top:14px;
+  border-top:1px solid var(--linha);color:var(--texto-2);font-size:14.5px;text-decoration:none;}
+.seguir-linha .ig{width:18px;height:18px;flex:none;color:#fa9e4e;}
+.seguir-linha b{color:var(--creme);font-weight:700;}
 .insta .bt{padding:11px 10px;font-size:15px;text-align:center;text-decoration:none;}
 /* ---------- câmera da festa ---------- */
 .camera{position:fixed;inset:0;z-index:80;background:#000;display:flex;flex-direction:column;
@@ -292,7 +295,7 @@ img{display:block;max-width:100%;}
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v9 25/11/2026';
+const VER = 'festa-v10 25/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -369,20 +372,30 @@ function conviteHtml() {
       <p>Fale com alguém da entrada ou com um garçom para ligar a sua pulseira a este link.</p></div>`;
   return '';
 }
-/* Instagram: tocar em "Seguir" uma vez basta; até lá ele aparece pelo caminho (cardápio, pedido feito,
-   pedidos, depois do Recebi, depois da foto). Não dá para saber se ela seguiu de fato: vale o toque. */
+/* Instagram: tocar em "Seguir" uma vez basta; até lá ele aparece pelo caminho, uma vez por tela
+   (Renato 25/11: "insistentes mas educados e elegantes, sempre"): faixa no topo do cardápio, cartão no fim
+   de Pedidos, uma linha nas folhas (no máximo a cada 15 min) e o link depois da foto.
+   Não dá para saber se ela seguiu de fato: vale o toque. */
 const seguiu = () => { try { return localStorage.getItem('festa_seguiu') === '1'; } catch { return false; } };
 const FRASES_SEGUIR = [
   ['As fotos da festa vão para o nosso Instagram', 'Siga para se achar amanhã.'],
   ['Gostou do drink?', 'No @spesso.rio tem os bastidores do bar e as próximas festas.'],
   ['Fome de mais?', 'O cardápio do dia a dia e as novidades da cozinha estão no @spesso.rio.'],
   ['Mentre aspetti…', 'Enquanto espera, siga o @spesso.rio.'],
-  ['Marque a gente na sua foto', 'Siga o @spesso.rio: a gente reposta as melhores da noite.'],
+  ['Marque a gente na foto ·', 'Siga o @spesso.rio: a gente reposta as melhores da noite.'],
 ];
 function seguirTopo() {
   if (seguiu()) return `<a class="seguir-topo feito" href="${INSTA}" target="_blank" rel="noopener" data-seguir>${IG} @spesso.rio <span>✓ seguindo</span></a>`;
   return `<a class="seguir-topo" href="${INSTA}" target="_blank" rel="noopener" data-seguir>
       ${IG}<span class="tx"><b>Siga o Spesso</b> no Instagram</span><span class="bt-s">Seguir</span></a>`;
+}
+function seguirLinha(i) {
+  if (seguiu() || D.vitrine) return '';
+  let ult = 0; try { ult = +localStorage.getItem('festa_seguir_ts') || 0; } catch {}
+  if (Date.now() - ult < 15 * 60 * 1000) return '';
+  try { localStorage.setItem('festa_seguir_ts', String(Date.now())); } catch {}
+  const [a] = FRASES_SEGUIR[i % FRASES_SEGUIR.length];
+  return `<a class="seguir-linha" href="${INSTA}" target="_blank" rel="noopener" data-seguir>${IG}<span>${a} <b>Siga o @spesso.rio</b></span></a>`;
 }
 function seguirHtml(i) {
   if (seguiu() || D.vitrine) return '';
@@ -393,7 +406,7 @@ function seguirHtml(i) {
 document.addEventListener('click', e => {
   const a = e.target.closest && e.target.closest('[data-seguir]'); if (!a) return;
   try { localStorage.setItem('festa_seguiu', '1'); } catch {}
-  setTimeout(() => { document.querySelectorAll('.seguir-card').forEach(c => c.remove());
+  setTimeout(() => { document.querySelectorAll('.seguir-card,.seguir-linha').forEach(c => c.remove());
     const t = document.querySelector('.seguir-topo:not(.feito)'); if (t) t.outerHTML = seguirTopo(); }, 800);
 });
 /* bebida: a convidada escolhe em qual bar pega (o papel sai na impressora daquele bar) */
@@ -420,7 +433,7 @@ function desenhar() {
         : `<h1>Jardim do Éder</h1><div class="marca">SPESSO · 27·11·26</div>`}</div>
       ${eu && eu.pulseira != null ? `<div class="eu"><span class="q">MESA</span><span class="num">${eu.pulseira}</span></div>` : ''}
     </header>
-    ${D.vitrine ? '' : seguirTopo()}
+    ${D.vitrine || aba !== 'cardapio' ? '' : seguirTopo()}
     ${conviteHtml()}
     <main id="corpo"></main>
     <div class="espaco"></div>
@@ -469,7 +482,7 @@ function desenharCardapio() {
       <div class="in">${cats.map(c => `<a href="#c-${slug(c)}">${esc(c)}</a>`).join('')}</div></nav>
     ${lado === 'comida' && !D.vitrine ? `<p class="dica">A comida vai até a sua <b>mesa bistrô</b> ou você retira <b>ao lado do Bar do 2º piso</b> (a gente avisa quando ficar pronta).</p>` : ''}
     ${cats.map((c, i) => `<section class="secao" id="c-${slug(c)}"><h2>${esc(c)}</h2>
-      ${itens.filter(m => m.categoria === c).map(itemHtml).join('')}</section>${i === 1 ? seguirHtml(lado === 'bebida' ? 1 : 2) : ''}`).join('')}`;
+      ${itens.filter(m => m.categoria === c).map(itemHtml).join('')}</section>`).join('')}`;
   document.querySelectorAll('.lado').forEach(b => b.onclick = () => {
     lado = b.dataset.lado; desenharCardapio();
     window.scrollTo({top: $('.lados').offsetTop - 6, behavior: 'smooth'});
@@ -811,7 +824,7 @@ function confirmarRecebi(p) {
         <div style="display:grid;gap:10px;margin-top:16px">
           <button class="bt ouro" style="padding:16px;font-size:18px" id="m-foto">Tirar a foto</button>
           <button class="bt linha" style="padding:12px" id="m-nao">Agora não</button>
-        </div>${seguirHtml(4)}</div>`);
+        </div>${seguirLinha(4)}</div>`);
       $('#m-nao').onclick = fecharFolha;
       $('#m-foto').onclick = () => { fecharFolha(); abrirCamera(); };
     } catch (e) {
@@ -1302,7 +1315,7 @@ function abrirVoucher(p, novo) {
       ${p.entregue ? '' : `<button class="bt creme" style="padding:14px;font-size:17px" id="recebi">✓ ${BOTAO_RECEBI(p)}</button>`}
       <button class="bt ouro" style="padding:14px" id="mais-um">Pedir mais alguma coisa</button>
       <button class="bt linha" style="padding:12px" id="ok">Fechar</button>
-    </div>${novo ? seguirHtml(3) + anivHtml() : ''}</div>`);
+    </div>${novo ? seguirLinha(3) + anivHtml() : ''}</div>`);
   $('#ok').onclick = fecharFolha;
   const rb = $('#recebi'); if (rb) rb.onclick = () => confirmarRecebi(p);
   ligarAniv();
