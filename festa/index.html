@@ -97,12 +97,15 @@ img{display:block;max-width:100%;}
   display:grid;gap:10px;animation:salta .5s cubic-bezier(.2,1.4,.4,1);}
 .alerta .em{font-size:54px;line-height:1;}
 .alerta h2{font-family:'Kaushan Script',cursive;font-weight:400;font-size:30px;line-height:1.1;}
+.alerta h2.it{font-family:'Pinyon Script',cursive;font-size:54px;color:#8a5a12;}
+.alerta .sub{font-weight:700;margin-top:-4px;}
 .alerta p{font-size:17px;}
 .alerta .bt{padding:14px;font-size:17px;}
 .alerta .bt.linha{border-color:rgba(58,35,18,.35);color:var(--tinta);}
 @keyframes salta{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
 .momento .em{font-size:56px;line-height:1;margin-top:4px;}
-.momento h3{font-family:'Kaushan Script',cursive;font-weight:400;font-size:34px;color:var(--ouro-2);margin-top:6px;}
+.it{font-family:'Pinyon Script',cursive;font-weight:400;line-height:1.15;}
+.momento h3.it{font-size:50px;color:var(--ouro-2);margin-top:2px;}
 .voucher .qr.peq{width:min(56vw,200px);padding:10px;}
 .voucher .qr-leg{font-size:13px;color:var(--texto-2);}
 .paga{margin:10px 16px 0;background:var(--creme);color:var(--tinta);border-radius:var(--raio);padding:18px 16px;text-align:center;}
@@ -289,7 +292,7 @@ img{display:block;max-width:100%;}
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v8 25/11/2026';
+const VER = 'festa-v9 25/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -373,7 +376,7 @@ const FRASES_SEGUIR = [
   ['As fotos da festa vão para o nosso Instagram', 'Siga para se achar amanhã.'],
   ['Gostou do drink?', 'No @spesso.rio tem os bastidores do bar e as próximas festas.'],
   ['Fome de mais?', 'O cardápio do dia a dia e as novidades da cozinha estão no @spesso.rio.'],
-  ['Pedido feito!', 'Enquanto espera, siga o @spesso.rio.'],
+  ['Mentre aspetti…', 'Enquanto espera, siga o @spesso.rio.'],
   ['Marque a gente na sua foto', 'Siga o @spesso.rio: a gente reposta as melhores da noite.'],
 ];
 function seguirTopo() {
@@ -550,7 +553,7 @@ function checarProntos() {
     });
   } catch {}
   const v = document.createElement('div'); v.className = 'alerta';
-  v.innerHTML = `<div class="cx"><div class="em">🍝</div><h2>Sua comida está pronta!</h2>
+  v.innerHTML = `<div class="cx"><h2 class="it">È pronto!</h2><p class="sub">Sua comida está pronta.</p>
     <p><b>${p.qtd}× ${esc(p.nome)}</b></p><p>Retire <b>ao lado do Bar do 2º piso</b> e mostre o voucher <b>${p.voucher}</b>.</p>
     <button class="bt ouro" id="al-v">Ver voucher</button><button class="bt linha" id="al-ok">Já vou</button></div>`;
   document.body.appendChild(v);
@@ -560,7 +563,7 @@ function checarProntos() {
 function desenharPedidos() {
   const its = [...D.conta.itens].reverse();
   $('#corpo').innerHTML = `${D.eu.liberada ? saidaHtml() : ''}<div class="titulo-bloco">Meus pedidos</div>
-    ${its.length ? '' : '<p class="vazio">Nada pedido ainda. Toque em Cardápio e escolha o primeiro.</p>'}
+    ${its.length ? '' : '<p class="vazio"><span class="it" style="font-size:30px;color:var(--ouro-2)">Ancora niente…</span><br/>Toque em Cardápio e escolha o primeiro.</p>'}
     ${its.map(p => { const [t, c] = STATUS(p); return `<div class="ped ${p.entregue ? 'feito' : ''}">
       <div><div class="n">${p.qtd}× ${esc(p.nome)}</div><div class="st ${c}">${esc(t)}</div></div>
       <div>${brl(p.qtd * p.preco)}</div>
@@ -593,7 +596,7 @@ function ligarPedirDeNovo() {
 /* Renato 25/11: "o que poderia ter era um QR code pra saída. o segurança leria e daria a resposta se a conta foi paga" */
 function saidaHtml() {
   const eu = D.eu;
-  return `<div class="paga"><h3>Conta paga · saída liberada</h3>
+  return `<div class="paga"><div class="it" style="font-size:40px">Grazie mille!</div><h3>Conta paga · saída liberada</h3>
       ${eu.conta_codigo ? `<div class="qr">${qrSvg(EQUIPE + 'C-' + eu.conta_codigo)}</div>` : ''}
       <div class="pl">Mesa ${eu.pulseira} · ${esc(eu.nome.split(' ')[0])}</div>
       <p class="nota" style="margin-top:6px">Mostre este QR ao segurança na saída.</p></div>`;
@@ -602,7 +605,7 @@ function desenharConta() {
   const c = D.conta, eu = D.eu, alvo = $('#minha-conta');
   if (!alvo) return;
   if (eu.liberada) {
-    alvo.innerHTML = `<div class="conta" style="margin-top:18px"><p>Obrigada por virar fera com a gente, ${esc(eu.nome.split(' ')[0])}! 🐆</p>
+    alvo.innerHTML = `<div class="conta" style="margin-top:18px"><p class="it" style="font-size:34px;color:var(--ouro-2)">Arrivederci, ${esc(eu.nome.split(' ')[0])}!</p><p>Obrigada por virar fera com a gente.</p>
       <p class="nota">Marque <b>@spesso.rio</b> nas suas fotos. A gente adora rever essa noite.</p>${anivHtml()}</div>`;
     ligarAniv();
     return;
@@ -803,8 +806,8 @@ function confirmarRecebi(p) {
       /* Renato 25/11: "quando ela der o recebi, já sugerir que aquele momento podia estar eternizado" */
       const bebida = p.tipo === 'bebida';
       abrirFolha(`<div class="voucher momento">
-        <h3>${bebida ? 'Saúde!' : 'Bom apetite!'}</h3>
-        <p class="d">Esse momento merece uma foto. Com a moldura da festa, já pronta para o Instagram.</p>
+        <h3 class="it">${bebida ? 'Cin cin!' : 'Buon appetito!'}</h3>
+        <p class="d">${bebida ? 'Esse drink' : 'Esse prato'} merece uma foto. Com a moldura da festa, já pronta para o Instagram.</p>
         <div style="display:grid;gap:10px;margin-top:16px">
           <button class="bt ouro" style="padding:16px;font-size:18px" id="m-foto">Tirar a foto</button>
           <button class="bt linha" style="padding:12px" id="m-nao">Agora não</button>
@@ -1164,13 +1167,13 @@ async function abrirCamera() {
   function salvarGaleria() {
     if (!arquivo) return dica('Um segundo, a foto ainda está ficando pronta…');
     if (IOS) {
-      if (compartilhar(() => dica('Pronto! Se tocou em “Salvar imagem”, ela está no app Fotos.'))) {
+      if (compartilhar(() => dica('<span class="it" style="font-size:24px">Bellissima!</span> Se tocou em “Salvar imagem”, ela está no app Fotos.'))) {
         dica('Na janela que abriu, toque em <b>“Salvar imagem”</b>.'); return;
       }
       return dica('Segure o dedo na foto e toque em <b>“Adicionar às Fotos”</b>.');
     }
     baixar();
-    dica('Foto salva na galeria (pasta Downloads).');
+    dica('<span class="it" style="font-size:24px">Bellissima!</span> Foto salva na galeria (pasta Downloads).');
   }
   function postarInsta() {
     if (!arquivo) return dica('Um segundo, a foto ainda está ficando pronta…');
@@ -1288,7 +1291,7 @@ function abrirVoucher(p, novo) {
                : (p.tipo === 'comida' && p.retirar) ? 'Retire ao lado do Bar do 2º piso'
                : p.retirar ? `Retire no ${nomeBar(p.retirar)}` : (p.tipo === 'bebida' ? 'Mostre no bar' : 'Mostre a um garçom');
   abrirFolha(`<div class="voucher">
-    ${novo ? `<div class="aviso info" style="margin:0 0 6px">Pedido feito! ${p.bistro ? 'Já está sendo preparado.' : (p.tipo === 'comida' ? 'A gente avisa quando ficar pronta.' : 'Mostre este voucher no balcão.')}</div>` : ''}
+    ${novo ? `<div class="aviso info" style="margin:0 0 6px"><b class="it" style="font-size:26px;margin-right:4px">Perfetto!</b> Pedido feito. ${p.bistro ? 'Já está sendo preparado.' : (p.tipo === 'comida' ? 'A gente avisa quando ficar pronta.' : 'Mostre este voucher no balcão.')}</div>` : ''}
     <div class="onde">${esc(titulo)}</div>
     <div class="cod-g">${p.voucher}</div>
     <h3 style="margin-top:6px">${p.qtd}× ${esc(p.nome)}</h3>
