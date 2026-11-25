@@ -295,7 +295,7 @@ img{display:block;max-width:100%;}
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v10 25/11/2026';
+const VER = 'festa-v11 25/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -850,7 +850,7 @@ const FILTROS = [
   ['pb', 'P&B', 'grayscale(1) contrast(1.15) brightness(1.05)'],
 ];
 const EFEITOS = [['nenhum', 'Sem efeito'], ['coroa', 'Coroa da selva'], ['onca', 'Onça'], ['luzes', 'Luzes'], ['brilho', 'Pele de festa']];
-const MOLDURAS = [['folhas', 'Folhas'], ['fita', 'Fita'], ['polaroid', 'Polaroid'], ['limpa', 'Sem moldura']];
+const MOLDURAS = [['folhas', 'Folhas'], ['feras', 'Feras'], ['fita', 'Fita'], ['polaroid', 'Polaroid'], ['limpa', 'Sem moldura']];
 const FORMATOS = [['feed', 'Feed 4:5', 1080, 1350], ['story', 'Story 9:16', 1080, 1920]];
 
 /* o Safari do iPhone não aplica ctx.filter: testa de verdade (pinta vermelho em cinza e lê de volta) */
@@ -1232,6 +1232,8 @@ async function desenharMoldura(x, m) {
     x.font = '700 30px Alegreya, Georgia, serif'; x.fillStyle = '#F3C766';
     x.fillText('@spesso.rio  ·  27·11·26', W / 2, H - 38);
     x.restore();
+  } else if (m === 'feras') {
+    desenharFeras(x, W, H);
   } else if (m === 'fita') {
     x.save();
     x.translate(W / 2, H - 150); x.rotate(-0.035);
@@ -1255,7 +1257,7 @@ async function desenharMoldura(x, m) {
     x.beginPath(); x.rect(0, 0, W, H); x.rect(lado, cima, W - lado * 2, H - cima - baixo); x.fill('evenodd');
     x.strokeStyle = 'rgba(0,0,0,.08)'; x.lineWidth = 2; x.strokeRect(lado, cima, W - lado * 2, H - cima - baixo);
     x.fillStyle = '#3A2312'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.font = `${Math.round(baixo * .36)}px "Kaushan Script"`; x.fillText('Jardim do Éder 🐆', W / 2, H - baixo * .58);
+    x.font = `${Math.round(baixo * .36)}px "Kaushan Script"`; x.fillText('Jardim do Éder', W / 2, H - baixo * .58);
     x.font = `700 ${Math.round(baixo * .15)}px Alegreya, Georgia, serif`; x.fillStyle = '#8a5a12';
     x.fillText('27 · 11 · 26   @spesso.rio', W / 2, H - baixo * .22);
     x.restore();
@@ -1264,6 +1266,69 @@ async function desenharMoldura(x, m) {
     x.font = '700 28px Alegreya, Georgia, serif'; x.fillText('Jardim do Éder · @spesso.rio', W - 34, H - 34);
     x.restore();
   }
+}
+
+/* moldura Feras: a pele da onça em volta da foto ("Solte suas feras", o drink da casa) */
+function desenharFeras(x, W, H) {
+  const lado = Math.round(W * .055), cima = lado, baixo = Math.round(H * .15), r = 26;
+  const jx = lado, jy = cima, jw = W - lado * 2, jh = H - cima - baixo;      // a janela da foto
+  const janela = c => { c.beginPath(); c.roundRect ? c.roundRect(jx, jy, jw, jh, r) : c.rect(jx, jy, jw, jh); };
+  const o = document.createElement('canvas'); o.width = W; o.height = H;
+  const ox = o.getContext('2d');
+  /* pelo: dourado, mais quente no meio, mais escuro nas bordas */
+  const g = ox.createRadialGradient(W / 2, H / 2, W * .2, W / 2, H / 2, Math.max(W, H) * .75);
+  g.addColorStop(0, '#E7B454'); g.addColorStop(.6, '#D29A3C'); g.addColorStop(1, '#A8701F');
+  ox.fillStyle = g; ox.fillRect(0, 0, W, H);
+  /* rosetas: miolo ocre e um anel quebrado de manchas escuras; a semente fixa faz a pele ser sempre a mesma */
+  let s = 7;
+  const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+  const passo = W * .085;
+  for (let yy = -passo; yy < H + passo; yy += passo * .86) {
+    for (let xx = -passo; xx < W + passo; xx += passo) {
+      const cx = xx + (rnd() - .5) * passo * .7 + (Math.round(yy / passo) % 2 ? passo / 2 : 0);
+      const cy = yy + (rnd() - .5) * passo * .6;
+      const rr = passo * (.26 + rnd() * .14);
+      if (rnd() < .2) {                                                     // pinta solta, pequena
+        ox.fillStyle = '#2B1A0D'; ox.beginPath();
+        ox.ellipse(cx, cy, rr * .3, rr * .24, rnd() * 3, 0, Math.PI * 2); ox.fill(); continue;
+      }
+      ox.fillStyle = 'rgba(150,88,24,.75)'; ox.beginPath();
+      ox.ellipse(cx, cy, rr * .72, rr * .6, rnd() * 3, 0, Math.PI * 2); ox.fill();
+      const n = 4 + Math.floor(rnd() * 3), a0 = rnd() * Math.PI * 2;
+      ox.fillStyle = '#2B1A0D';
+      for (let k = 0; k < n; k++) {
+        const a = a0 + k * Math.PI * 2 / n + (rnd() - .5) * .5;
+        ox.beginPath();
+        ox.ellipse(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * .9, rr * (.36 + rnd() * .16), rr * (.2 + rnd() * .08),
+                   a + Math.PI / 2, 0, Math.PI * 2);
+        ox.fill();
+      }
+    }
+  }
+  /* abre a janela da foto */
+  ox.globalCompositeOperation = 'destination-out';
+  janela(ox); ox.fill();
+  ox.globalCompositeOperation = 'source-over';
+  /* sombra para dentro da foto e um fio dourado em volta, para a pele não "colar" na foto */
+  x.save();
+  janela(x); x.clip();
+  x.shadowColor = 'rgba(0,0,0,.55)'; x.shadowBlur = 30;
+  x.lineWidth = 40; x.strokeStyle = 'rgba(0,0,0,.55)'; janela(x); x.stroke();
+  x.restore();
+  x.drawImage(o, 0, 0);
+  x.save(); x.lineWidth = 4; x.strokeStyle = '#F3C766'; janela(x); x.stroke(); x.restore();
+  /* faixa de baixo: escurece a pele para o texto respirar */
+  const fx = x.createLinearGradient(0, H - baixo, 0, H);
+  fx.addColorStop(0, 'rgba(30,16,6,.35)'); fx.addColorStop(1, 'rgba(30,16,6,.7)');
+  x.fillStyle = fx; x.fillRect(0, H - baixo + 8, W, baixo - 8);
+  x.save();
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.shadowColor = 'rgba(0,0,0,.8)'; x.shadowBlur = 16;
+  x.fillStyle = '#F4E8CB'; x.font = `${Math.round(baixo * .42)}px "Kaushan Script"`;
+  x.fillText('Solte suas feras', W / 2, H - baixo * .56);
+  x.font = `700 ${Math.round(baixo * .15)}px Alegreya, Georgia, serif`; x.fillStyle = '#F3C766';
+  x.fillText('Jardim do Éder  ·  @spesso.rio  ·  27·11·26', W / 2, H - baixo * .18);
+  x.restore();
 }
 
 /* aniversário (dia e mês): para convidar a fazer a festa dela aqui */
