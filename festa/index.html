@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#0B2216"/>
 <meta name="color-scheme" content="dark"/>
 <meta name="robots" content="noindex"/>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐆</text></svg>"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='%23E0A93F'/></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;0,800;1,500&family=Alegreya+SC:wght@700&family=Kaushan+Script&family=Pinyon+Script&display=swap" rel="stylesheet"/>
@@ -18,6 +18,7 @@
   --creme:#F4E8CB; --creme-2:#E9D8AE; --tinta:#3A2312; --ouro:#E0A93F; --ouro-2:#F3C766;
   --brasa:#D9502E; --texto:#F4EBD6; --texto-2:#BFD0BF; --ok:#7FD39A; --erro:#FF8A6B;
   --raio:18px; --sab:env(safe-area-inset-bottom,0px);
+  --ease-out:cubic-bezier(0.23, 1, 0.32, 1); --ease-drawer:cubic-bezier(0.32, 0.72, 0, 1);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{background:var(--selva);}
@@ -43,6 +44,10 @@ img{display:block;max-width:100%;}
 .eu .num{background:var(--ouro);color:var(--tinta);font-weight:800;border-radius:999px;min-width:36px;height:36px;
   display:grid;place-items:center;font-size:17px;padding:0 8px;}
 .eu{padding:5px 5px 5px 12px;} .eu .q{font-family:'Alegreya SC',serif;font-size:13px;letter-spacing:.14em;color:var(--creme);}
+.topo .dir{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+.logo-casa{display:block;padding:2px 2px 0;opacity:.88;transition:opacity .15s ease,transform .1s ease-out;}
+.logo-casa img{width:76px;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6));}
+.logo-casa:active{transform:scale(.96);opacity:1;}
 
 /* ---------- Beber / Comer ---------- */
 .lados{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 0;}
@@ -50,8 +55,9 @@ img{display:block;max-width:100%;}
   box-shadow:0 6px 18px rgba(0,0,0,.3);transition:transform .14s ease-out;}
 .lado:active{transform:scale(.97);}
 .lado img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.lado::after{content:"";position:absolute;inset:0;background:rgba(6,20,12,.35);transition:background .2s;}
-.lado.on::after{background:transparent;}
+.lado::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,20,12,0) 40%,rgba(6,20,12,.8));transition:opacity .2s ease;}
+.lado.on::after{background:linear-gradient(180deg,rgba(6,20,12,0) 55%,rgba(6,20,12,.6));}
+.lado b{text-shadow:0 2px 10px rgba(0,0,0,.7);}
 .lado b{position:absolute;left:14px;bottom:10px;z-index:1;font-family:'Kaushan Script',cursive;font-weight:400;font-size:40px;color:var(--creme);line-height:1;}
 .lado.on{border-color:var(--ouro);}
 .lado.on b{color:var(--ouro-2);}
@@ -90,37 +96,59 @@ img{display:block;max-width:100%;}
 .leitor .mira{position:absolute;left:50%;top:42%;width:min(66vw,260px);aspect-ratio:1;transform:translate(-50%,-50%);border:3px solid var(--ouro);border-radius:22px;box-shadow:0 0 0 2000px rgba(0,0,0,.45);}
 .leitor p{position:relative;color:#fff;font-size:17px;margin-bottom:14px;text-align:center;}
 .leitor .bt{position:relative;padding:12px 28px;}
-.voucher .cod-g{font-family:ui-monospace,Menlo,monospace;font-weight:800;letter-spacing:.14em;font-size:44px;color:var(--creme);margin-top:6px;line-height:1;}
 .ped .acoes{flex-wrap:wrap;}
-.alerta{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.8);display:grid;place-items:center;padding:20px;}
-.alerta .cx{background:var(--creme);color:var(--tinta);border-radius:24px;padding:24px 20px;text-align:center;width:min(92vw,380px);
-  display:grid;gap:10px;animation:salta .5s cubic-bezier(.2,1.4,.4,1);}
-.alerta .em{font-size:54px;line-height:1;}
-.alerta h2{font-family:'Kaushan Script',cursive;font-weight:400;font-size:30px;line-height:1.1;}
-.alerta h2.it{font-family:'Pinyon Script',cursive;font-size:54px;color:#8a5a12;}
-.alerta .sub{font-weight:700;margin-top:-4px;}
+.alerta{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.82);display:grid;place-items:center;padding:20px;animation:veu-in .2s ease-out;}
+.alerta .cx{background:var(--selva-2);color:var(--texto);border:1px solid rgba(224,169,63,.6);border-radius:24px;padding:26px 20px 20px;text-align:center;
+  width:min(92vw,380px);display:grid;gap:10px;
+  box-shadow:0 0 0 6px rgba(11,34,22,.9),0 0 0 7px rgba(224,169,63,.22),0 30px 60px rgba(0,0,0,.6);animation:surge .3s var(--ease-out);}
+.alerta h2.it{font-family:'Pinyon Script',cursive;font-weight:400;font-size:clamp(40px,12vw,54px);line-height:1.1;color:var(--ouro-2);}
+.alerta .sub{font-weight:700;font-size:19px;color:var(--creme);}
 .alerta p{font-size:17px;}
 .alerta .bt{padding:14px;font-size:17px;}
-.alerta .bt.linha{border-color:rgba(58,35,18,.35);color:var(--tinta);}
-@keyframes salta{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
-.momento .em{font-size:56px;line-height:1;margin-top:4px;}
+.alerta .bt.linha{border-color:var(--linha);color:var(--creme);}
+.meu-mural{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;}
+.meu-mural img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:12px;display:block;margin-bottom:6px;}
+.meu-mural .bt{width:100%;padding:9px;font-size:14px;}
+.convite-festa{margin:28px 16px 0;padding:22px 18px;border-radius:var(--raio);text-align:center;
+  border:1px solid rgba(243,199,102,.45);background:linear-gradient(180deg,rgba(243,199,102,.08),rgba(243,199,102,.02));}
+.convite-festa .it{color:var(--ouro-2);}
+.convite-festa h3{font-size:21px;margin:6px 0 8px;color:var(--creme);}
+.convite-festa p{color:var(--texto-2);font-size:15.5px;line-height:1.4;}
+.convite-festa .bt{margin-top:14px;padding:14px;width:100%;font-size:17px;}
+.pre-reserva .pr-tit{font-size:40px;color:var(--ouro-2);text-align:center;}
+.pre-reserva .pr-q{font-size:24px;margin:6px 0 14px;text-align:center;}
+.pr-ops{display:grid;gap:10px;}
+.pr-op{border:1.5px solid var(--linha);border-radius:16px;padding:16px;font-size:18px;font-weight:700;color:var(--creme);text-align:center;
+  transition:transform .12s var(--ease-out, ease-out),background-color .15s ease;}
+.pr-op:active{transform:scale(.97);background:rgba(244,232,203,.08);}
+.pr-meses{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.pr-op.mes{padding:12px 6px;font-size:16px;text-transform:capitalize;}
+.pr-op.mes small{display:block;font-size:12px;font-weight:400;color:var(--texto-2);margin-top:2px;}
+.pr-op.sugerido{border-color:var(--ouro);color:var(--ouro-2);}
+.pr-dia{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;color:var(--texto-2);font-size:15px;}
+.pr-dia input{font:inherit;background:transparent;color:var(--creme);border:1.5px solid var(--linha);border-radius:12px;padding:10px;}
 .it{font-family:'Pinyon Script',cursive;font-weight:400;line-height:1.15;}
 .momento h3.it{font-size:50px;color:var(--ouro-2);margin-top:2px;}
-.voucher .qr.peq{width:min(56vw,200px);padding:10px;}
-.voucher .qr-leg{font-size:13px;color:var(--texto-2);}
 .paga{margin:10px 16px 0;background:var(--creme);color:var(--tinta);border-radius:var(--raio);padding:18px 16px;text-align:center;}
 .paga h3{font-family:'Kaushan Script',cursive;font-weight:400;font-size:30px;color:#1d6b3a;}
 .paga .qr{background:#fff;border-radius:16px;padding:12px;width:min(70vw,260px);margin:12px auto 8px;}
 .paga .qr svg{width:100%;height:auto;display:block;}
 .paga .pl{font-size:22px;font-weight:800;}
-.pagar{margin:14px 16px 0;padding:16px;border-radius:var(--raio);border:2px dashed var(--ouro);text-align:center;}
+.pagar{margin:14px 16px 0;padding:16px;border-radius:var(--raio);border:1px solid rgba(224,169,63,.45);text-align:center;}
 .pagar b{display:block;font-size:26px;color:var(--ouro-2);margin-top:4px;}
 .conta .l .de-novo{margin-left:8px;font-size:13px;font-weight:700;color:#8a5a12;text-decoration:underline;}
 
 /* ---------- categorias ---------- */
 .cats{position:sticky;top:0;z-index:5;background:rgba(11,34,22,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   border-bottom:1px solid var(--linha);margin-top:16px;}
-.troca{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 16px 0;}
+.troca{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sent{height:1px;}
+/* a chave Beber/Comer só aparece com a barra presa, por cima do conteúdo (a lista não pula) */
+.cats .troca{position:absolute;left:0;right:0;top:100%;padding:8px 16px 10px;background:rgba(11,34,22,.96);border-bottom:1px solid var(--linha);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;transform:translateY(-6px);
+  transition:opacity .18s ease-out,transform .18s var(--ease-out);}
+.cats.preso .troca{opacity:1;pointer-events:auto;transform:none;}
+.cats .troca button{padding:10px 6px;font-size:18px;}
 .troca button{border:2px solid var(--linha);border-radius:14px;padding:11px 6px;font-size:20px;font-weight:800;color:var(--creme);}
 .troca button.on{background:var(--ouro);border-color:var(--ouro);color:var(--tinta);}
 .cats .in{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;scrollbar-width:none;}
@@ -128,7 +156,7 @@ img{display:block;max-width:100%;}
 .cats a{flex:none;text-decoration:none;color:var(--texto-2);font-size:15px;padding:7px 14px;border-radius:999px;border:1px solid var(--linha);}
 .cats a.on{background:var(--creme);color:var(--tinta);border-color:var(--creme);font-weight:700;}
 
-.secao{padding:22px 16px 4px;scroll-margin-top:62px;}
+.secao{padding:22px 16px 4px;scroll-margin-top:124px;}
 .secao h2{display:inline-block;font-family:'Alegreya SC',serif;font-size:15px;letter-spacing:.14em;color:var(--tinta);
   background:var(--creme);padding:6px 18px 7px;margin:0 0 12px -16px;border-radius:0 999px 999px 0;}
 .item{width:100%;display:flex;gap:14px;align-items:flex-start;text-align:left;padding:14px 0;border-bottom:1px solid rgba(42,90,64,.6);}
@@ -156,6 +184,7 @@ img{display:block;max-width:100%;}
 .bt.ouro{background:var(--ouro);color:var(--tinta);}
 .bt.linha{border:1px solid var(--linha);color:var(--creme);}
 .bt.creme{background:var(--creme);color:var(--tinta);}
+.bt{transition:transform .1s ease-out;}
 .bt:active{transform:scale(.97);}
 
 /* ---------- conta ---------- */
@@ -172,30 +201,27 @@ img{display:block;max-width:100%;}
 .consumo .trilho i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ouro),var(--ouro-2));transition:width .5s cubic-bezier(.2,.8,.2,1);}
 .consumo b{color:var(--creme);}
 .nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
-.nav button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 4px;border-radius:12px;font-size:13px;color:var(--texto-2);}
-.nav button b{font-size:16px;color:var(--creme);}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:12px 4px;border-radius:12px;font-size:13px;color:var(--texto-2);}
+.nav button b{font-size:18px;color:var(--creme);}
 .nav button.on{background:var(--selva-3);}
 .nav button.on b{color:var(--ouro-2);}
-.espaco{height:calc(140px + var(--sab));}
-.dona{display:flex;align-items:center;gap:8px;padding:0 4px 8px;min-width:0;}
-.dona .mesa{margin-left:auto;flex:none;font-size:14px;color:var(--texto-2);}
-.dona .mesa i{font-style:normal;font-weight:800;color:var(--tinta);background:var(--ouro);border-radius:999px;padding:1px 9px;margin-left:4px;font-size:16px;}
-.dona b{font-size:17px;color:var(--creme);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.espaco{height:calc(96px + var(--sab));}
 .seguir-topo,.seguir-card{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--creme);}
-.seguir-topo{margin:10px 16px 0;padding:8px 8px 8px 12px;border-radius:14px;
-  background:linear-gradient(90deg,rgba(214,41,118,.28),rgba(250,126,30,.22));border:1px solid rgba(250,126,30,.45);}
+.seguir-topo{margin:12px 16px 0;padding:8px 8px 8px 12px;border-radius:14px;
+  background:rgba(224,169,63,.06);border:1px solid rgba(224,169,63,.35);}
 .seguir-topo .tx{flex:1;font-size:15px;} .ig{flex:none;width:24px;height:24px;display:block;}
 .seguir-topo.feito .ig,.cam-seguir .ig{width:17px;height:17px;display:inline-block;vertical-align:-3px;}
-.seguir-topo .bt-s,.seguir-card .bt-s{flex:none;background:linear-gradient(90deg,#d62976,#fa7e1e);color:#fff;font-weight:800;
-  border-radius:999px;padding:8px 16px;font-size:15px;}
+.seguir-topo .bt-s,.seguir-card .bt-s{flex:none;background:none;border:1.5px solid var(--ouro-2);color:var(--ouro-2);font-weight:700;
+  border-radius:999px;padding:7px 16px;font-size:15px;}
+.seguir-topo .ig,.seguir-card .ig{color:var(--ouro-2);}
 .seguir-topo.feito{justify-content:center;background:none;border:0;padding:6px;font-size:13.5px;color:var(--texto-2);}
 .seguir-topo.feito span{color:var(--ouro-2);margin-left:4px;}
-.seguir-card{margin:18px 16px 4px;padding:14px;border-radius:var(--raio);background:rgba(244,232,203,.06);border:1px dashed rgba(250,126,30,.5);}
+.seguir-card{margin:18px 16px 4px;padding:14px;border-radius:var(--raio);background:rgba(244,232,203,.04);border:1px solid rgba(224,169,63,.3);}
 .seguir-card .tx{flex:1;font-size:14.5px;color:var(--texto-2);line-height:1.3;}
 .seguir-card .tx b{display:block;color:var(--creme);font-size:16px;margin-bottom:2px;}
 .seguir-linha{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;padding-top:14px;
   border-top:1px solid var(--linha);color:var(--texto-2);font-size:14.5px;text-decoration:none;}
-.seguir-linha .ig{width:18px;height:18px;flex:none;color:#fa9e4e;}
+.seguir-linha .ig{width:18px;height:18px;flex:none;color:var(--ouro-2);}
 .seguir-linha b{color:var(--creme);font-weight:700;}
 .insta .bt{padding:11px 10px;font-size:15px;text-align:center;text-decoration:none;}
 /* ---------- câmera da festa ---------- */
@@ -232,15 +258,33 @@ img{display:block;max-width:100%;}
 .cam-dica{font-size:13.5px;color:var(--texto-2);text-align:center;line-height:1.3;}
 .cam-dica.forte{color:var(--creme);font-size:15px;}
 .cam-outra{padding:9px;font-size:14px;}
-.cam-seguir{text-align:center;color:#fa9e4e;font-size:15px;text-decoration:none;padding:2px 0;}
+.bt.cam-mural{padding:14px;font-size:16px;font-weight:800;border:1.5px solid var(--ouro);color:var(--ouro-2);}
+.cam-mural.feito{opacity:.75;}
+.cam-seguir{text-align:center;color:var(--ouro-2);font-size:15px;text-decoration:none;padding:2px 0;}
 .cam-caixa .cam-foto{-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto;pointer-events:auto;}
+
+/* ---------- La casa (fim do cardápio e a folha do logo) ---------- */
+.casa{margin:40px 16px 0;padding:30px 18px 6px;text-align:center;border-top:1px solid rgba(224,169,63,.3);
+  background:radial-gradient(120% 70% at 50% 0,rgba(224,169,63,.08),transparent 70%);}
+.casa.na-folha{margin:0;padding:8px 4px 4px;border:0;background:none;}
+.casa-logo-bt{display:block;margin:0 auto;}
+.casa-logo{width:150px;height:auto;margin:0 auto 14px;opacity:.92;}
+.casa-kick{font-family:'Alegreya SC',serif;font-size:12px;letter-spacing:.3em;color:var(--ouro);margin-bottom:14px;}
+.casa p{font-size:15.5px;line-height:1.45;color:var(--texto-2);max-width:34ch;margin:10px auto 0;}
+.casa p.casa-lema{font-size:30px;line-height:1.15;color:var(--ouro-2);max-width:none;margin:0 auto;}
+.casa-orn{color:var(--ouro);opacity:.8;margin:10px 0 4px;} .casa-orn svg{display:block;margin:0 auto;}
+.casa-rot{font-family:'Alegreya SC',serif;font-size:12px;letter-spacing:.3em;color:var(--ouro);margin-top:24px;}
+.casa p.casa-un{font-family:'Alegreya SC',serif;font-size:12.5px;letter-spacing:.16em;color:var(--creme);margin-top:6px;}
+.casa-bt{display:block;width:100%;margin-top:22px;padding:15px;font-size:17px;}
+.casa p.casa-pq{font-size:13.5px;margin-top:6px;}
+.casa-fechar{display:block;width:100%;margin-top:22px;padding:12px;}
 
 /* ---------- folhas (sheet) ---------- */
 .veu{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.55);opacity:0;transition:opacity .2s;}
 .veu.on{opacity:1;}
 .folha{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--selva-2);border-top:1px solid var(--linha);
   border-radius:22px 22px 0 0;padding:10px 18px calc(18px + var(--sab));max-height:92dvh;overflow:auto;
-  transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);}
+  transform:translateY(105%);transition:transform .32s var(--ease-drawer);}
 .folha.on{transform:none;}
 .folha .pega{width:44px;height:5px;border-radius:9px;background:var(--linha);margin:0 auto 12px;}
 .folha h3{font-size:22px;color:var(--creme);line-height:1.15;}
@@ -251,8 +295,8 @@ img{display:block;max-width:100%;}
 .chip{border:1px solid var(--linha);border-radius:999px;padding:9px 14px;font-size:15.5px;color:var(--creme);}
 .chip.on{background:var(--creme);color:var(--tinta);border-color:var(--creme);font-weight:700;}
 .qtd{display:flex;align-items:center;gap:16px;}
-.qtd button{width:44px;height:44px;border-radius:50%;border:1px solid var(--linha);font-size:24px;color:var(--creme);}
-.qtd span{font-size:24px;font-weight:800;min-width:24px;text-align:center;}
+.qtd button{width:52px;height:52px;border-radius:50%;border:1px solid var(--linha);font-size:26px;color:var(--creme);}
+.qtd span{font-size:26px;font-weight:800;min-width:28px;text-align:center;}
 .pedir{width:100%;margin-top:20px;background:var(--ouro);color:var(--tinta);border-radius:16px;padding:16px;font-size:19px;font-weight:800;
   display:flex;justify-content:space-between;align-items:center;}
 .pedir:disabled{opacity:.6;}
@@ -267,6 +311,28 @@ img{display:block;max-width:100%;}
 .voucher .onde{font-family:'Kaushan Script',cursive;font-size:26px;color:var(--ouro-2);margin-top:4px;}
 .voucher .quem{margin-top:6px;color:var(--texto-2);}
 .voucher .usado{display:inline-block;margin-top:10px;padding:6px 14px;border-radius:999px;background:rgba(127,211,154,.15);color:var(--ok);font-weight:700;}
+/* o bilhete: é a tela que ela vira para o barman (item legível, QR preto no branco) */
+.vou-ok{font-size:50px;color:var(--ouro-2);text-align:center;line-height:1;}
+.vou-sub{text-align:center;color:var(--texto-2);font-size:15.5px;margin:4px 0 12px;}
+.bilhete{position:relative;max-width:340px;margin:0 auto;background:#F4E8CB;color:#3A2312;border:1px solid #C9973A;border-radius:20px;
+  padding:18px 16px 16px;text-align:center;box-shadow:0 16px 40px rgba(0,0,0,.45);}
+.bilhete::after{content:"";position:absolute;inset:7px;border:.75px solid rgba(58,35,18,.28);border-radius:14px;pointer-events:none;z-index:0;}
+.b-casa{font-family:'Alegreya SC',serif;font-size:11.5px;letter-spacing:.32em;color:#8a5a12;}
+.b-nome{font-family:'Kaushan Script',cursive;font-size:36px;line-height:1.1;color:#3A2312;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.b-mesa{font-family:'Alegreya SC',serif;font-size:13px;letter-spacing:.24em;color:#6B4A2E;margin-top:2px;}
+.b-item{font-weight:800;font-size:22px;line-height:1.2;margin-top:12px;}
+.bilhete .qr{position:relative;z-index:1;background:#fff;width:min(60vw,230px);padding:12px;margin:14px auto 8px;border-radius:14px;box-shadow:0 0 0 1px rgba(58,35,18,.12);}
+.b-cod{font-weight:800;font-size:24px;letter-spacing:.3em;padding-left:.3em;font-variant-numeric:lining-nums;}
+.bilhete .corte{position:relative;z-index:1;margin:16px -16px 12px;border-top:2px dashed rgba(58,35,18,.25);}
+.bilhete .corte::before,.bilhete .corte::after{content:"";position:absolute;top:-12px;width:22px;height:22px;border-radius:50%;background:var(--selva-2);}
+.bilhete .corte::before{left:-11px;} .bilhete .corte::after{right:-11px;}
+.b-onde{font-family:'Alegreya SC',serif;font-size:14px;letter-spacing:.14em;line-height:1.35;color:#1d6b3a;}
+.carimbo{display:inline-block;margin:18px 0 10px;padding:8px 20px;border:2px solid #1d6b3a;color:#1d6b3a;border-radius:8px;
+  font-family:'Alegreya SC',serif;font-size:16px;letter-spacing:.24em;transform:rotate(-6deg);}
+.bilhete.entregue .b-item,.bilhete.entregue .b-cod{opacity:.5;}
+.aniv-pedidos{margin:0 16px;}
+.aniv-pedidos .rot{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--texto-2);}
+.aniv-pedidos .d{color:var(--texto-2);font-size:15px;}
 
 .convite{margin:16px 16px 0;padding:14px 16px;border-radius:16px;background:rgba(224,169,63,.12);border:1px solid rgba(224,169,63,.35);}
 .folha .convite{margin:0;}
@@ -279,14 +345,42 @@ img{display:block;max-width:100%;}
 .erro-tela{padding:28vh 26px 0;text-align:center;}
 .erro-tela h2{font-family:'Kaushan Script',cursive;font-size:30px;color:var(--creme);margin-bottom:10px;}
 .carregando{padding:30vh 20px;text-align:center;color:var(--texto-2);}
-.ver{font-size:11px;color:#4E7360;text-align:center;padding:24px 0 8px;}
+.ver{font-size:11px;color:transparent;user-select:none;text-align:center;padding:24px 0 8px;}
 .rede{position:fixed;top:0;left:0;right:0;z-index:50;background:var(--brasa);color:#fff;text-align:center;font-size:14px;padding:6px calc(10px + env(safe-area-inset-right,0px)) 6px;padding-top:calc(6px + env(safe-area-inset-top,0px));}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+/* ---------- movimento: só nos momentos raros ---------- */
+@keyframes surge{from{transform:scale(.95);opacity:0}to{transform:none;opacity:1}}
+@keyframes veu-in{from{opacity:0}to{opacity:1}}
+@keyframes sobe{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+@keyframes bilhete{from{transform:translateY(28px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+@keyframes brilho{from{background-position:100% 0}to{background-position:0% 0}}
+@keyframes assenta{from{transform:scale(1.025);opacity:.4}to{transform:none;opacity:1}}
+/* o nome dela, na primeira abertura */
+.topo .tt.revela .nome-topo{animation:sobe .7s var(--ease-out) .1s both;}
+.topo .tt.revela h1{animation:sobe .7s var(--ease-out) .25s both;}
+/* as palavras em italiano entram e um brilho de ouro passa uma vez */
+.palavra{animation:sobe .5s var(--ease-out) .12s both;}
+@supports (-webkit-background-clip:text) or (background-clip:text){
+  /* a folga em volta deixa a ponta das letras cursivas dentro do fundo pintado */
+  .palavra{padding:0 .25em .12em;margin:0 -.25em -.12em;
+    background:linear-gradient(100deg,var(--ouro-2) 42%,#FFF4D6 50%,var(--ouro-2) 58%) 100% 0/300% 100% no-repeat;
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    animation:sobe .5s var(--ease-out) .12s both,brilho 1.3s ease-in-out .5s both;}
+}
+/* o bilhete novo sobe como um cartão entregue na mão */
+.voucher.novo .bilhete{animation:bilhete .5s var(--ease-out) .18s both;}
+.voucher.novo .vou-sub{animation:sobe .4s var(--ease-out) .2s both;}
+/* a foto pronta assenta depois do flash */
+.cam-foto.assenta{animation:assenta .32s var(--ease-out);}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;}
+  .topo .tt.revela .nome-topo,.topo .tt.revela h1,.voucher.novo .bilhete,.voucher.novo .vou-sub,.cam-foto.assenta,.alerta .cx{animation:veu-in .2s ease both!important;}
+  .palavra{animation:none!important;}
+}
 </style>
 </head>
 <body>
 <div id="rede" class="rede oculto">Sem internet agora. Assim que voltar, a página se atualiza.</div>
-<div id="app"><div class="carregando">Abrindo o seu cardápio…</div></div>
+<div id="app"><div class="carregando"><img src="img/spesso.png" alt="Spesso · Cucina italiana" width="150" style="margin:0 auto 18px;opacity:.9"/>Abrindo o seu cardápio…</div></div>
 
 <div id="veu" class="veu oculto"></div>
 <div id="folha" class="folha oculto" role="dialog" aria-modal="true"></div>
@@ -295,7 +389,7 @@ img{display:block;max-width:100%;}
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v14 25/11/2026';
+const VER = 'festa-v15 25/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -327,8 +421,11 @@ if (B_URL > 0 && B_URL <= 40) guardarBistro(B_URL);
 if ((token || B_URL) && location.search) history.replaceState(null, '', location.pathname);
 
 let D = null;            // último ev_cliente
+let EXTRA = {};          // ev_cliente_extra (sql/666): pasta do mural, novidades, pré-reserva, fotos dela no mural
+const carregarExtra = () => token ? rpc('ev_cliente_extra', {p_token: token}).then(x => { EXTRA = x || {}; }).catch(() => {}) : Promise.resolve();
 let aba = 'cardapio';    // cardapio | pedidos | conta
 let lado = 'bebida';     // bebida | comida
+let obsCats = null;      // a barra das categorias presa no alto → mostra a chave Beber/Comer
 
 async function carregar() {
   if (!token) return carregarVitrine();
@@ -336,6 +433,7 @@ async function carregar() {
     D = await rpc('ev_cliente', {p_token: token});
     $('#rede').classList.add('oculto');
     desenhar(); checarProntos();
+    if (!EXTRA.mural_chave) carregarExtra().then(() => { if (aba === 'pedidos' && !D.vitrine) desenharPedidos(); });
   } catch (e) {
     if (e.codigo === 'link_invalido') {
       try { localStorage.removeItem('festa_token'); } catch {}
@@ -382,10 +480,10 @@ const FRASES_SEGUIR = [
   ['Gostou do drink?', 'No @spesso.rio tem os bastidores do bar e as próximas festas.'],
   ['Fome de mais?', 'O cardápio do dia a dia e as novidades da cozinha estão no @spesso.rio.'],
   ['Mentre aspetti…', 'Enquanto espera, siga o @spesso.rio.'],
-  ['Marque a gente na foto ·', 'Siga o @spesso.rio: a gente reposta as melhores da noite.'],
+  ['Marque a gente na foto.', 'Siga o @spesso.rio: a gente reposta as melhores da noite.'],
 ];
 function seguirTopo() {
-  if (seguiu()) return `<a class="seguir-topo feito" href="${INSTA}" target="_blank" rel="noopener" data-seguir>${IG} @spesso.rio <span>✓ seguindo</span></a>`;
+  if (seguiu()) return `<a class="seguir-topo feito" href="${INSTA}" target="_blank" rel="noopener" data-seguir>${IG} @spesso.rio <span>seguindo</span></a>`;
   return `<a class="seguir-topo" href="${INSTA}" target="_blank" rel="noopener" data-seguir>
       ${IG}<span class="tx"><b>Siga o Spesso</b> no Instagram</span><span class="bt-s">Seguir</span></a>`;
 }
@@ -431,19 +529,18 @@ function desenhar() {
       <div class="tt">${primeiroNome && !D.vitrine
         ? `<div class="nome-topo">${esc(primeiroNome)}</div><h1 class="com-nome">no Jardim do Éder</h1>`
         : `<h1>Jardim do Éder</h1><div class="marca">SPESSO · 27·11·26</div>`}</div>
-      ${eu && eu.pulseira != null ? `<div class="eu"><span class="q">MESA</span><span class="num">${eu.pulseira}</span></div>` : ''}
+      <div class="dir"><button class="logo-casa" id="logo-casa" aria-label="Conheça o Spesso"><img src="img/spesso.png" alt="Spesso"/></button>
+      ${eu && eu.pulseira != null ? `<div class="eu"><span class="q">MESA</span><span class="num">${eu.pulseira}</span></div>` : ''}</div>
     </header>
-    ${D.vitrine || aba !== 'cardapio' ? '' : seguirTopo()}
     ${conviteHtml()}
     <main id="corpo"></main>
     <div class="espaco"></div>
     <div class="ver">skv-versao ${VER}</div>
     ${D.vitrine ? '' : `<nav class="barra">
-      <div class="dona"><b>${esc(eu.nome)}</b>${eu.pulseira != null ? `<span class="mesa">Mesa <i>${eu.pulseira}</i></span>` : ''}</div>
       <div class="nav">
-        <button data-aba="cardapio"><b>Cardápio</b>pedir</button>
-        <button data-aba="pedidos"><b>Pedidos${ativos ? ' · ' + ativos : ''}</b>vouchers e conta</button>
-        <button data-aba="fotos"><b>Fotos</b>da festa</button>
+        <button data-aba="cardapio"><b>Cardápio</b></button>
+        <button data-aba="pedidos"><b>Pedidos${ativos ? ' · ' + ativos : ''}</b></button>
+        <button data-aba="fotos"><b>Fotos</b></button>
       </div>
     </nav>`}`;
   document.querySelectorAll('.nav button').forEach(b => {
@@ -454,8 +551,11 @@ function desenhar() {
     };
   });
   if (aba === 'conta') aba = 'pedidos';
+  $('#logo-casa').onclick = abrirCasa;
   ({cardapio: desenharCardapio, pedidos: desenharPedidos})[aba]();
+  if (!revelou) { revelou = true; const tt = $('.topo .tt'); if (tt) tt.classList.add('revela'); }
 }
+let revelou = false;     // o nome aparece com calma só na primeira abertura
 
 function desenharConsumo() {
   const c = D.conta, el = $('#consumo');
@@ -474,15 +574,18 @@ function desenharCardapio() {
   const cats = [...new Set(itens.map(m => m.categoria))];
   $('#corpo').innerHTML = `
     <div class="lados">
-      <button class="lado ${lado==='bebida'?'on':''}" data-lado="bebida" aria-label="Beber"><img src="img/arara.jpg" alt=""/></button>
-      <button class="lado ${lado==='comida'?'on':''}" data-lado="comida" aria-label="Comer"><img src="img/onca.jpg" alt=""/></button>
+      <button class="lado ${lado==='bebida'?'on':''}" data-lado="bebida" aria-label="Beber"><img src="img/arara.jpg" alt=""/><b>Beber</b></button>
+      <button class="lado ${lado==='comida'?'on':''}" data-lado="comida" aria-label="Comer"><img src="img/onca.jpg" alt=""/><b>Comer</b></button>
     </div>
+    ${D.vitrine ? '' : seguirTopo()}
+    <div class="sent" aria-hidden="true"></div>
     <nav class="cats">
       <div class="troca"><button data-troca="bebida" class="${lado==='bebida'?'on':''}">Beber</button><button data-troca="comida" class="${lado==='comida'?'on':''}">Comer</button></div>
       <div class="in">${cats.map(c => `<a href="#c-${slug(c)}">${esc(c)}</a>`).join('')}</div></nav>
     ${lado === 'comida' && !D.vitrine ? `<p class="dica">A comida vai até a sua <b>mesa bistrô</b> ou você retira <b>ao lado do Bar do 2º piso</b> (a gente avisa quando ficar pronta).</p>` : ''}
     ${cats.map((c, i) => `<section class="secao" id="c-${slug(c)}"><h2>${esc(c)}</h2>
-      ${itens.filter(m => m.categoria === c).map(itemHtml).join('')}</section>`).join('')}`;
+      ${itens.filter(m => m.categoria === c).map(itemHtml).join('')}</section>`).join('')}
+    ${casaHtml(false)}`;
   document.querySelectorAll('.lado').forEach(b => b.onclick = () => {
     lado = b.dataset.lado; desenharCardapio();
     window.scrollTo({top: $('.lados').offsetTop - 6, behavior: 'smooth'});
@@ -498,6 +601,13 @@ function desenharCardapio() {
   document.querySelectorAll('.item .foto').forEach(f => f.onclick = e => {
     e.stopPropagation(); const m = D.cardapio.find(x => x.id === +f.closest('.item').dataset.id); verFoto(m);
   });
+  if (obsCats) obsCats.disconnect();
+  if (window.IntersectionObserver) {
+    obsCats = new IntersectionObserver(es => { const e = es[es.length - 1], c = $('.cats');
+      if (c) c.classList.toggle('preso', !e.isIntersecting && e.boundingClientRect.top < 0); });
+    obsCats.observe($('.sent'));
+  }
+  ligarCasa();
   marcarCats();
 }
 function itemHtml(m) {
@@ -519,7 +629,7 @@ function marcarCats() {
       a.classList.toggle('on', on);
       if (on) a.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
     });
-  }), {rootMargin:'-70px 0px -70% 0px'});
+  }), {rootMargin:'-124px 0px -65% 0px'});
   document.querySelectorAll('.secao').forEach(s => io.observe(s));
 }
 /* foto em tela cheia: toque para fechar */
@@ -548,6 +658,31 @@ const STATUS = p => {
   return ['Retire no bar com o voucher', 'vivo'];
 };
 const BOTAO_RECEBI = p => p.bistro ? 'Recebi' : 'Peguei';
+/* ---------- La casa: o Spesso assina embaixo (conselho de estilistas 25/11). Textos só do spesso.com.br. */
+const ORN = '<svg width="120" height="26" viewBox="0 0 120 26" fill="currentColor" aria-hidden="true"><path d="M60 3 c5 6 12 8 20 8 c-8 2 -15 5 -20 12 c-5 -7 -12 -10 -20 -12 c8 0 15 -2 20 -8z"/><circle cx="14" cy="13" r="2"/><circle cx="106" cy="13" r="2"/><path d="M22 13 h26 M72 13 h26" stroke="currentColor" stroke-width="1"/></svg>';
+function casaHtml(folha) {
+  const convite = !folha || !D || D.vitrine || !token || EXTRA.pre_reserva ? ''
+    : `<button class="bt ouro casa-bt" id="casa-pre">Fazer a minha festa aqui</button><p class="casa-pq">Pré-reserva sem compromisso, em três perguntas.</p>`;
+  return `<section class="casa ${folha ? 'na-folha' : ''}">
+    ${folha ? '<div class="casa-kick">La nostra storia</div>' : '<button class="casa-logo-bt" data-casa aria-label="Conheça o Spesso">'}<img class="casa-logo" src="img/spesso.png" alt="Spesso · Cucina italiana" width="150" loading="lazy"/>${folha ? '' : '</button>'}
+    <p class="it casa-lema">Mangia bene, ridi Spesso, ama molto!</p>
+    <div class="casa-orn">${ORN}</div>
+    <p>Do Vêneto, na província de Padova, vêm nossas raízes. Uma terra onde a mesa une gerações e o sabor guarda memórias.</p>
+    <p>Massas feitas à mão, pizza de massa madre com farinha italiana e o pão em fermentação longa: o tempo como ingrediente essencial.</p>
+    ${folha ? `<p>Acreditamos que o prazer da vida está em saborear o momento, rir com frequência e celebrar a felicidade.</p>${convite}` : ''}
+    <div class="casa-rot">Volte para um almoço</div>
+    <p class="casa-un">Botafogo Praia Shopping · Edifício Argentina</p>
+    ${folha ? '<button class="bt linha casa-fechar" id="casa-ok">Voltar para a festa</button>' : ''}
+  </section>`;
+}
+function ligarCasa() { document.querySelectorAll('[data-casa]').forEach(b => b.onclick = abrirCasa); }
+function abrirCasa() {
+  abrirFolha(casaHtml(true));
+  $('#casa-ok').onclick = fecharFolha;
+  const pr = $('#casa-pre'); if (pr) pr.onclick = abrirPreReserva;
+}
+const pn = () => esc(((D && D.eu && D.eu.nome) || '').split(' ')[0]);
+const comNome = () => pn() ? ', ' + pn() : '';
 /* comida para retirar: "pronta" 30 s depois do pronto do KDS (dá tempo de o prato chegar ao lado do bar) */
 const prontaJa = p => !!(p.pronto && Date.now() - new Date(p.pronto).getTime() >= 30000);
 let avisados = []; try { avisados = JSON.parse(localStorage.getItem('festa_avisados') || '[]'); } catch {}
@@ -566,8 +701,8 @@ function checarProntos() {
     });
   } catch {}
   const v = document.createElement('div'); v.className = 'alerta';
-  v.innerHTML = `<div class="cx"><h2 class="it">È pronto!</h2><p class="sub">Sua comida está pronta.</p>
-    <p><b>${p.qtd}× ${esc(p.nome)}</b></p><p>Retire <b>ao lado do Bar do 2º piso</b> e mostre o voucher <b>${p.voucher}</b>.</p>
+  v.innerHTML = `<div class="cx"><h2 class="it palavra">È pronto${comNome()}!</h2><p class="sub">${p.qtd}× ${esc(p.nome)}</p>
+    <p>Retire <b>ao lado do Bar do 2º piso</b>.</p>
     <button class="bt ouro" id="al-v">Ver voucher</button><button class="bt linha" id="al-ok">Já vou</button></div>`;
   document.body.appendChild(v);
   v.querySelector('#al-ok').onclick = () => v.remove();
@@ -582,12 +717,17 @@ function desenharPedidos() {
       <div>${brl(p.qtd * p.preco)}</div>
       <div class="acoes">
         ${p.entregue ? '' : `<button class="bt ouro" data-v="${p.voucher}">Ver voucher</button>
-          <button class="bt creme" data-recebi="${p.voucher}">✓ ${BOTAO_RECEBI(p)}</button>`}
+          <button class="bt creme" data-recebi="${p.voucher}">${BOTAO_RECEBI(p)}</button>`}
         <button class="bt linha" data-de-novo="${p.id}">Pedir de novo</button>
       </div></div>`; }).join('')}
     ${seguirHtml(0)}
-    <div id="minha-conta"></div>`;
+    <div id="minha-conta"></div>
+    <div id="meu-mural"></div>
+    <div id="convite-festa"></div>
+    ${D.eu.liberada ? '' : `<div class="aniv-pedidos">${anivHtml()}</div>`}`;
   desenharConta();
+  desenharMeuMural();
+  const cf = $('#convite-festa'); if (cf) { cf.innerHTML = conviteFestaHtml(); ligarConviteFesta(); }
   document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => {
     const p = D.conta.itens.find(x => x.voucher === b.dataset.v); abrirVoucher(p);
   });
@@ -595,6 +735,7 @@ function desenharPedidos() {
     const p = D.conta.itens.find(x => x.voucher === b.dataset.recebi); confirmarRecebi(p);
   });
   ligarPedirDeNovo();
+  ligarAniv();
 }
 function ligarPedirDeNovo() {
   document.querySelectorAll('[data-de-novo]').forEach(b => b.onclick = () => {
@@ -618,7 +759,9 @@ function desenharConta() {
   const c = D.conta, eu = D.eu, alvo = $('#minha-conta');
   if (!alvo) return;
   if (eu.liberada) {
-    alvo.innerHTML = `<div class="conta" style="margin-top:18px"><p class="it" style="font-size:34px;color:var(--ouro-2)">Arrivederci, ${esc(eu.nome.split(' ')[0])}!</p><p>Obrigada por virar fera com a gente.</p>
+    alvo.innerHTML = `<div class="conta" style="margin-top:18px"><p class="it" style="font-size:34px;color:#8a5a12">Arrivederci, ${esc(eu.nome.split(' ')[0])}!</p><p>Obrigada por virar fera com a gente.</p>
+      <p class="it" style="font-size:26px;color:#8a5a12;margin-top:8px">Mangia bene, ridi Spesso, ama molto!</p>
+      <p class="nota">Volte para um almoço: Botafogo Praia Shopping ou Edifício Argentina.</p>
       <p class="nota">Marque <b>@spesso.rio</b> nas suas fotos. A gente adora rever essa noite.</p>${anivHtml()}</div>`;
     ligarAniv();
     return;
@@ -631,7 +774,7 @@ function desenharConta() {
       <div class="l"><span>Serviço (${String(c.servico_pct).replace('.',',')}%)</span><span>${brl(c.servico)}</span></div>
       ${c.falta_minimo > 0 ? `<div class="l"><span>Complemento da consumação</span><span>${brl(c.falta_minimo)}</span></div>` : ''}
       <div class="l t"><span>Total</span><span>${brl(c.total)}</span></div>
-      ${c.falta_minimo > 0 ? `<p class="nota">A consumação mínima da festa é ${brl(c.minimo)} por pessoa. Faltam <b>${brl(c.falta_minimo)}</b>: dá para trocar o complemento por mais um drink ou um prato.</p>` : ''}
+      ${c.falta_minimo > 0 ? `<p class="nota">A consumação mínima é de ${brl(c.minimo)} por pessoa. O que falta pode virar um drink ou um prato.</p>` : ''}
     </div>
     ${c.falta_minimo > 0 ? `<div style="padding:18px 16px 0"><button class="bt linha" style="padding:14px;width:100%" id="usar">Usar os ${brl(c.falta_minimo)} que faltam</button></div>` : ''}
     <div class="pagar">Para pagar, vá ao caixa e diga:<b>Mesa ${eu.pulseira}</b></div>`;
@@ -691,7 +834,7 @@ function abrirItem(id, codIni, qtdIni) {
          ['baixo', 'Pego no Bar do 1º piso', 'mostre o voucher no balcão'],
          ['cima', 'Pego no Bar do 2º piso', 'mostre o voucher no balcão']];
     abrirFolha(`
-      <div class="volta-linha"><button class="voltar" id="voltar">‹ Voltar</button><span>${qtd}× ${esc(nomeOp)}</span></div>
+      <div class="volta-linha"><button class="voltar" id="voltar">Voltar</button><span>${qtd}× ${esc(nomeOp)}</span></div>
       <h3 style="margin-top:6px">${m.tipo === 'comida' ? 'Onde entregamos?' : 'Onde você quer receber?'}</h3>
       <div class="ondes">${opcoes.map(([k, t, s]) => `<button class="onde-op ${entrega===k?'on':''}" data-onde="${k}"><b>${t}</b><small>${s}</small></button>`).join('')}</div>
       ${entrega === 'bistro' ? bistroHtml() : ''}
@@ -744,7 +887,7 @@ function guardarBistro(n) { try { localStorage.setItem('festa_bistro', JSON.stri
 let trocarBistro = false;
 function bistroHtml() {
   const b = bistroAtual(), tot = (D.evento && D.evento.bistros) || 15;
-  if (b && !trocarBistro) return `<div class="bistro ok"><span>Mesa bistrô <b>${b}</b> ✓</span><button class="bt linha" id="trocar-b">Trocar</button></div>`;
+  if (b && !trocarBistro) return `<div class="bistro ok"><span>Mesa bistrô <b>${b}</b></span><button class="bt linha" id="trocar-b">Trocar</button></div>`;
   return `<div class="bistro">
     <button class="bt ouro escanear" id="escanear">Ler o QR da mesa</button>
     <div class="rot" style="margin-top:12px">ou toque no número da plaquinha</div>
@@ -806,7 +949,7 @@ function confirmarRecebi(p) {
     <h3>${p.bistro ? 'O pedido chegou?' : 'Já está com ele na mão?'}</h3>
     <p class="d" style="margin-top:6px">${p.qtd}× ${esc(p.nome)}</p>
     <div style="display:grid;gap:10px;margin-top:18px">
-      <button class="bt ouro" style="padding:16px;font-size:18px" id="sim">✓ Sim, ${p.bistro ? 'recebi' : 'peguei'}</button>
+      <button class="bt ouro" style="padding:16px;font-size:18px" id="sim">Sim, ${p.bistro ? 'recebi' : 'peguei'}</button>
       <button class="bt linha" style="padding:12px" id="nao">Ainda não</button>
     </div></div>`);
   $('#nao').onclick = fecharFolha;
@@ -819,8 +962,8 @@ function confirmarRecebi(p) {
       /* Renato 25/11: "quando ela der o recebi, já sugerir que aquele momento podia estar eternizado" */
       const bebida = p.tipo === 'bebida';
       abrirFolha(`<div class="voucher momento">
-        <h3 class="it">${bebida ? 'Cin cin!' : 'Buon appetito!'}</h3>
-        <p class="d">${bebida ? 'Esse drink' : 'Esse prato'} merece uma foto. Com a moldura da festa, já pronta para o Instagram.</p>
+        <h3 class="it palavra" style="font-size:clamp(38px,11vw,52px)">${bebida ? 'Cin cin' : 'Buon appetito'}${comNome()}!</h3>
+        <p class="d">${bebida ? 'Esse drink' : 'Esse prato'} merece uma foto. Com a moldura da festa, para o Instagram e para a TV da festa.</p>
         <div style="display:grid;gap:10px;margin-top:16px">
           <button class="bt ouro" style="padding:16px;font-size:18px" id="m-foto">Tirar a foto</button>
           <button class="bt linha" style="padding:12px" id="m-nao">Agora não</button>
@@ -837,7 +980,7 @@ function confirmarRecebi(p) {
    Renato 24-25/11: "no mesmo lugar que ela bebe ela posta" · "quero fotos tops". Câmera dentro do app:
    formato (feed 4:5 ou story 9:16), filtro de cor, efeito (brilho, luzes, coroa da selva e onça, que
    seguem o rosto) e moldura (folhas do convite, fita, polaroid). A foto vai para a galeria ou direto para
-   o Instagram pelo compartilhar do celular. Nada sobe para o servidor: a foto é só dela.
+   o Instagram pelo compartilhar do celular. Só sobe a foto que ela mandar para o Mural, com o toque dela (sql/666-667).
    Rosto: MediaPipe Face Landmarker (roda no próprio celular; carrega só quando ela escolhe coroa ou onça). */
 const INSTA = 'https://www.instagram.com/spesso.rio/';
 const IG = '<svg class="ig" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.3"/><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none"/></svg>';
@@ -845,15 +988,13 @@ const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform 
 const FILTROS = [
   ['natural', 'Natural', 'none'],
   ['dourado', 'Pôr do sol', 'sepia(.35) saturate(1.35) contrast(1.05) brightness(1.04)'],
-  ['selva', 'Selva', 'saturate(1.5) contrast(1.12) hue-rotate(-8deg)'],
-  ['noite', 'Noite', 'contrast(1.2) saturate(1.2) brightness(.95) hue-rotate(10deg)'],
   ['pb', 'P&B', 'grayscale(1) contrast(1.15) brightness(1.05)'],
 ];
 /* Renato 25/11: "esses efeitos de coroa da selva, onça, luzes podiam ser retirados; ninguém vai fazer foto com isso.
    Tem que ser elegante, sempre." A fileira saiu da câmera; a foto fica só com filtro e moldura. */
 const EFEITOS = [['nenhum', 'Sem efeito'], ['coroa', 'Coroa da selva'], ['onca', 'Onça'], ['luzes', 'Luzes'], ['brilho', 'Pele de festa']];
-const MOLDURAS = [['feras', 'Onça'], ['rosa', 'Onça rosa'], ['pantera', 'Pantera'], ['tigre', 'Tigre'], ['zebra', 'Zebra'],
-  ['folhas', 'Folhas'], ['fita', 'Fita'], ['polaroid', 'Polaroid'], ['limpa', 'Sem moldura']];
+/* conselho 25/11: cinco molduras (Onça rosa, Tigre, Zebra e Fita saem; o desenho continua em PELES para voltar se quiser) */
+const MOLDURAS = [['feras', 'Onça'], ['pantera', 'Pantera'], ['folhas', 'Folhas'], ['polaroid', 'Polaroid'], ['limpa', 'Sem moldura']];
 const FORMATOS = [['feed', 'Feed 4:5', 1080, 1350], ['story', 'Story 9:16', 1080, 1920]];
 
 /* o Safari do iPhone não aplica ctx.filter: testa de verdade (pinta vermelho em cinza e lê de volta) */
@@ -1013,9 +1154,9 @@ async function abrirCamera() {
   v.className = 'camera';
   const linha = (id, lista, at, k) => `<div class="cam-linha" id="${id}">${lista.map(o => `<button data-${k}="${o[0]}" class="${o[0] === at ? 'on' : ''}">${o[1]}</button>`).join('')}</div>`;
   v.innerHTML = `
-    <div class="cam-topo"><button class="bt linha" id="cam-x">‹ Voltar</button>
+    <div class="cam-topo"><button class="bt linha" id="cam-x">Voltar</button>
       <div class="cam-fmt">${FORMATOS.map(f => `<button data-fmt="${f[0]}" class="${f[0] === 'feed' ? 'on' : ''}">${f[1]}</button>`).join('')}</div>
-      <button class="bt linha" id="cam-virar">↺</button></div>
+      <button class="bt linha" id="cam-virar">Virar</button></div>
     <div class="cam-quadro"><div class="cam-caixa"><video playsinline muted autoplay></video><canvas class="cam-molde"></canvas><img class="cam-foto oculto" alt=""/></div></div>
     <div class="cam-ops">
       ${linha('cam-filtros', FILTROS, 'dourado', 'f')}
@@ -1140,7 +1281,7 @@ async function abrirCamera() {
     const i = new Image(); i.onload = () => { origem = i; rostoFoto = null; parar(); montarFinal(); }; i.src = URL.createObjectURL(f);
   }
   const ACOES_CAMERA = `<label class="bt linha cam-galeria">Da galeria<input type="file" accept="image/*" hidden id="cam-arq"/></label>
-      <button class="cam-disparo" id="cam-disparo" aria-label="Tirar foto"></button><a class="bt linha cam-galeria" href="${INSTA}" target="_blank" rel="noopener">@spesso.rio</a>`;
+      <button class="cam-disparo" id="cam-disparo" aria-label="Tirar foto"></button><span class="cam-galeria" aria-hidden="true"></span>`;
   function ligarAcoes() {
     v.querySelector('#cam-acoes').innerHTML = ACOES_CAMERA;
     v.querySelector('#cam-disparo').onclick = disparar;
@@ -1170,12 +1311,15 @@ async function abrirCamera() {
     arquivo = null;
     c.toBlob(b => { arquivo = {blob: b, file: new File([b], `jardim-do-eder-${Date.now()}.jpg`, {type: 'image/jpeg'})}; }, 'image/jpeg', .92);
     fotoEl.classList.remove('oculto'); video.classList.add('oculto'); molde.classList.add('oculto');
+    fotoEl.classList.remove('assenta'); void fotoEl.offsetWidth; fotoEl.classList.add('assenta');
     v.querySelectorAll('.cam-aviso').forEach(z => z.remove());
     v.querySelector('#cam-virar').classList.add('oculto');
     v.querySelector('#cam-acoes').innerHTML = `<div class="cam-pronta">
       <div class="cam-dois"><button class="bt creme" id="cam-salvar">Salvar na galeria</button>
         <button class="bt ouro" id="cam-insta">Postar no Instagram</button></div>
-      <p class="cam-dica" id="cam-dica">Dica: você também pode segurar o dedo na foto e tocar em “Salvar”.</p>
+      ${token && D && !D.vitrine ? `<button class="bt linha cam-mural" id="cam-mural">Mostrar no Mural</button>
+        <p class="cam-dica" id="cam-mural-tx">Sua foto passa na TV da festa esta noite, com o seu primeiro nome. Depois da festa, a gente apaga.</p>` : ''}
+      <p class="cam-dica" id="cam-dica"></p>
       ${seguiu() ? '' : `<a class="cam-seguir" href="${INSTA}" target="_blank" rel="noopener" data-seguir>${IG} Siga o <b>@spesso.rio</b> e marque a gente</a>`}
       <button class="bt linha cam-outra" id="cam-outra">Outra foto</button></div>`;
     v.querySelector('#cam-outra').onclick = () => {
@@ -1186,6 +1330,7 @@ async function abrirCamera() {
     };
     v.querySelector('#cam-salvar').onclick = salvarGaleria;
     v.querySelector('#cam-insta').onclick = postarInsta;
+    const bm = v.querySelector('#cam-mural'); if (bm) bm.onclick = () => mostrarNoMural(bm);
   }
   /* Salvar: no iPhone o caminho para o Fotos é o compartilhar ("Salvar imagem"); no Android o download
      cai na galeria (pasta Downloads). Sem texto junto: com texto o iPhone esconde o "Salvar imagem". */
@@ -1213,6 +1358,35 @@ async function abrirCamera() {
     }
     baixar();
     dica('<span class="it" style="font-size:24px">Bellissima!</span> Foto salva na galeria (pasta Downloads).');
+  }
+  /* Mural da noite (sql/666-667): o toque é o consentimento, com a frase à vista antes. A foto sobe reduzida
+     (900 px, JPEG, ~150 KB, leve para o 4G do salão) para a pasta secreta dela; a TV só mostra 60 s depois. */
+  async function mostrarNoMural(btn) {
+    if (!final) return;
+    const tx = v.querySelector('#cam-mural-tx');
+    btn.disabled = true; btn.textContent = 'Enviando…';
+    try {
+      if (!EXTRA.mural_chave) await carregarExtra();
+      if (!EXTRA.mural_chave) throw new Error('sem_chave');
+      const L = 900, m = document.createElement('canvas');
+      m.width = L; m.height = Math.round(L * final.height / final.width);
+      const mx = m.getContext('2d'); mx.imageSmoothingEnabled = true; mx.imageSmoothingQuality = 'high';
+      mx.drawImage(final, 0, 0, m.width, m.height);
+      let blob = await new Promise(r => m.toBlob(r, 'image/jpeg', .82));
+      if (blob && blob.size > 950000) blob = await new Promise(r => m.toBlob(r, 'image/jpeg', .68));
+      const nome = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      const caminho = `${EXTRA.mural_chave}/${nome}.jpg`;
+      const r = await fetch(`${SB}/storage/v1/object/festa-mural/${caminho}`, {method: 'POST',
+        headers: {apikey: K, Authorization: 'Bearer ' + K, 'Content-Type': 'image/jpeg', 'x-upsert': 'false'}, body: blob});
+      if (!r.ok) throw new Error('subida');
+      await rpc('ev_mural_enviar', {p_token: token, p_caminho: caminho});
+      carregarExtra().then(() => { if (aba === 'pedidos') desenharMeuMural(); });
+      btn.textContent = 'Está no Mural'; btn.classList.add('feito');
+      if (tx) tx.innerHTML = '<span class="it palavra" style="font-size:26px;color:var(--ouro-2)">Grazie!</span> Daqui a pouco ela aparece na TV. Se mudar de ideia, tire em Pedidos.';
+    } catch (e) {
+      if (e.codigo === 'limite_mural') { btn.textContent = 'Você já mandou 12 fotos'; if (tx) tx.textContent = 'Para mandar outra, tire uma das suas em Pedidos.'; return; }
+      btn.disabled = false; btn.textContent = 'Não foi. Toque de novo.';
+    }
   }
   function postarInsta() {
     if (!arquivo) return dica('Um segundo, a foto ainda está ficando pronta…');
@@ -1408,6 +1582,98 @@ function listras(ox, W, H, pele) {
   }
 }
 
+/* ---------------------------------------------------------------- as fotos dela no mural (pode tirar) */
+function desenharMeuMural() {
+  const el = $('#meu-mural'); if (!el) return;
+  const minhas = (EXTRA.mural || []).filter(m => !m.oculta);
+  if (!minhas.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="titulo-bloco" style="font-size:22px;padding-top:28px">No mural da festa</div>
+    <div class="meu-mural">${minhas.map(m => `<div><img src="${SB}/storage/v1/object/public/festa-mural/${m.caminho}" alt="" loading="lazy"/>
+      <button class="bt linha" data-tirar-mural="${m.id}">Tirar do mural</button></div>`).join('')}</div>`;
+  el.querySelectorAll('[data-tirar-mural]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    try { await rpc('ev_mural_remover', {p_token: token, p_id: +b.dataset.tirarMural}); await carregarExtra(); desenharMeuMural(); }
+    catch { b.disabled = false; }
+  });
+}
+
+/* ---------------------------------------------------------------- a festa dela no Spesso
+   Renato 25/11: "usar o app pra apresentar um convite pra pessoa fazer uma festa conosco ... uma pré-reserva
+   sem compromisso; aí conseguiríamos vários leads". Cai na fila de Orçamentos da casa (sql/666). Uma pergunta
+   por tela; nome e WhatsApp ela não digita. O "quero novidades" é um sim separado (LGPD). */
+const MESES_PR = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const TIPOS_FESTA = ['Aniversário', 'Casamento ou noivado', 'Empresa', 'Outra comemoração'];
+const FAIXAS_FESTA = [['Até 20 pessoas', 20], ['De 20 a 50', 35], ['De 50 a 100', 75], ['Mais de 100', 120]];
+function conviteFestaHtml() {
+  if (!D || D.vitrine) return '';
+  const nome = esc((D.eu.nome || '').split(' ')[0]), pr = EXTRA.pre_reserva;
+  if (pr) return `<div class="convite-festa feito"><div class="it" style="font-size:30px">La tua festa</div>
+      <p>Sua pré-reserva está com a gente: <b>${esc(pr.tipo || '')}</b>${pr.data ? ' · ' + pr.data.split('-').reverse().join('/') : ''}.
+      A equipe te chama no WhatsApp nos próximos dias.</p>
+      <button class="bt linha" id="abrir-pre">Mudar a pré-reserva</button></div>`;
+  const mes = EXTRA.aniv_mes ? MESES_PR[EXTRA.aniv_mes - 1] : null;
+  return `<div class="convite-festa"><div class="it" style="font-size:34px">La prossima festa</div>
+      <h3>${nome}, a próxima pode ser a sua.</h3>
+      <p>${mes ? `Seu aniversário é em ${mes}. ` : ''}Faça uma pré-reserva sem compromisso: três perguntas, e a gente te chama para montar tudo.</p>
+      <button class="bt ouro" id="abrir-pre">Fazer a minha pré-reserva</button></div>`;
+}
+function ligarConviteFesta() { const b = $('#abrir-pre'); if (b) b.onclick = abrirPreReserva; }
+function abrirPreReserva() {
+  const R = {tipo: null, mes: null, ano: null, data: null, faixa: null, pessoas: null};
+  let passo = 1, enviando = false;
+  const hoje = new Date(), nome = esc((D.eu.nome || '').split(' ')[0]);
+  const meses = Array.from({length: 12}, (_, i) => { const d = new Date(hoje.getFullYear(), hoje.getMonth() + 1 + i, 1);
+    return {m: d.getMonth() + 1, a: d.getFullYear()}; });
+  const pintar = () => {
+    let h = '';
+    if (passo > 1 && passo < 5) h += `<div class="volta-linha"><button class="voltar" id="pr-volta">Voltar</button>
+      <span>${passo === 4 ? 'Quase lá' : `Pré-reserva · ${passo} de 3`}</span></div>`;
+    if (passo === 1) h += `<div class="it pr-tit">La tua festa</div><h3 class="pr-q">Que festa, ${nome}?</h3>
+      <div class="pr-ops">${TIPOS_FESTA.map(x => `<button class="pr-op" data-v="${x}">${x}</button>`).join('')}</div>
+      <p class="d" style="margin-top:12px">Sem compromisso. A equipe confirma a data e te chama para montar tudo.</p>`;
+    if (passo === 2) h += `<h3 class="pr-q">Quando?</h3>
+      <div class="pr-meses">${meses.map(x => `<button class="pr-op mes ${EXTRA.aniv_mes === x.m && R.tipo === 'Aniversário' ? 'sugerido' : ''}" data-m="${x.m}" data-a="${x.a}">
+        ${MESES_PR[x.m - 1]}<small>${x.a}</small></button>`).join('')}</div>
+      <label class="pr-dia">Já sei o dia <input type="date" id="pr-data" min="${hoje.toISOString().slice(0, 10)}"/></label>`;
+    if (passo === 3) h += `<h3 class="pr-q">Quantas pessoas?</h3>
+      <div class="pr-ops">${FAIXAS_FESTA.map(x => `<button class="pr-op" data-f="${x[0]}" data-p="${x[1]}">${x[0]}</button>`).join('')}</div>`;
+    if (passo === 4) h += `<h3 class="pr-q">Quer receber convites e novidades do Spesso no WhatsApp?</h3>
+      <p class="d">Festas, cardápios novos e as fotos desta noite. Sem spam, e você sai quando quiser.</p>
+      <div class="pr-ops"><button class="pr-op" data-nov="1">Sim, quero</button><button class="pr-op" data-nov="0">Agora não</button></div>`;
+    if (passo === 5) h += `<div class="it pr-tit palavra" style="font-size:48px">Grazie mille!</div>
+      <h3 class="pr-q">A sua pré-reserva está com a gente.</h3>
+      <p class="d">${esc(R.tipo)} · ${R.data ? R.data.split('-').reverse().join('/') : MESES_PR[R.mes - 1] + ' de ' + R.ano} · ${esc(R.faixa)}.<br/>
+        A equipe te chama no WhatsApp nos próximos dias. Sem compromisso.</p>
+      <button class="bt ouro" style="padding:14px;width:100%;margin-top:16px" id="pr-ok">Voltar para a festa</button>`;
+    abrirFolha(`<div class="voucher pre-reserva">${h}<div id="pr-msg"></div></div>`);
+    const vb = $('#pr-volta'); if (vb) vb.onclick = () => { passo -= 1; if (passo === 4 && EXTRA.novidades != null) passo = 3; pintar(); };
+    document.querySelectorAll('.pre-reserva [data-v]').forEach(b => b.onclick = () => { R.tipo = b.dataset.v; passo = 2; pintar(); });
+    document.querySelectorAll('.pre-reserva [data-m]').forEach(b => b.onclick = () => { R.mes = +b.dataset.m; R.ano = +b.dataset.a; R.data = null; passo = 3; pintar(); });
+    const di = $('#pr-data'); if (di) di.onchange = () => { if (!di.value) return; R.data = di.value; R.mes = null; R.ano = null; passo = 3; pintar(); };
+    document.querySelectorAll('.pre-reserva [data-f]').forEach(b => b.onclick = () => { R.faixa = b.dataset.f; R.pessoas = +b.dataset.p;
+      if (EXTRA.novidades == null) { passo = 4; pintar(); } else enviar(); });
+    document.querySelectorAll('.pre-reserva [data-nov]').forEach(b => b.onclick = async () => {
+      const sim = b.dataset.nov === '1';
+      try { await rpc('ev_novidades', {p_token: token, p_sim: sim}); EXTRA.novidades = sim; } catch {}
+      enviar();
+    });
+    const ok = $('#pr-ok'); if (ok) ok.onclick = () => { fecharFolha(); desenhar(); };
+  };
+  async function enviar() {
+    if (enviando) return; enviando = true;
+    try {
+      await rpc('ev_pre_reserva', {p_token: token, p_tipo: R.tipo, p_data: R.data, p_mes: R.mes, p_ano: R.ano,
+                                   p_pessoas: R.pessoas, p_faixa: R.faixa});
+      await carregarExtra();
+      passo = 5; pintar();
+    } catch (e) {
+      enviando = false;
+      $('#pr-msg').innerHTML = `<div class="aviso">${e.codigo === 'data_passada' ? 'Essa data já passou. Escolha outra.' : 'Não consegui enviar. Confira a internet e tente de novo.'}</div>`;
+    }
+  }
+  pintar();
+}
+
 /* aniversário (dia e mês): para convidar a fazer a festa dela aqui */
 const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 let anivPulou = false; try { anivPulou = !!sessionStorage.getItem('festa_aniv_pulou'); } catch {}
@@ -1429,7 +1695,7 @@ function ligarAniv() {
     try {
       await rpc('ev_cliente_aniversario', {p_token: token, p_dia: d, p_mes: m});
       D.eu.tem_aniversario = true;
-      $('#aniv').innerHTML = `<p style="margin:0">Anotado: <b>${d} de ${MESES[m-1]}</b>. 🎉</p>`;
+      $('#aniv').innerHTML = `<p style="margin:0">Anotado: <b>${d} de ${MESES[m-1]}</b>. Grazie!</p>`;
     } catch (e) {
       $('#aniv-msg').innerHTML = `<div class="aviso">${e.codigo === 'data_invalida' ? 'Essa data não existe. Confira o dia.' : 'Não consegui salvar. Tente de novo.'}</div>`;
     }
@@ -1442,26 +1708,28 @@ function qrSvg(texto) {
 }
 function abrirVoucher(p, novo) {
   if (!p) return;
-  const titulo = p.bistro ? `O garçom leva até a bistrô ${p.bistro}`
-               : (p.tipo === 'comida' && p.retirar) ? 'Retire ao lado do Bar do 2º piso'
-               : p.retirar ? `Retire no ${nomeBar(p.retirar)}` : (p.tipo === 'bebida' ? 'Mostre no bar' : 'Mostre a um garçom');
-  abrirFolha(`<div class="voucher">
-    ${novo ? `<div class="aviso info" style="margin:0 0 6px"><b class="it" style="font-size:26px;margin-right:4px">Perfetto!</b> Pedido feito. ${p.bistro ? 'Já está sendo preparado.' : (p.tipo === 'comida' ? 'A gente avisa quando ficar pronta.' : 'Mostre este voucher no balcão.')}</div>` : ''}
-    <div class="onde">${esc(titulo)}</div>
-    <div class="cod-g">${p.voucher}</div>
-    <h3 style="margin-top:6px">${p.qtd}× ${esc(p.nome)}</h3>
-    <div class="quem">Pulseira ${D.eu.pulseira} · ${esc(D.eu.nome)}</div>
-    ${p.entregue ? '<div class="usado">Já entregue</div>' : `<div class="qr peq">${qrSvg(EQUIPE + 'V-' + p.voucher)}</div>
-      <div class="qr-leg">Para a equipe: o bar ou o garçom lê e dá a entrega como feita.</div>`}
-    <div style="display:grid;gap:10px;margin-top:14px">
-      ${p.entregue ? '' : `<button class="bt creme" style="padding:14px;font-size:17px" id="recebi">✓ ${BOTAO_RECEBI(p)}</button>`}
-      <button class="bt ouro" style="padding:14px" id="mais-um">Pedir mais alguma coisa</button>
-      <button class="bt linha" style="padding:12px" id="ok">Fechar</button>
-    </div>${novo ? seguirLinha(3) + anivHtml() : ''}</div>`);
+  const onde = p.bistro ? `O garçom leva até a bistrô ${p.bistro}`
+             : (p.tipo === 'comida' && p.retirar) ? 'Retire ao lado do Bar do 2º piso'
+             : p.retirar ? `Retire no ${nomeBar(p.retirar)}` : (p.tipo === 'bebida' ? 'Mostre no bar' : 'Mostre a um garçom');
+  const instr = p.bistro ? 'Já está sendo preparado.' : (p.tipo === 'comida' ? 'A gente avisa quando ficar pronta.' : 'Mostre este bilhete no balcão.');
+  abrirFolha(`<div class="voucher ${novo ? 'novo' : ''}">
+    ${novo ? `<p class="it vou-ok palavra">Perfetto!</p><p class="vou-sub">${instr}</p>` : ''}
+    <div class="bilhete ${p.entregue ? 'entregue' : ''}">
+      <div class="b-casa">SPESSO · JARDIM DO ÉDER</div>
+      <div class="b-nome">${pn()}</div>
+      <div class="b-mesa">MESA ${D.eu.pulseira}</div>
+      <div class="b-item">${p.qtd}× ${esc(p.nome)}</div>
+      ${p.entregue ? '<div class="carimbo">Entregue</div>' : `<div class="qr">${qrSvg(EQUIPE + 'V-' + p.voucher)}</div>`}
+      <div class="b-cod">${p.voucher}</div>
+      <div class="corte"></div>
+      <div class="b-onde">${esc(onde)}</div>
+    </div>
+    <div style="display:grid;gap:8px;margin-top:16px">
+      ${p.entregue ? '' : `<button class="bt ouro" style="padding:16px;font-size:18px" id="recebi">${BOTAO_RECEBI(p)}</button>`}
+      <button class="bt" style="padding:12px;color:var(--texto-2)" id="ok">Fechar</button>
+    </div></div>`);
   $('#ok').onclick = fecharFolha;
   const rb = $('#recebi'); if (rb) rb.onclick = () => confirmarRecebi(p);
-  ligarAniv();
-  $('#mais-um').onclick = () => { fecharFolha(); aba = 'cardapio'; desenhar(); };
 }
 
 async function pedirConta() {
@@ -1476,7 +1744,7 @@ async function pedirConta() {
       <div class="cod">${r.conta_codigo}</div>
       <h3 style="margin-top:10px">Total ${brl(c.total)}</h3>
       ${c.falta_minimo > 0 ? `<p class="d">Inclui o complemento da consumação mínima: ${brl(c.falta_minimo)}.</p>` : ''}
-      <div class="quem">Pulseira ${D.eu.pulseira} · ${esc(D.eu.nome)}</div>
+      <div class="quem">Mesa ${D.eu.pulseira} · ${esc(D.eu.nome.split(' ')[0])}</div>
       <p class="d" style="margin-top:10px">Se pedir mais alguma coisa, a conta reabre sozinha.</p>
       <button class="bt linha" style="padding:12px;margin-top:16px;width:100%" id="ok">Fechar</button></div>`);
     $('#ok').onclick = fecharFolha;
@@ -1497,7 +1765,12 @@ setInterval(() => {
     const virou = D && D.eu && (D.eu.pulseira !== d.eu.pulseira || D.eu.liberada !== d.eu.liberada);
     D = d;
     if (virou) { desenhar(); window.scrollTo(0, y); return; } $('#rede').classList.add('oculto');
-    if (mudou && aba !== 'cardapio') { desenhar(); window.scrollTo(0, y); }
+    const escolhendo = document.activeElement && document.activeElement.closest && document.activeElement.closest('#aniv');
+    if (mudou && aba !== 'cardapio' && !escolhendo) {
+      const ad = $('#aniv-d') ? $('#aniv-d').value : '', am = $('#aniv-m') ? $('#aniv-m').value : '';
+      desenhar(); window.scrollTo(0, y);
+      if ($('#aniv-d')) { $('#aniv-d').value = ad; $('#aniv-m').value = am; }
+    }
     else if (mudou) { desenharConsumo(); }
     checarProntos();
   }).catch(() => $('#rede').classList.remove('oculto'));

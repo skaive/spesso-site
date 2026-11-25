@@ -44,6 +44,12 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 .saida{border-radius:16px;padding:16px 12px;text-align:center;font-size:28px;font-weight:800;line-height:1.1;}
 .saida small{display:block;font-size:15px;font-weight:700;margin-top:6px;}
 .saida.ok{background:#1f8a4c;color:#fff;} .saida.nao{background:#c0392b;color:#fff;}
+.mural-grade{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mural-it{background:var(--card,rgba(255,255,255,.05));border-radius:14px;padding:8px;}
+.mural-it img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:10px;display:block;}
+.mural-it.escondida img{opacity:.3;filter:grayscale(1);}
+.mural-it .bt{width:100%;padding:10px;}
+.erro-bt{background:#c0392b;color:#fff;}
 .tag.bistro{background:var(--ouro);color:#1d1208;font-size:14px;}
 .res{border-width:2px;}
 .res.bom{border-color:var(--ok);} .res.ruim{border-color:var(--erro);}
@@ -109,7 +115,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v6 25/11/2026';
+const VER='festa-equipe-v8 25/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -230,6 +236,12 @@ function desenhar(){
       <div class="achados" id="achados"></div>
       <button class="bt linha" style="width:100%;margin-top:10px" id="porta">Não está na lista: cadastrar</button></div>`;
   }
+  if(S.papel==='gestao'){
+    h+=`<h2>Mural da noite</h2><div class="card"><p class="mut">As fotos que as convidadas mandaram para a TV. Esconda qualquer uma na hora.</p>
+      <div class="lin" style="margin-top:8px"><button class="bt ouro" id="mural">Ver as fotos</button>
+      <button class="bt linha" id="abrir-tv">Link da TV</button></div>
+      <div id="tv-link"></div></div>`;
+  }
   const meus = S.papel==='garcom' ? pend.filter(p=>p.garcom===S.nome) : [];
   const resto = S.papel==='garcom' ? pend.filter(p=>p.garcom!==S.nome) : pend;
   if(S.papel==='garcom') h+=`<h2>Minhas entregas (${meus.length})</h2>`+(meus.map(pedidoCard).join('')||'<p class="mut">Assuma uma entrega abaixo ou leia o voucher da cliente. Quando ela tocar em "Recebi", o pedido sai daqui.</p>');
@@ -251,6 +263,18 @@ function desenhar(){
     catch(e){ b.disabled=false; alert(msgErro(e)); }
   });
   const pb=$('#porta'); if(pb) pb.onclick=()=>telaPorta();
+  const mb=$('#mural'); if(mb) mb.onclick=()=>telaMural();
+  /* a TV abre com um link só dela (mostra o mural e nada mais): no notebook da TV ninguém entra na tela da equipe */
+  const tvb=$('#abrir-tv'); if(tvb) tvb.onclick=async()=>{
+    try{ const k=await rpc('ev_mural_tv_link',{p_sessao:S.sessao});
+      const u=`https://spesso.com.br/festa/mural/?e=${encodeURIComponent(SLUG)}&tv=${encodeURIComponent(k)}`;
+      $('#tv-link').innerHTML=`<p class="mut" style="margin-top:10px">Abra este link no notebook da TV (mande para você no WhatsApp). Ele só mostra o mural. No notebook da TV, não entre na tela da equipe.</p>
+        <p style="word-break:break-all;font-size:13px;margin-top:6px;user-select:all">${esc(u)}</p>
+        <div class="lin" style="margin-top:8px"><button class="bt ouro" id="tv-copiar">Copiar o link</button>
+        <a class="bt linha" href="${esc(u)}" target="_blank" rel="noopener" style="text-decoration:none">Abrir aqui</a></div>`;
+      $('#tv-copiar').onclick=()=>{ try{ navigator.clipboard.writeText(u); $('#tv-copiar').textContent='Copiado'; }catch{} };
+    }catch(e){ alert(msgErro(e)); }
+  };
   const lp=$('#lp-ok'); if(lp) lp.onclick=()=>{ const n=parseInt($('#lp-num').value,10); if(n){ bisEq=null; telaLancar(n); } };
   const ln=$('#lp-num'); if(ln) ln.onkeydown=e=>{ if(e.key==='Enter') lp.click(); };
   document.querySelectorAll('[data-conf]').forEach(b=>b.onclick=async()=>{
@@ -277,6 +301,30 @@ async function ler(texto){
   }catch(e){ if(e.codigo==='sessao_invalida'){S=null;return telaLogin();} resultado(`<div class="card res ruim" id="res"><div class="grande-txt">${esc(msgErro(e))}</div>${voltar()}</div>`); }
 }
 const voltar=()=>`<div class="acoes"><button class="bt linha" onclick="fechar()">Voltar</button></div>`;
+/* Mural da noite (sql/666): a foto só chega aqui se a convidada tocou em "Mostrar no mural";
+   a gestão esconde (ou devolve) qualquer uma; a TV some com ela no próximo ciclo. */
+async function telaMural(){
+  let fotos=[];
+  try{ fotos=await rpc('ev_mural_equipe',{p_sessao:S.sessao})||[]; }catch(e){ alert(msgErro(e)); return; }
+  const url=c=>`${SB}/storage/v1/object/public/festa-mural/${c}`;
+  const vis=fotos.filter(f=>!f.oculta).length;
+  resultado(`<div id="res"><div class="lin" style="margin-bottom:12px"><button class="bt linha" id="m-volta">‹ Voltar</button>
+      <button class="bt linha" id="m-atu">Atualizar</button></div>
+    <h2 style="margin-top:0">Mural da noite · ${vis} na TV${fotos.length>vis?` · ${fotos.length-vis} escondidas`:''}</h2>
+    ${fotos.length?'':'<p class="mut">Nenhuma foto ainda.</p>'}
+    <div class="mural-grade">${fotos.map(f=>`<div class="mural-it ${f.oculta?'escondida':''}">
+      <img src="${url(f.caminho)}" alt="" loading="lazy"/>
+      <div class="mut" style="margin:6px 0">${esc(f.nome.split(' ')[0])} · puls. ${f.pulseira} · ${f.hora}${f.oculta?`<br/>escondida por ${esc(f.oculta_por||'')}`:''}</div>
+      ${f.oculta_por==='a própria convidada' ? '<p class="mut" style="font-size:13px;text-align:center;padding:8px 0">Ela mesma tirou</p>'
+        : `<button class="bt ${f.oculta?'linha':'erro-bt'}" data-mural="${f.id}" data-oculta="${f.oculta?0:1}">${f.oculta?'Mostrar de novo':'Esconder da TV'}</button>`}</div>`).join('')}</div></div>`);
+  $('#m-volta').onclick=fechar;
+  $('#m-atu').onclick=telaMural;
+  document.querySelectorAll('[data-mural]').forEach(b=>b.onclick=async()=>{
+    b.disabled=true;
+    try{ await rpc('ev_mural_ocultar',{p_sessao:S.sessao,p_id:+b.dataset.mural,p_oculta:b.dataset.oculta==='1'}); telaMural(); }
+    catch(e){ b.disabled=false; alert(msgErro(e)); }
+  });
+}
 function resultado(h){ $('#app').innerHTML=h; window.scrollTo(0,0); }
 function fechar(){ const r=$('#res'); if(r) r.remove(); atualizar(); }
 
