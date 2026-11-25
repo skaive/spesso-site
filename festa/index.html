@@ -295,7 +295,7 @@ img{display:block;max-width:100%;}
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v11 25/11/2026';
+const VER = 'festa-v14 25/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -849,8 +849,11 @@ const FILTROS = [
   ['noite', 'Noite', 'contrast(1.2) saturate(1.2) brightness(.95) hue-rotate(10deg)'],
   ['pb', 'P&B', 'grayscale(1) contrast(1.15) brightness(1.05)'],
 ];
+/* Renato 25/11: "esses efeitos de coroa da selva, onça, luzes podiam ser retirados; ninguém vai fazer foto com isso.
+   Tem que ser elegante, sempre." A fileira saiu da câmera; a foto fica só com filtro e moldura. */
 const EFEITOS = [['nenhum', 'Sem efeito'], ['coroa', 'Coroa da selva'], ['onca', 'Onça'], ['luzes', 'Luzes'], ['brilho', 'Pele de festa']];
-const MOLDURAS = [['folhas', 'Folhas'], ['feras', 'Feras'], ['fita', 'Fita'], ['polaroid', 'Polaroid'], ['limpa', 'Sem moldura']];
+const MOLDURAS = [['feras', 'Onça'], ['rosa', 'Onça rosa'], ['pantera', 'Pantera'], ['tigre', 'Tigre'], ['zebra', 'Zebra'],
+  ['folhas', 'Folhas'], ['fita', 'Fita'], ['polaroid', 'Polaroid'], ['limpa', 'Sem moldura']];
 const FORMATOS = [['feed', 'Feed 4:5', 1080, 1350], ['story', 'Story 9:16', 1080, 1920]];
 
 /* o Safari do iPhone não aplica ctx.filter: testa de verdade (pinta vermelho em cinza e lê de volta) */
@@ -1015,14 +1018,13 @@ async function abrirCamera() {
       <button class="bt linha" id="cam-virar">↺</button></div>
     <div class="cam-quadro"><div class="cam-caixa"><video playsinline muted autoplay></video><canvas class="cam-molde"></canvas><img class="cam-foto oculto" alt=""/></div></div>
     <div class="cam-ops">
-      ${linha('cam-efeitos', EFEITOS, 'nenhum', 'e')}
       ${linha('cam-filtros', FILTROS, 'dourado', 'f')}
-      ${linha('cam-molduras', MOLDURAS, 'folhas', 'm')}
+      ${linha('cam-molduras', MOLDURAS, 'feras', 'm')}
     </div>
     <div class="cam-acoes" id="cam-acoes"></div>`;
   document.body.appendChild(v);
   const video = v.querySelector('video'), molde = v.querySelector('.cam-molde'), fotoEl = v.querySelector('.cam-foto'), caixa = v.querySelector('.cam-caixa');
-  let filtro = 'dourado', moldura = 'folhas', efeito = 'nenhum', formato = 'feed', frente = true;
+  let filtro = 'dourado', moldura = 'feras', efeito = 'nenhum', formato = 'feed', frente = true;
   let stream = null, origem = null, rostos = null, rosto = null, vivo = true, final = null, camadaMoldura = null;
   const dims = () => { const f = FORMATOS.find(z => z[0] === formato); return [f[2], f[3]]; };
 
@@ -1033,7 +1035,7 @@ async function abrirCamera() {
   async function ligar() {
     parar();
     try {
-      stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: frente ? 'user' : 'environment', width: {ideal: 1440}, height: {ideal: 1920}}, audio: false});
+      stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: frente ? 'user' : 'environment', width: {ideal: 1920}, height: {ideal: 1920}}, audio: false});
       video.srcObject = stream; await video.play();
       video.classList.toggle('espelho', frente);
     } catch (e) {
@@ -1095,19 +1097,42 @@ async function abrirCamera() {
   v.querySelector('#cam-virar').onclick = () => { if (origem) return; frente = !frente; ligar(); };
 
   /* congela o quadro da câmera (com os rostos daquele instante) e monta a final */
-  let rostoFoto = null;
-  function disparar() {
-    if (!video.videoWidth) return;
-    const c = document.createElement('canvas'); c.width = video.videoWidth; c.height = video.videoHeight;
-    const x = c.getContext('2d');
-    if (frente) { x.translate(c.width, 0); x.scale(-1, 1); }   // a selfie sai como ela se vê no espelho
-    x.drawImage(video, 0, 0);
-    rostoFoto = null;
-    if (rostos && (efeito === 'coroa' || efeito === 'onca')) {
-      try { const r = rostos.detectForVideo(video, performance.now() + 1); rostoFoto = {lms: r.faceLandmarks || [], vw: video.videoWidth, vh: video.videoHeight, espelho: frente}; } catch {}
-    }
-    origem = c; if (navigator.vibrate) navigator.vibrate(30);
+  let rostoFoto = null, disparando = false;
+  async function fotoDoSensor() {
+    if (!window.ImageCapture || !stream) return null;
+    try {
+      const ic = new ImageCapture(stream.getVideoTracks()[0]);
+      const blob = await Promise.race([ic.takePhoto(), new Promise((_, n) => setTimeout(() => n(new Error('tempo')), 3000))]);
+      const bmp = await createImageBitmap(blob, {imageOrientation: 'from-image'});
+      const emPe = video.videoHeight > video.videoWidth;
+      if ((bmp.height > bmp.width) !== emPe || bmp.width <= video.videoWidth) { bmp.close && bmp.close(); return null; }
+      return bmp;
+    } catch { return null; }
+  }
+  async function disparar() {
+    if (!video.videoWidth || disparando) return;
+    disparando = true;
+    if (navigator.vibrate) navigator.vibrate(30);
     v.querySelector('.cam-quadro').classList.add('flash'); setTimeout(() => v.querySelector('.cam-quadro').classList.remove('flash'), 250);
+    const querRosto = rostos && (efeito === 'coroa' || efeito === 'onca');
+    let rVideo = null;                                       // o rosto do quadro do vídeo, caso o sensor falhe
+    if (querRosto) { try { rVideo = rostos.detectForVideo(video, performance.now() + 1); } catch {} }
+    const sensor = await fotoDoSensor();
+    const fonte = sensor || video;
+    const fw = sensor ? sensor.width : video.videoWidth, fh = sensor ? sensor.height : video.videoHeight;
+    const c = document.createElement('canvas'); c.width = fw; c.height = fh;
+    const x = c.getContext('2d');
+    if (frente) { x.translate(fw, 0); x.scale(-1, 1); }       // a selfie sai como ela se vê no espelho
+    x.drawImage(fonte, 0, 0, fw, fh);
+    rostoFoto = null;
+    if (querRosto) {
+      let r = rVideo;
+      if (sensor) { try { r = rostos.detectForVideo(sensor, performance.now() + 2); } catch {} }
+      if (r) rostoFoto = {lms: r.faceLandmarks || [], vw: fw, vh: fh, espelho: frente};
+      if (r === rVideo && sensor) rostoFoto = null;          // rosto de um quadro, foto de outro: melhor sem
+    }
+    if (sensor && sensor.close) sensor.close();
+    origem = c; disparando = false;
     parar(); montarFinal();
   }
   function daGaleria(e) {
@@ -1129,6 +1154,7 @@ async function abrirCamera() {
     const sw = origem.width || origem.naturalWidth, sh = origem.height || origem.naturalHeight;
     const esc = Math.max(W / sw, H / sh), dw = sw * esc, dh = sh * esc;     // cobre o quadro, corta o excesso
     const f = FILTROS.find(z => z[0] === filtro)[2];
+    x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
     if (FILTRO_CANVAS) x.filter = f;
     x.drawImage(origem, (W - dw) / 2, (H - dh) / 2, dw, dh);
     x.filter = 'none';
@@ -1232,8 +1258,8 @@ async function desenharMoldura(x, m) {
     x.font = '700 30px Alegreya, Georgia, serif'; x.fillStyle = '#F3C766';
     x.fillText('@spesso.rio  ·  27·11·26', W / 2, H - 38);
     x.restore();
-  } else if (m === 'feras') {
-    desenharFeras(x, W, H);
+  } else if (PELES[m]) {
+    desenharFeras(x, W, H, m);
   } else if (m === 'fita') {
     x.save();
     x.translate(W / 2, H - 150); x.rotate(-0.035);
@@ -1268,8 +1294,17 @@ async function desenharMoldura(x, m) {
   }
 }
 
-/* moldura Feras: a pele da onça em volta da foto ("Solte suas feras", o drink da casa) */
-function desenharFeras(x, W, H) {
+/* molduras Feras: a pele do bicho em volta da foto ("Solte suas feras", o drink da casa).
+   fundo: 3 cores do pelo (centro → borda); manchas: rosetas (onças) ou listras (tigre, zebra). */
+const PELES = {
+  feras:   {fundo: ['#E7B454', '#D29A3C', '#A8701F'], miolo: 'rgba(150,88,24,.75)', mancha: '#2B1A0D', tipo: 'rosetas'},
+  rosa:    {fundo: ['#F7C3D2', '#EC98B3', '#CF6A8C'], miolo: 'rgba(205,98,138,.7)', mancha: '#3D1427', tipo: 'rosetas'},
+  pantera: {fundo: ['#2E2925', '#1E1A17', '#0D0B0A'], miolo: 'rgba(58,50,42,.9)', mancha: 'rgba(0,0,0,.9)', tipo: 'rosetas', fio: '#C9A04A'},
+  tigre:   {fundo: ['#F2A445', '#E27D22', '#B65A12'], mancha: '#1E120A', tipo: 'listras'},
+  zebra:   {fundo: ['#FBF8F1', '#F2EDE2', '#E3DCCD'], mancha: '#141110', tipo: 'listras', grossa: 1.35},
+};
+function desenharFeras(x, W, H, qual) {
+  const pele = PELES[qual] || PELES.feras;
   const lado = Math.round(W * .055), cima = lado, baixo = Math.round(H * .15), r = 26;
   const jx = lado, jy = cima, jw = W - lado * 2, jh = H - cima - baixo;      // a janela da foto
   const janela = c => { c.beginPath(); c.roundRect ? c.roundRect(jx, jy, jw, jh, r) : c.rect(jx, jy, jw, jh); };
@@ -1277,34 +1312,9 @@ function desenharFeras(x, W, H) {
   const ox = o.getContext('2d');
   /* pelo: dourado, mais quente no meio, mais escuro nas bordas */
   const g = ox.createRadialGradient(W / 2, H / 2, W * .2, W / 2, H / 2, Math.max(W, H) * .75);
-  g.addColorStop(0, '#E7B454'); g.addColorStop(.6, '#D29A3C'); g.addColorStop(1, '#A8701F');
+  g.addColorStop(0, pele.fundo[0]); g.addColorStop(.6, pele.fundo[1]); g.addColorStop(1, pele.fundo[2]);
   ox.fillStyle = g; ox.fillRect(0, 0, W, H);
-  /* rosetas: miolo ocre e um anel quebrado de manchas escuras; a semente fixa faz a pele ser sempre a mesma */
-  let s = 7;
-  const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
-  const passo = W * .085;
-  for (let yy = -passo; yy < H + passo; yy += passo * .86) {
-    for (let xx = -passo; xx < W + passo; xx += passo) {
-      const cx = xx + (rnd() - .5) * passo * .7 + (Math.round(yy / passo) % 2 ? passo / 2 : 0);
-      const cy = yy + (rnd() - .5) * passo * .6;
-      const rr = passo * (.26 + rnd() * .14);
-      if (rnd() < .2) {                                                     // pinta solta, pequena
-        ox.fillStyle = '#2B1A0D'; ox.beginPath();
-        ox.ellipse(cx, cy, rr * .3, rr * .24, rnd() * 3, 0, Math.PI * 2); ox.fill(); continue;
-      }
-      ox.fillStyle = 'rgba(150,88,24,.75)'; ox.beginPath();
-      ox.ellipse(cx, cy, rr * .72, rr * .6, rnd() * 3, 0, Math.PI * 2); ox.fill();
-      const n = 4 + Math.floor(rnd() * 3), a0 = rnd() * Math.PI * 2;
-      ox.fillStyle = '#2B1A0D';
-      for (let k = 0; k < n; k++) {
-        const a = a0 + k * Math.PI * 2 / n + (rnd() - .5) * .5;
-        ox.beginPath();
-        ox.ellipse(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * .9, rr * (.36 + rnd() * .16), rr * (.2 + rnd() * .08),
-                   a + Math.PI / 2, 0, Math.PI * 2);
-        ox.fill();
-      }
-    }
-  }
+  if (pele.tipo === 'listras') listras(ox, W, H, pele); else rosetas(ox, W, H, pele);
   /* abre a janela da foto */
   ox.globalCompositeOperation = 'destination-out';
   janela(ox); ox.fill();
@@ -1316,7 +1326,7 @@ function desenharFeras(x, W, H) {
   x.lineWidth = 40; x.strokeStyle = 'rgba(0,0,0,.55)'; janela(x); x.stroke();
   x.restore();
   x.drawImage(o, 0, 0);
-  x.save(); x.lineWidth = 4; x.strokeStyle = '#F3C766'; janela(x); x.stroke(); x.restore();
+  x.save(); x.lineWidth = 4; x.strokeStyle = pele.fio || '#F3C766'; janela(x); x.stroke(); x.restore();
   /* faixa de baixo: escurece a pele para o texto respirar */
   const fx = x.createLinearGradient(0, H - baixo, 0, H);
   fx.addColorStop(0, 'rgba(30,16,6,.35)'); fx.addColorStop(1, 'rgba(30,16,6,.7)');
@@ -1329,6 +1339,73 @@ function desenharFeras(x, W, H) {
   x.font = `700 ${Math.round(baixo * .15)}px Alegreya, Georgia, serif`; x.fillStyle = '#F3C766';
   x.fillText('Jardim do Éder  ·  @spesso.rio  ·  27·11·26', W / 2, H - baixo * .18);
   x.restore();
+}
+
+function rosetas(ox, W, H, pele) {
+  /* rosetas: miolo ocre e um anel quebrado de manchas escuras; a semente fixa faz a pele ser sempre a mesma */
+  let s = 7;
+  const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+  const passo = W * .085;
+  for (let yy = -passo; yy < H + passo; yy += passo * .86) {
+    for (let xx = -passo; xx < W + passo; xx += passo) {
+      const cx = xx + (rnd() - .5) * passo * .7 + (Math.round(yy / passo) % 2 ? passo / 2 : 0);
+      const cy = yy + (rnd() - .5) * passo * .6;
+      const rr = passo * (.26 + rnd() * .14);
+      if (rnd() < .2) {                                                     // pinta solta, pequena
+        ox.fillStyle = pele.mancha; ox.beginPath();
+        ox.ellipse(cx, cy, rr * .3, rr * .24, rnd() * 3, 0, Math.PI * 2); ox.fill(); continue;
+      }
+      ox.fillStyle = pele.miolo; ox.beginPath();
+      ox.ellipse(cx, cy, rr * .72, rr * .6, rnd() * 3, 0, Math.PI * 2); ox.fill();
+      const n = 4 + Math.floor(rnd() * 3), a0 = rnd() * Math.PI * 2;
+      ox.fillStyle = pele.mancha;
+      for (let k = 0; k < n; k++) {
+        const a = a0 + k * Math.PI * 2 / n + (rnd() - .5) * .5;
+        ox.beginPath();
+        ox.ellipse(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * .9, rr * (.36 + rnd() * .16), rr * (.2 + rnd() * .08),
+                   a + Math.PI / 2, 0, Math.PI * 2);
+        ox.fill();
+      }
+    }
+}
+}
+/* listras: entram de cada borda para dentro, onduladas, afinando na ponta e de tamanhos diferentes (como no bicho) */
+function listras(ox, W, H, pele) {
+  let s = 11;
+  const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+  const gr = pele.grossa || 1, banda = W * .055, fundoBaixo = H * .15;
+  const lados = [                                      // origem na borda, direção para dentro, ao longo da borda, profundidade
+    {o: (u) => [u * W, -10], in: [0, 1], comp: W, fundo: banda},
+    {o: (u) => [u * W, H + 10], in: [0, -1], comp: W, fundo: fundoBaixo},
+    {o: (u) => [-10, u * H], in: [1, 0], comp: H, fundo: banda},
+    {o: (u) => [W + 10, u * H], in: [-1, 0], comp: H, fundo: banda},
+  ];
+  ox.fillStyle = pele.mancha;
+  for (const L of lados) {
+    const passo = W * .052 * gr;
+    for (let d = -passo; d < L.comp + passo; d += passo * (.75 + rnd() * .5)) {
+      const [x0, y0] = L.o(d / L.comp), [ix, iy] = L.in, px = -iy, py = ix;   // perp = ao longo da borda
+      const len = (L.fundo + 10) * (.55 + rnd() * .9);
+      const w = passo * (.32 + rnd() * .22) * (gr > 1 ? 1.15 : 1);
+      const amp = passo * (.12 + rnd() * .2), fase = rnd() * 6, incl = (rnd() - .5) * .6, passos = 16;
+      const pt = (f, lado) => {
+        const meio = Math.sin(f * Math.PI * 1.4 + fase) * amp + incl * f * len;
+        const hw = (w / 2) * Math.pow(1 - f, .7) * (lado);
+        return [x0 + ix * f * len + px * (meio + hw), y0 + iy * f * len + py * (meio + hw)];
+      };
+      ox.beginPath();
+      for (let i = 0; i <= passos; i++) { const [x, y] = pt(i / passos, 1); i ? ox.lineTo(x, y) : ox.moveTo(x, y); }
+      for (let i = passos; i >= 0; i--) { const [x, y] = pt(i / passos, -1); ox.lineTo(x, y); }
+      ox.closePath(); ox.fill();
+      if (rnd() < .25) {                               // às vezes a listra se divide (garfo), como no tigre
+        const f0 = .35 + rnd() * .2, [bx, by] = pt(f0, 0), l2 = len * (1 - f0) * .7, ang = (rnd() < .5 ? 1 : -1) * .5;
+        const dx = ix * Math.cos(ang) - iy * Math.sin(ang), dy = ix * Math.sin(ang) + iy * Math.cos(ang);
+        ox.beginPath(); ox.moveTo(bx - dy * w * .25, by + dx * w * .25);
+        ox.quadraticCurveTo(bx + dx * l2 * .5, by + dy * l2 * .5 + amp * .3, bx + dx * l2, by + dy * l2);
+        ox.lineTo(bx + dy * w * .25, by - dx * w * .25); ox.closePath(); ox.fill();
+      }
+    }
+  }
 }
 
 /* aniversário (dia e mês): para convidar a fazer a festa dela aqui */
