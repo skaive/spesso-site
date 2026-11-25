@@ -41,6 +41,9 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 .tag{display:inline-block;font-size:12.5px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--selva-3);color:var(--texto-2);}
 .tag.erro{background:rgba(255,122,87,.15);color:var(--erro);} .tag.ok{background:rgba(63,185,107,.18);color:#8EE6AE;}
 .tag.vivo{background:rgba(224,169,63,.16);color:var(--ouro-2);}
+.saida{border-radius:16px;padding:16px 12px;text-align:center;font-size:28px;font-weight:800;line-height:1.1;}
+.saida small{display:block;font-size:15px;font-weight:700;margin-top:6px;}
+.saida.ok{background:#1f8a4c;color:#fff;} .saida.nao{background:#c0392b;color:#fff;}
 .tag.bistro{background:var(--ouro);color:#1d1208;font-size:14px;}
 .res{border-width:2px;}
 .res.bom{border-color:var(--ok);} .res.ruim{border-color:var(--erro);}
@@ -106,7 +109,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v5 24/11/2026';
+const VER='festa-equipe-v6 25/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -177,10 +180,11 @@ function pedidoCard(p){
     : p.pronto ? '<span class="tag ok">pronto na cozinha</span>' : '<span class="tag">no Frest</span>';
   return `<div class="card"><div class="lin"><div><b>${p.qtd}× ${esc(p.nome)}</b>
     <div class="mut">${esc(p.cliente)} · mesa ${p.mesa}${p.local?' · '+esc(p.local):''} · há ${minutos(p.criado_em)} min</div>
-    <div style="margin-top:4px">${p.bistro?`<span class="tag bistro">BISTRÔ ${p.bistro}</span> `:p.retirar?`<span class="tag">pega no bar ${p.retirar==='cima'?'2º':'1º'} piso</span> `:''}${st}${p.garcom?` <span class="tag">${esc(p.garcom)}</span>`:''}</div>
+    <div style="margin-top:4px">${p.bistro?`<span class="tag bistro">BISTRÔ ${p.bistro}</span> `:p.retirar?`<span class="tag${p.tipo==='comida'?' bistro':''}">${p.tipo==='comida'?'RETIRADA 2º PISO':'pega no bar '+(p.retirar==='cima'?'2º':'1º')+' piso'}</span> `:''}${st}${p.garcom?` <span class="tag">${esc(p.garcom)}</span>`:''}</div>
     ${p.status==='erro'&&p.erro?`<div class="mut" style="margin-top:4px">${esc(p.erro)}</div>`:''}</div>
     <div class="puls"><small>PULS.</small>${p.pulseira}</div></div>
     ${S.papel==='garcom'&&p.bistro&&!p.garcom?`<div class="acoes"><button class="bt ouro" data-assumir="${p.voucher}">É meu: levo à bistrô ${p.bistro}</button></div>`:''}
+    ${S.papel==='garcom'&&p.tipo==='comida'&&p.retirar&&!p.bistro&&!p.garcom?`<div class="acoes"><button class="bt ouro" data-assumir="${p.voucher}">É meu: levo à retirada do 2º piso</button></div>`:''}
     ${S.papel==='garcom'&&p.garcom===S.nome?`<div class="acoes"><button class="bt ok" data-entreguei="${p.voucher}">Entreguei${p.bistro?' na bistrô '+p.bistro:''}</button></div>`:''}
     ${p.status==='erro'&&(S.papel==='gestao'||S.papel==='caixa')?`<div class="acoes"><button class="bt linha" data-relancar="${p.voucher}">Conferi no Frest: não está lá. Lançar de novo</button></div>`:''}
   </div>`;
@@ -300,7 +304,7 @@ function telaVoucher(r){
     ${cancel?`<div class="aviso">PEDIDO CANCELADO${p.cancelado_por?' por '+esc(p.cancelado_por):''}. Não entregue.</div>`:''}
     <div class="lin" style="margin-top:6px"><div class="grande-txt">${p.qtd}× ${esc(p.nome)}</div><div class="puls"><small>PULS.</small>${c.pulseira}</div></div>
     <p style="margin-top:8px"><b>${esc(c.nome)}</b> · mesa ${c.mesa}${p.local?' · '+esc(p.local):''}</p>
-    ${p.bistro?`<p style="margin-top:6px"><span class="tag bistro">ENTREGAR NA BISTRÔ ${p.bistro}</span></p>`:p.retirar?`<p class="mut">Ela pega no bar do ${p.retirar==='cima'?'2º':'1º'} piso.</p>`:''}
+    ${p.bistro?`<p style="margin-top:6px"><span class="tag bistro">ENTREGAR NA BISTRÔ ${p.bistro}</span></p>`:(p.tipo==='comida'&&p.retirar)?`<p style="margin-top:6px"><span class="tag bistro">RETIRADA AO LADO DO BAR DO 2º PISO</span></p>`:p.retirar?`<p class="mut">Ela pega no bar do ${p.retirar==='cima'?'2º':'1º'} piso.</p>`:''}
     <p class="mut">Pedido às ${hora(p.criado_em)} · ${p.status==='lancado'?'no Frest':p.status==='erro'?'NÃO entrou no Frest':'indo pro Frest'}</p>
     <p class="mut">Confira o número da pulseira no braço dela.</p>
     <div class="acoes">${acoes}<button class="bt linha" onclick="fechar()">Voltar</button></div></div>`);
@@ -335,7 +339,8 @@ function telaConta(r){
   }
   let forma=null;
   resultado(`<div class="card res ${paga?'ruim':'bom'}" id="res">
-    ${paga?`<div class="aviso">JÁ PAGA às ${hora(c.liberada_em)} (${esc(c.liberada_por)}).</div>`:''}
+    <div class="saida ${paga?'ok':'nao'}">${paga?`CONTA PAGA ✓<small>saída liberada · paga às ${hora(c.liberada_em)}</small>`:`CONTA EM ABERTO<small>não pode sair: mandar ao caixa</small>`}</div>
+    <p class="mut" style="text-align:center;margin:6px 0 10px">Confira a pulseira no braço: tem que ser a <b style="color:var(--creme);font-size:20px">${c.pulseira}</b></p>
     <div class="lin"><div><div class="grande-txt">${esc(c.nome)}</div><div class="mut">mesa ${c.mesa}</div></div><div class="puls"><small>PULS.</small>${c.pulseira}</div></div>
     <div style="margin-top:12px">${k.itens.map(i=>`<div class="lin mut"><span>${i.qtd}× ${esc(i.nome)}${i.status==='erro'?' ⚠︎':''}</span><span>${brl(i.qtd*i.preco)}</span></div>`).join('')}</div>
     <div class="lin" style="margin-top:8px"><span>Consumo</span><b>${brl(k.consumo)}</b></div>
