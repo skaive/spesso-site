@@ -141,7 +141,35 @@ img{display:block;max-width:100%;}
 .nav button b{font-size:16px;color:var(--creme);}
 .nav button.on{background:var(--selva-3);}
 .nav button.on b{color:var(--ouro-2);}
-.espaco{height:calc(130px + var(--sab));}
+.espaco{height:calc(170px + var(--sab));}
+.dona{display:flex;align-items:center;gap:8px;padding:0 4px 8px;min-width:0;}
+.dona .num{flex:none;background:var(--ouro);color:var(--tinta);font-weight:800;border-radius:999px;min-width:28px;height:28px;display:grid;place-items:center;font-size:15px;padding:0 7px;}
+.dona b{font-size:17px;color:var(--creme);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.dona small{margin-left:auto;flex:none;font-size:12px;color:var(--texto-2);}
+.insta{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 16px 0;}
+.insta .bt{padding:11px 10px;font-size:15px;text-align:center;text-decoration:none;}
+/* ---------- câmera da festa ---------- */
+.camera{position:fixed;inset:0;z-index:80;background:#000;display:flex;flex-direction:column;
+  padding:calc(8px + env(safe-area-inset-top,0px)) 0 calc(10px + var(--sab));}
+.cam-topo{display:flex;align-items:center;justify-content:space-between;padding:0 12px 8px;color:var(--creme);font-weight:700;}
+.cam-topo .bt{padding:7px 14px;font-size:14px;}
+.cam-quadro{position:relative;flex:1;min-height:0;display:grid;place-items:center;overflow:hidden;}
+.cam-quadro video,.cam-quadro .cam-molde,.cam-quadro .cam-foto{grid-area:1/1;width:100%;height:100%;max-height:100%;aspect-ratio:4/5;object-fit:cover;}
+.cam-quadro video,.cam-quadro .cam-molde{width:auto;max-width:100%;}
+.cam-quadro .cam-foto{object-fit:contain;}
+.cam-quadro video.espelho{transform:scaleX(-1);}
+.cam-aviso{grid-area:1/1;align-self:end;color:#fff;background:rgba(0,0,0,.6);padding:10px 14px;border-radius:12px;margin:12px;text-align:center;}
+.cam-ops{padding:8px 0 0;}
+.cam-linha{display:flex;gap:8px;overflow-x:auto;padding:4px 12px;scrollbar-width:none;}
+.cam-linha::-webkit-scrollbar{display:none;}
+.cam-linha button{flex:none;border:1px solid var(--linha);border-radius:999px;padding:8px 14px;font-size:15px;color:var(--creme);}
+.cam-linha button.on{background:var(--creme);color:var(--tinta);border-color:var(--creme);font-weight:700;}
+.cam-acoes{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px 0;}
+.cam-acoes .bt{padding:12px 16px;}
+.cam-galeria,.cam-vazio{width:110px;text-align:center;}
+.cam-disparo{width:72px;height:72px;border-radius:50%;background:var(--creme);box-shadow:0 0 0 5px rgba(244,232,203,.35);}
+.cam-disparo:active{transform:scale(.94);}
+.cam-salvar{flex:1;font-size:17px;}
 
 /* ---------- folhas (sheet) ---------- */
 .veu{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.55);opacity:0;transition:opacity .2s;}
@@ -203,7 +231,7 @@ img{display:block;max-width:100%;}
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v5 24/11/2026';
+const VER = 'festa-v6 24/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -307,6 +335,7 @@ function desenhar() {
     <div class="espaco"></div>
     <div class="ver">skv-versao ${VER}</div>
     ${D.vitrine ? '' : `<nav class="barra">
+      <div class="dona"><span class="num">${eu.pulseira ?? '–'}</span><b>${esc(eu.nome)}</b><small>esta tela é sua</small></div>
       <div class="consumo" id="consumo"></div>
       <div class="nav">
         <button data-aba="cardapio"><b>Cardápio</b>pedir</button>
@@ -341,6 +370,10 @@ function desenharCardapio() {
       <button class="lado ${lado==='bebida'?'on':''}" data-lado="bebida"><img src="img/arara.jpg" alt=""/><b>Beber</b></button>
       <button class="lado ${lado==='comida'?'on':''}" data-lado="comida"><img src="img/onca.jpg" alt=""/><b>Comer</b></button>
     </div>
+    <div class="insta">
+      <button class="bt creme" id="foto-festa">📸 Foto da festa</button>
+      <a class="bt linha" href="${INSTA}" target="_blank" rel="noopener">Seguir @spesso.rio</a>
+    </div>
     <nav class="cats"><div class="in">${cats.map(c => `<a href="#c-${slug(c)}">${esc(c)}</a>`).join('')}</div></nav>
     ${lado === 'comida' && !D.vitrine ? `<p class="dica">A comida vai até a sua <b>mesa bistrô</b>. Sem bistrô? Peça a um garçom.</p>` : ''}
     ${cats.map(c => `<section class="secao" id="c-${slug(c)}"><h2>${esc(c)}</h2>
@@ -350,6 +383,7 @@ function desenharCardapio() {
     window.scrollTo({top: $('.lados').offsetTop - 6, behavior: 'smooth'});
   });
   document.querySelectorAll('.item').forEach(b => b.onclick = () => abrirItem(+b.dataset.id));
+  $('#foto-festa').onclick = abrirCamera;
   document.querySelectorAll('.item .foto').forEach(f => f.onclick = e => {
     e.stopPropagation(); const m = D.cardapio.find(x => x.id === +f.closest('.item').dataset.id); verFoto(m);
   });
@@ -636,6 +670,230 @@ function confirmarRecebi(p) {
       $('#nao').insertAdjacentHTML('afterend', '<div class="aviso">Não consegui confirmar. Confira a internet e tente de novo.</div>');
     }
   };
+}
+
+/* ---------------------------------------------------------------- foto da festa
+   Renato 24/11: "no mesmo lugar que ela bebe ela posta". Câmera dentro do app, filtro e moldura da
+   festa; a foto sai em 1080×1350 (feed e story do Instagram) e vai para a galeria ou direto para o
+   Instagram pelo compartilhar do celular. Nada sobe para o servidor: a foto é só dela. */
+const INSTA = 'https://www.instagram.com/spesso.rio/';
+const FILTROS = [
+  ['natural', 'Natural', 'none'],
+  ['dourado', 'Pôr do sol', 'sepia(.35) saturate(1.35) contrast(1.05) brightness(1.04)'],
+  ['selva', 'Selva', 'saturate(1.5) contrast(1.12) hue-rotate(-8deg)'],
+  ['pb', 'P&B', 'grayscale(1) contrast(1.15) brightness(1.05)'],
+];
+const MOLDURAS = [['folhas', 'Folhas'], ['fita', 'Fita'], ['limpa', 'Sem moldura']];
+/* o Safari do iPhone não aplica ctx.filter: testa de verdade (pinta vermelho em cinza e lê de volta) */
+const FILTRO_CANVAS = (() => { try {
+  const c = document.createElement('canvas'); c.width = c.height = 2; const x = c.getContext('2d');
+  x.filter = 'grayscale(1)'; x.fillStyle = '#f00'; x.fillRect(0, 0, 2, 2);
+  const d = x.getImageData(0, 0, 1, 1).data; return Math.abs(d[0] - d[1]) < 30;
+} catch { return false; } })();
+function filtrarPixels(x, k) {
+  const W = x.canvas.width, H = x.canvas.height, im = x.getImageData(0, 0, W, H), d = im.data;
+  const cont = (v, c) => (v - 128) * c + 128;
+  for (let i = 0; i < d.length; i += 4) {
+    let r = d[i], g = d[i + 1], b = d[i + 2];
+    const l = .299 * r + .587 * g + .114 * b;
+    if (k === 'pb') { r = g = b = cont(l, 1.15) * 1.05; }
+    else if (k === 'dourado') {
+      const sr = .393 * r + .769 * g + .189 * b, sg = .349 * r + .686 * g + .168 * b, sb = .272 * r + .534 * g + .131 * b;
+      r = r * .65 + sr * .35; g = g * .65 + sg * .35; b = b * .65 + sb * .35;
+      const l2 = .299 * r + .587 * g + .114 * b;
+      r = cont(l2 + (r - l2) * 1.35, 1.05) * 1.04; g = cont(l2 + (g - l2) * 1.35, 1.05) * 1.04; b = cont(l2 + (b - l2) * 1.35, 1.05) * 1.04;
+    } else if (k === 'selva') {
+      r = cont(l + (r - l) * 1.5, 1.12); g = cont(l + (g - l) * 1.5, 1.12); b = cont(l + (b - l) * 1.5, 1.12);
+    }
+    d[i] = r; d[i + 1] = g; d[i + 2] = b;
+  }
+  x.putImageData(im, 0, 0);
+}
+let folhasImg = null;
+function carregarFolhas() {
+  if (folhasImg) return Promise.resolve(folhasImg);
+  /* a arte tem fundo verde-escuro liso: vira transparente pelo brilho (folhas e flores ficam) */
+  return new Promise(r => { const i = new Image(); i.onload = () => {
+    const c = document.createElement('canvas'); c.width = i.width; c.height = i.height;
+    const x = c.getContext('2d'); x.drawImage(i, 0, 0);
+    const im = x.getImageData(0, 0, c.width, c.height), d = im.data;
+    for (let k = 0; k < d.length; k += 4) {
+      const l = .299 * d[k] + .587 * d[k + 1] + .114 * d[k + 2];
+      const s = Math.max(d[k], d[k + 1], d[k + 2]) - Math.min(d[k], d[k + 1], d[k + 2]);
+      const v = Math.max(l, d[k] * .9, s * .55);           // flor vermelha e folha clara ficam
+      d[k + 3] = Math.max(0, Math.min(255, (v - 52) * 255 / 28));
+    }
+    x.putImageData(im, 0, 0); folhasImg = c; r(c); }; i.onerror = () => r(null); i.src = 'img/folhas.jpg'; });
+}
+
+async function abrirCamera() {
+  const v = document.createElement('div');
+  v.className = 'camera';
+  v.innerHTML = `
+    <div class="cam-topo"><button class="bt linha" id="cam-x">Fechar</button><span>Foto da festa</span><button class="bt linha" id="cam-virar">↺ Virar</button></div>
+    <div class="cam-quadro"><video playsinline muted autoplay></video><canvas class="cam-molde"></canvas><img class="cam-foto oculto" alt=""/></div>
+    <div class="cam-ops">
+      <div class="cam-linha" id="cam-filtros">${FILTROS.map(([k, n]) => `<button data-f="${k}" class="${k === 'dourado' ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <div class="cam-linha" id="cam-molduras">${MOLDURAS.map(([k, n]) => `<button data-m="${k}" class="${k === 'folhas' ? 'on' : ''}">${n}</button>`).join('')}</div>
+    </div>
+    <div class="cam-acoes" id="cam-acoes"></div>`;
+  document.body.appendChild(v);
+  const video = v.querySelector('video'), molde = v.querySelector('.cam-molde'), fotoEl = v.querySelector('.cam-foto');
+  let filtro = 'dourado', moldura = 'folhas', frente = true, stream = null, origem = null; // origem: imagem fixa (galeria / foto tirada)
+  const W = 1080, H = 1350;
+
+  const parar = () => { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; };
+  const fechar = () => { parar(); v.remove(); };
+  v.querySelector('#cam-x').onclick = fechar;
+
+  async function ligar() {
+    parar();
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: frente ? 'user' : 'environment', width: {ideal: 1440}, height: {ideal: 1920}}, audio: false});
+      video.srcObject = stream; await video.play();
+      video.classList.toggle('espelho', frente);
+    } catch (e) {
+      v.querySelector('.cam-quadro').insertAdjacentHTML('beforeend', '<p class="cam-aviso">Não consegui abrir a câmera. Toque em "Da galeria" para escolher uma foto.</p>');
+    }
+  }
+  /* desenha a moldura por cima da câmera ao vivo (o filtro vai por CSS no vídeo) */
+  async function pintarMolde() {
+    molde.width = W; molde.height = H;
+    const cx = molde.getContext('2d'); cx.clearRect(0, 0, W, H);
+    await desenharMoldura(cx, moldura);
+    const f = FILTROS.find(x => x[0] === filtro)[2];
+    video.style.filter = f === 'none' ? '' : f;
+    fotoEl.style.filter = '';
+  }
+  v.querySelectorAll('[data-f]').forEach(b => b.onclick = () => {
+    filtro = b.dataset.f; v.querySelectorAll('[data-f]').forEach(x => x.classList.toggle('on', x === b));
+    origem ? montarFinal() : pintarMolde();
+  });
+  v.querySelectorAll('[data-m]').forEach(b => b.onclick = () => {
+    moldura = b.dataset.m; v.querySelectorAll('[data-m]').forEach(x => x.classList.toggle('on', x === b));
+    origem ? montarFinal() : pintarMolde();
+  });
+  v.querySelector('#cam-virar').onclick = () => { if (origem) return; frente = !frente; ligar(); };
+
+  /* congela o quadro da câmera (ou a foto da galeria) e monta a final */
+  function disparar() {
+    if (!video.videoWidth) return;
+    const c = document.createElement('canvas'); c.width = video.videoWidth; c.height = video.videoHeight;
+    const x = c.getContext('2d');
+    if (frente) { x.translate(c.width, 0); x.scale(-1, 1); }   // a selfie sai como ela se vê no espelho
+    x.drawImage(video, 0, 0);
+    origem = c; if (navigator.vibrate) navigator.vibrate(30);
+    parar(); montarFinal();
+  }
+  function daGaleria(e) {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const i = new Image(); i.onload = () => { origem = i; parar(); montarFinal(); }; i.src = URL.createObjectURL(f);
+  }
+  const ACOES_CAMERA = `<label class="bt linha cam-galeria">Da galeria<input type="file" accept="image/*" hidden id="cam-arq"/></label>
+      <button class="cam-disparo" id="cam-disparo" aria-label="Tirar foto"></button><span class="cam-vazio"></span>`;
+  function ligarAcoes() {
+    v.querySelector('#cam-acoes').innerHTML = ACOES_CAMERA;
+    v.querySelector('#cam-disparo').onclick = disparar;
+    v.querySelector('#cam-arq').onchange = daGaleria;
+  }
+  ligarAcoes();
+
+  let final = null;
+  async function montarFinal() {
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const x = c.getContext('2d');
+    const sw = origem.width || origem.naturalWidth, sh = origem.height || origem.naturalHeight;
+    const esc = Math.max(W / sw, H / sh), dw = sw * esc, dh = sh * esc;     // cobre o quadro, corta o excesso
+    const f = FILTROS.find(z => z[0] === filtro)[2];
+    if (FILTRO_CANVAS) x.filter = f;
+    x.drawImage(origem, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    x.filter = 'none';
+    if (!FILTRO_CANVAS && filtro !== 'natural') filtrarPixels(x, filtro);
+    await desenharMoldura(x, moldura);
+    final = c;
+    fotoEl.src = c.toDataURL('image/jpeg', .9);
+    fotoEl.classList.remove('oculto'); video.classList.add('oculto'); molde.classList.add('oculto');
+    v.querySelector('#cam-virar').classList.add('oculto');
+    v.querySelector('#cam-acoes').innerHTML = `
+      <button class="bt linha" id="cam-outra">Outra foto</button>
+      <button class="bt ouro cam-salvar" id="cam-salvar">Salvar / postar</button>`;
+    v.querySelector('#cam-outra').onclick = () => {
+      origem = null; final = null;
+      fotoEl.classList.add('oculto'); video.classList.remove('oculto'); molde.classList.remove('oculto');
+      v.querySelector('#cam-virar').classList.remove('oculto');
+      ligarAcoes(); ligar(); pintarMolde();
+    };
+    v.querySelector('#cam-salvar').onclick = salvar;
+  }
+  /* celular: abre o compartilhar (Salvar imagem, Instagram, WhatsApp...); senão baixa o arquivo */
+  async function salvar() {
+    const blob = await new Promise(r => final.toBlob(r, 'image/jpeg', .92));
+    const nome = `jardim-do-eder-${Date.now()}.jpg`;
+    const arq = new File([blob], nome, {type: 'image/jpeg'});
+    if (navigator.canShare && navigator.canShare({files: [arq]})) {
+      try { await navigator.share({files: [arq], text: 'Jardim do Éder 🐆 @spesso.rio'}); return; }
+      catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  await ligar(); pintarMolde();
+}
+
+/* molduras: folhas da selva em volta (a mesma arte do convite) ou a fita creme do convite */
+async function desenharMoldura(x, m) {
+  const W = x.canvas.width, H = x.canvas.height;
+  try { await document.fonts.load('80px "Pinyon Script"'); await document.fonts.load('40px "Kaushan Script"'); } catch {}
+  if (m === 'folhas') {
+    const img = await carregarFolhas();
+    if (img) {
+      // folhas só na borda: apaga o miolo com um gradiente (o centro da arte é verde liso)
+      const o = document.createElement('canvas'); o.width = W; o.height = H;
+      const ox = o.getContext('2d');
+      const tile = (ix, iy, iw, ih, dx, dy, dw, dh) => ox.drawImage(img, ix, iy, iw, ih, dx, dy, dw, dh);
+      const iw = img.width, ih = img.height;
+      tile(0, 0, iw, ih * .42, 0, 0, W, H * .30);                       // copa em cima
+      tile(0, ih * .62, iw, ih * .38, 0, H * .80, W, H * .20);          // folhagem embaixo
+      ox.save(); ox.translate(0, H * .28); tile(0, ih * .2, iw * .2, ih * .6, 0, 0, W * .16, H * .54); ox.restore();
+      ox.save(); ox.translate(W * .84, H * .28); tile(iw * .8, ih * .2, iw * .2, ih * .6, 0, 0, W * .16, H * .54); ox.restore();
+      ox.globalCompositeOperation = 'destination-out';
+      const g = ox.createRadialGradient(W / 2, H * .5, Math.min(W, H) * .36, W / 2, H * .5, Math.min(W, H) * .47);
+      g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ox.fillStyle = g; ox.fillRect(0, 0, W, H);
+      x.drawImage(o, 0, 0);
+    }
+    const sombra = x.createLinearGradient(0, H * .72, 0, H);
+    sombra.addColorStop(0, 'rgba(6,20,12,0)'); sombra.addColorStop(1, 'rgba(6,20,12,.75)');
+    x.fillStyle = sombra; x.fillRect(0, H * .72, W, H * .28);
+    x.save();
+    x.fillStyle = '#F4E8CB'; x.textAlign = 'center';
+    x.shadowColor = 'rgba(0,0,0,.75)'; x.shadowBlur = 18;
+    x.font = '108px "Pinyon Script"'; x.fillText('Jardim do Éder', W / 2, H - 92);
+    x.font = '700 30px Alegreya, Georgia, serif'; x.fillStyle = '#F3C766';
+    x.fillText('@spesso.rio  ·  27·11·26', W / 2, H - 38);
+    x.restore();
+  } else if (m === 'fita') {
+    x.save();
+    x.translate(W / 2, H - 150); x.rotate(-0.035);
+    const fw = W * .84, fh = 118;
+    x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = 24; x.shadowOffsetY = 8;
+    x.fillStyle = '#F4E8CB';
+    x.beginPath();
+    x.moveTo(-fw / 2, -fh / 2); x.lineTo(fw / 2, -fh / 2); x.lineTo(fw / 2 - 30, 0); x.lineTo(fw / 2, fh / 2);
+    x.lineTo(-fw / 2, fh / 2); x.lineTo(-fw / 2 + 30, 0); x.closePath(); x.fill();
+    x.shadowColor = 'transparent';
+    x.fillStyle = '#3A2312'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.font = '64px "Kaushan Script"'; x.fillText('Solte suas feras', 0, -6);
+    x.restore();
+    x.save(); x.fillStyle = '#F4E8CB'; x.textAlign = 'center'; x.shadowColor = 'rgba(0,0,0,.7)'; x.shadowBlur = 14;
+    x.font = '700 30px Alegreya, Georgia, serif'; x.fillText('Jardim do Éder  ·  @spesso.rio', W / 2, H - 42);
+    x.restore();
+  } else {
+    x.save(); x.fillStyle = 'rgba(244,232,203,.92)'; x.textAlign = 'right'; x.shadowColor = 'rgba(0,0,0,.6)'; x.shadowBlur = 10;
+    x.font = '700 28px Alegreya, Georgia, serif'; x.fillText('Jardim do Éder · @spesso.rio', W - 34, H - 34);
+    x.restore();
+  }
 }
 
 /* aniversário (dia e mês): para convidar a fazer a festa dela aqui */
