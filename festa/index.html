@@ -33,6 +33,10 @@ img{display:block;max-width:100%;}
 .topo .bg{position:absolute;inset:0;z-index:-2;background:var(--selva) url(img/selva.jpg) center 38%/cover no-repeat;}
 .topo::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(11,34,22,.25),rgba(11,34,22,.7) 70%,var(--selva));}
 .topo h1{font-family:'Pinyon Script',cursive;font-weight:400;color:var(--creme);font-size:clamp(30px,9.4vw,40px);white-space:nowrap;line-height:1.1;text-shadow:0 2px 12px rgba(0,0,0,.6);}
+.topo .tt{min-width:0;}
+.topo .nome-topo{font-family:'Kaushan Script',cursive;color:var(--ouro-2);font-size:clamp(28px,8.6vw,36px);line-height:1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 2px 12px rgba(0,0,0,.6);}
+.topo h1.com-nome{font-size:clamp(24px,7.4vw,32px);margin-top:2px;}
 .topo .marca{font-family:'Alegreya SC',serif;letter-spacing:.26em;font-size:11px;color:var(--ouro-2);margin-top:4px;}
 .eu{flex:none;display:flex;align-items:center;gap:8px;background:rgba(11,34,22,.82);
   border:1px solid var(--linha);border-radius:999px;padding:5px 12px 5px 5px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
@@ -46,7 +50,8 @@ img{display:block;max-width:100%;}
   box-shadow:0 6px 18px rgba(0,0,0,.3);transition:transform .14s ease-out;}
 .lado:active{transform:scale(.97);}
 .lado img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.lado::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,20,12,.1),rgba(6,20,12,.85));}
+.lado::after{content:"";position:absolute;inset:0;background:rgba(6,20,12,.35);transition:background .2s;}
+.lado.on::after{background:transparent;}
 .lado b{position:absolute;left:14px;bottom:10px;z-index:1;font-family:'Kaushan Script',cursive;font-weight:400;font-size:40px;color:var(--creme);line-height:1;}
 .lado.on{border-color:var(--ouro);}
 .lado.on b{color:var(--ouro-2);}
@@ -112,8 +117,8 @@ img{display:block;max-width:100%;}
 /* ---------- categorias ---------- */
 .cats{position:sticky;top:0;z-index:5;background:rgba(11,34,22,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   border-bottom:1px solid var(--linha);margin-top:16px;}
-.troca{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 16px 0;}
-.troca button{border:2px solid var(--linha);border-radius:14px;padding:9px 6px;font-size:18px;font-weight:800;color:var(--creme);}
+.troca{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 16px 0;}
+.troca button{border:2px solid var(--linha);border-radius:14px;padding:11px 6px;font-size:20px;font-weight:800;color:var(--creme);}
 .troca button.on{background:var(--ouro);border-color:var(--ouro);color:var(--tinta);}
 .cats .in{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;scrollbar-width:none;}
 .cats .in::-webkit-scrollbar{display:none;}
@@ -173,7 +178,19 @@ img{display:block;max-width:100%;}
 .dona .mesa{margin-left:auto;flex:none;font-size:14px;color:var(--texto-2);}
 .dona .mesa i{font-style:normal;font-weight:800;color:var(--tinta);background:var(--ouro);border-radius:999px;padding:1px 9px;margin-left:4px;font-size:16px;}
 .dona b{font-size:17px;color:var(--creme);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
-.insta{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 16px 0;}
+.seguir-topo,.seguir-card{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--creme);}
+.seguir-topo{margin:10px 16px 0;padding:8px 8px 8px 12px;border-radius:14px;
+  background:linear-gradient(90deg,rgba(214,41,118,.28),rgba(250,126,30,.22));border:1px solid rgba(250,126,30,.45);}
+.seguir-topo .tx{flex:1;font-size:15px;} .ig{flex:none;width:24px;height:24px;display:block;}
+.seguir-topo.feito .ig,.cam-seguir .ig{width:17px;height:17px;display:inline-block;vertical-align:-3px;}
+.seguir-topo .bt-s,.seguir-card .bt-s{flex:none;background:linear-gradient(90deg,#d62976,#fa7e1e);color:#fff;font-weight:800;
+  border-radius:999px;padding:8px 16px;font-size:15px;}
+.seguir-topo.feito{justify-content:center;background:none;border:0;padding:6px;font-size:13.5px;color:var(--texto-2);}
+.seguir-topo.feito span{color:var(--ouro-2);margin-left:4px;}
+.seguir-card{margin:18px 16px 4px;padding:14px;border-radius:var(--raio);background:rgba(244,232,203,.06);border:1px dashed rgba(250,126,30,.5);}
+.seguir-card .tx{flex:1;font-size:14.5px;color:var(--texto-2);line-height:1.3;}
+.seguir-card .tx b{display:block;color:var(--creme);font-size:16px;margin-bottom:2px;}
+.voucher .seguir-card,.momento .seguir-card{margin:16px 0 0;text-align:left;}
 .insta .bt{padding:11px 10px;font-size:15px;text-align:center;text-decoration:none;}
 /* ---------- câmera da festa ---------- */
 .camera{position:fixed;inset:0;z-index:80;background:#000;display:flex;flex-direction:column;
@@ -203,7 +220,14 @@ img{display:block;max-width:100%;}
 .cam-galeria{width:112px;text-align:center;font-size:14px;text-decoration:none;}
 .cam-disparo{flex:none;width:72px;height:72px;border-radius:50%;background:var(--creme);box-shadow:0 0 0 5px rgba(244,232,203,.35);}
 .cam-disparo:active{transform:scale(.94);}
-.cam-salvar{flex:1;font-size:16px;}
+.cam-pronta{flex:1;display:grid;gap:8px;}
+.cam-dois{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cam-dois .bt{padding:14px 8px;font-size:16px;font-weight:800;}
+.cam-dica{font-size:13.5px;color:var(--texto-2);text-align:center;line-height:1.3;}
+.cam-dica.forte{color:var(--creme);font-size:15px;}
+.cam-outra{padding:9px;font-size:14px;}
+.cam-seguir{text-align:center;color:#fa9e4e;font-size:15px;text-decoration:none;padding:2px 0;}
+.cam-caixa .cam-foto{-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto;pointer-events:auto;}
 
 /* ---------- folhas (sheet) ---------- */
 .veu{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.55);opacity:0;transition:opacity .2s;}
@@ -265,7 +289,7 @@ img{display:block;max-width:100%;}
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v7 25/11/2026';
+const VER = 'festa-v8 25/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -342,6 +366,33 @@ function conviteHtml() {
       <p>Fale com alguém da entrada ou com um garçom para ligar a sua pulseira a este link.</p></div>`;
   return '';
 }
+/* Instagram: tocar em "Seguir" uma vez basta; até lá ele aparece pelo caminho (cardápio, pedido feito,
+   pedidos, depois do Recebi, depois da foto). Não dá para saber se ela seguiu de fato: vale o toque. */
+const seguiu = () => { try { return localStorage.getItem('festa_seguiu') === '1'; } catch { return false; } };
+const FRASES_SEGUIR = [
+  ['As fotos da festa vão para o nosso Instagram', 'Siga para se achar amanhã.'],
+  ['Gostou do drink?', 'No @spesso.rio tem os bastidores do bar e as próximas festas.'],
+  ['Fome de mais?', 'O cardápio do dia a dia e as novidades da cozinha estão no @spesso.rio.'],
+  ['Pedido feito!', 'Enquanto espera, siga o @spesso.rio.'],
+  ['Marque a gente na sua foto', 'Siga o @spesso.rio: a gente reposta as melhores da noite.'],
+];
+function seguirTopo() {
+  if (seguiu()) return `<a class="seguir-topo feito" href="${INSTA}" target="_blank" rel="noopener" data-seguir>${IG} @spesso.rio <span>✓ seguindo</span></a>`;
+  return `<a class="seguir-topo" href="${INSTA}" target="_blank" rel="noopener" data-seguir>
+      ${IG}<span class="tx"><b>Siga o Spesso</b> no Instagram</span><span class="bt-s">Seguir</span></a>`;
+}
+function seguirHtml(i) {
+  if (seguiu() || D.vitrine) return '';
+  const [a, b] = FRASES_SEGUIR[i % FRASES_SEGUIR.length];
+  return `<a class="seguir-card" href="${INSTA}" target="_blank" rel="noopener" data-seguir>
+      ${IG}<span class="tx"><b>${a}</b>${b}</span><span class="bt-s">Seguir</span></a>`;
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest && e.target.closest('[data-seguir]'); if (!a) return;
+  try { localStorage.setItem('festa_seguiu', '1'); } catch {}
+  setTimeout(() => { document.querySelectorAll('.seguir-card').forEach(c => c.remove());
+    const t = document.querySelector('.seguir-topo:not(.feito)'); if (t) t.outerHTML = seguirTopo(); }, 800);
+});
 /* bebida: a convidada escolhe em qual bar pega (o papel sai na impressora daquele bar) */
 const BARES = [['baixo', 'Bar do 1º piso'], ['cima', 'Bar do 2º piso']];
 const nomeBar = k => (BARES.find(b => b[0] === k) || [k, 'bar'])[1];
@@ -361,19 +412,22 @@ function desenhar() {
   const ativos = conta ? conta.itens.filter(i => !i.entregue).length : 0;
   $('#app').innerHTML = `
     <header class="topo"><div class="bg"></div>
-      <div class="tt"><h1>Jardim do Éder</h1><div class="marca">SPESSO · 27·11·26</div></div>
+      <div class="tt">${primeiroNome && !D.vitrine
+        ? `<div class="nome-topo">${esc(primeiroNome)}</div><h1 class="com-nome">no Jardim do Éder</h1>`
+        : `<h1>Jardim do Éder</h1><div class="marca">SPESSO · 27·11·26</div>`}</div>
       ${eu && eu.pulseira != null ? `<div class="eu"><span class="q">MESA</span><span class="num">${eu.pulseira}</span></div>` : ''}
     </header>
+    ${D.vitrine ? '' : seguirTopo()}
     ${conviteHtml()}
     <main id="corpo"></main>
     <div class="espaco"></div>
     <div class="ver">skv-versao ${VER}</div>
     ${D.vitrine ? '' : `<nav class="barra">
-      <div class="dona"><b>🐆 ${esc(eu.nome)}</b>${eu.pulseira != null ? `<span class="mesa">Mesa <i>${eu.pulseira}</i></span>` : ''}</div>
+      <div class="dona"><b>${esc(eu.nome)}</b>${eu.pulseira != null ? `<span class="mesa">Mesa <i>${eu.pulseira}</i></span>` : ''}</div>
       <div class="nav">
         <button data-aba="cardapio"><b>Cardápio</b>pedir</button>
         <button data-aba="pedidos"><b>Pedidos${ativos ? ' · ' + ativos : ''}</b>vouchers e conta</button>
-        <button data-aba="fotos"><b>📸 Fotos</b>da festa</button>
+        <button data-aba="fotos"><b>Fotos</b>da festa</button>
       </div>
     </nav>`}`;
   document.querySelectorAll('.nav button').forEach(b => {
@@ -404,19 +458,15 @@ function desenharCardapio() {
   const cats = [...new Set(itens.map(m => m.categoria))];
   $('#corpo').innerHTML = `
     <div class="lados">
-      <button class="lado ${lado==='bebida'?'on':''}" data-lado="bebida"><img src="img/arara.jpg" alt=""/><b>Beber</b></button>
-      <button class="lado ${lado==='comida'?'on':''}" data-lado="comida"><img src="img/onca.jpg" alt=""/><b>Comer</b></button>
-    </div>
-    <div class="insta">
-      <button class="bt creme" id="foto-festa">📸 Foto da festa</button>
-      <a class="bt linha" href="${INSTA}" target="_blank" rel="noopener">Seguir @spesso.rio</a>
+      <button class="lado ${lado==='bebida'?'on':''}" data-lado="bebida" aria-label="Beber"><img src="img/arara.jpg" alt=""/></button>
+      <button class="lado ${lado==='comida'?'on':''}" data-lado="comida" aria-label="Comer"><img src="img/onca.jpg" alt=""/></button>
     </div>
     <nav class="cats">
-      <div class="troca"><button data-troca="bebida" class="${lado==='bebida'?'on':''}">🍹 Beber</button><button data-troca="comida" class="${lado==='comida'?'on':''}">🍝 Comer</button></div>
+      <div class="troca"><button data-troca="bebida" class="${lado==='bebida'?'on':''}">Beber</button><button data-troca="comida" class="${lado==='comida'?'on':''}">Comer</button></div>
       <div class="in">${cats.map(c => `<a href="#c-${slug(c)}">${esc(c)}</a>`).join('')}</div></nav>
     ${lado === 'comida' && !D.vitrine ? `<p class="dica">A comida vai até a sua <b>mesa bistrô</b> ou você retira <b>ao lado do Bar do 2º piso</b> (a gente avisa quando ficar pronta).</p>` : ''}
-    ${cats.map(c => `<section class="secao" id="c-${slug(c)}"><h2>${esc(c)}</h2>
-      ${itens.filter(m => m.categoria === c).map(itemHtml).join('')}</section>`).join('')}`;
+    ${cats.map((c, i) => `<section class="secao" id="c-${slug(c)}"><h2>${esc(c)}</h2>
+      ${itens.filter(m => m.categoria === c).map(itemHtml).join('')}</section>${i === 1 ? seguirHtml(lado === 'bebida' ? 1 : 2) : ''}`).join('')}`;
   document.querySelectorAll('.lado').forEach(b => b.onclick = () => {
     lado = b.dataset.lado; desenharCardapio();
     window.scrollTo({top: $('.lados').offsetTop - 6, behavior: 'smooth'});
@@ -429,7 +479,6 @@ function desenharCardapio() {
     if (fixo) window.scrollTo({top: $('.cats').offsetTop, behavior: 'instant'});
   });
   document.querySelectorAll('.item').forEach(b => b.onclick = () => abrirItem(+b.dataset.id));
-  $('#foto-festa').onclick = abrirCamera;
   document.querySelectorAll('.item .foto').forEach(f => f.onclick = e => {
     e.stopPropagation(); const m = D.cardapio.find(x => x.id === +f.closest('.item').dataset.id); verFoto(m);
   });
@@ -520,6 +569,7 @@ function desenharPedidos() {
           <button class="bt creme" data-recebi="${p.voucher}">✓ ${BOTAO_RECEBI(p)}</button>`}
         <button class="bt linha" data-de-novo="${p.id}">Pedir de novo</button>
       </div></div>`; }).join('')}
+    ${seguirHtml(0)}
     <div id="minha-conta"></div>`;
   desenharConta();
   document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => {
@@ -680,7 +730,7 @@ function bistroHtml() {
   const b = bistroAtual(), tot = (D.evento && D.evento.bistros) || 15;
   if (b && !trocarBistro) return `<div class="bistro ok"><span>Mesa bistrô <b>${b}</b> ✓</span><button class="bt linha" id="trocar-b">Trocar</button></div>`;
   return `<div class="bistro">
-    <button class="bt ouro escanear" id="escanear">📷 Ler o QR da mesa</button>
+    <button class="bt ouro escanear" id="escanear">Ler o QR da mesa</button>
     <div class="rot" style="margin-top:12px">ou toque no número da plaquinha</div>
     <div class="grade">${Array.from({length: tot}, (_, i) => `<button class="${b===i+1?'on':''}" data-bistro="${i+1}">${i+1}</button>`).join('')}</div>
   </div>`;
@@ -753,13 +803,12 @@ function confirmarRecebi(p) {
       /* Renato 25/11: "quando ela der o recebi, já sugerir que aquele momento podia estar eternizado" */
       const bebida = p.tipo === 'bebida';
       abrirFolha(`<div class="voucher momento">
-        <div class="em">${bebida ? '🥂' : '🍝'}</div>
         <h3>${bebida ? 'Saúde!' : 'Bom apetite!'}</h3>
         <p class="d">Esse momento merece uma foto. Com a moldura da festa, já pronta para o Instagram.</p>
         <div style="display:grid;gap:10px;margin-top:16px">
-          <button class="bt ouro" style="padding:16px;font-size:18px" id="m-foto">📸 Tirar a foto</button>
+          <button class="bt ouro" style="padding:16px;font-size:18px" id="m-foto">Tirar a foto</button>
           <button class="bt linha" style="padding:12px" id="m-nao">Agora não</button>
-        </div></div>`);
+        </div>${seguirHtml(4)}</div>`);
       $('#m-nao').onclick = fecharFolha;
       $('#m-foto').onclick = () => { fecharFolha(); abrirCamera(); };
     } catch (e) {
@@ -775,6 +824,8 @@ function confirmarRecebi(p) {
    o Instagram pelo compartilhar do celular. Nada sobe para o servidor: a foto é só dela.
    Rosto: MediaPipe Face Landmarker (roda no próprio celular; carrega só quando ela escolhe coroa ou onça). */
 const INSTA = 'https://www.instagram.com/spesso.rio/';
+const IG = '<svg class="ig" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.3"/><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none"/></svg>';
+const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const FILTROS = [
   ['natural', 'Natural', 'none'],
   ['dourado', 'Pôr do sol', 'sepia(.35) saturate(1.35) contrast(1.05) brightness(1.04)'],
@@ -782,7 +833,7 @@ const FILTROS = [
   ['noite', 'Noite', 'contrast(1.2) saturate(1.2) brightness(.95) hue-rotate(10deg)'],
   ['pb', 'P&B', 'grayscale(1) contrast(1.15) brightness(1.05)'],
 ];
-const EFEITOS = [['nenhum', 'Sem efeito'], ['coroa', '🌺 Coroa da selva'], ['onca', '🐆 Onça'], ['luzes', '✨ Luzes'], ['brilho', '💫 Pele de festa']];
+const EFEITOS = [['nenhum', 'Sem efeito'], ['coroa', 'Coroa da selva'], ['onca', 'Onça'], ['luzes', 'Luzes'], ['brilho', 'Pele de festa']];
 const MOLDURAS = [['folhas', 'Folhas'], ['fita', 'Fita'], ['polaroid', 'Polaroid'], ['limpa', 'Sem moldura']];
 const FORMATOS = [['feed', 'Feed 4:5', 1080, 1350], ['story', 'Story 9:16', 1080, 1920]];
 
@@ -1074,30 +1125,58 @@ async function abrirCamera() {
     await desenharMoldura(x, moldura);
     final = c;
     fotoEl.src = c.toDataURL('image/jpeg', .9);
+    arquivo = null;
+    c.toBlob(b => { arquivo = {blob: b, file: new File([b], `jardim-do-eder-${Date.now()}.jpg`, {type: 'image/jpeg'})}; }, 'image/jpeg', .92);
     fotoEl.classList.remove('oculto'); video.classList.add('oculto'); molde.classList.add('oculto');
+    v.querySelectorAll('.cam-aviso').forEach(z => z.remove());
     v.querySelector('#cam-virar').classList.add('oculto');
-    v.querySelector('#cam-acoes').innerHTML = `
-      <button class="bt linha" id="cam-outra">Outra foto</button>
-      <button class="bt ouro cam-salvar" id="cam-salvar">Postar no Instagram / salvar</button>`;
+    v.querySelector('#cam-acoes').innerHTML = `<div class="cam-pronta">
+      <div class="cam-dois"><button class="bt creme" id="cam-salvar">Salvar na galeria</button>
+        <button class="bt ouro" id="cam-insta">Postar no Instagram</button></div>
+      <p class="cam-dica" id="cam-dica">Dica: você também pode segurar o dedo na foto e tocar em “Salvar”.</p>
+      ${seguiu() ? '' : `<a class="cam-seguir" href="${INSTA}" target="_blank" rel="noopener" data-seguir>${IG} Siga o <b>@spesso.rio</b> e marque a gente</a>`}
+      <button class="bt linha cam-outra" id="cam-outra">Outra foto</button></div>`;
     v.querySelector('#cam-outra').onclick = () => {
       origem = null; final = null; rostoFoto = null;
       fotoEl.classList.add('oculto'); video.classList.remove('oculto'); molde.classList.remove('oculto');
       v.querySelector('#cam-virar').classList.remove('oculto');
       ligarAcoes(); ligar();
     };
-    v.querySelector('#cam-salvar').onclick = salvar;
+    v.querySelector('#cam-salvar').onclick = salvarGaleria;
+    v.querySelector('#cam-insta').onclick = postarInsta;
   }
-  /* celular: abre o compartilhar (Instagram, Salvar imagem, WhatsApp...); sem ele, baixa o arquivo */
-  async function salvar() {
-    const blob = await new Promise(r => final.toBlob(r, 'image/jpeg', .92));
-    const nome = `jardim-do-eder-${Date.now()}.jpg`;
-    const arq = new File([blob], nome, {type: 'image/jpeg'});
-    if (navigator.canShare && navigator.canShare({files: [arq]})) {
-      try { await navigator.share({files: [arq], text: 'Jardim do Éder 🐆 @spesso.rio'}); return; }
-      catch (e) { if (e && e.name === 'AbortError') return; }
-    }
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome;
+  /* Salvar: no iPhone o caminho para o Fotos é o compartilhar ("Salvar imagem"); no Android o download
+     cai na galeria (pasta Downloads). Sem texto junto: com texto o iPhone esconde o "Salvar imagem". */
+  let arquivo = null;
+  const dica = txt => { const d = v.querySelector('#cam-dica'); if (d) { d.innerHTML = txt; d.classList.add('forte'); } };
+  function baixar() {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(arquivo.blob); a.download = arquivo.file.name;
     document.body.appendChild(a); a.click(); a.remove();
+  }
+  function compartilhar(ok) {
+    if (!(navigator.canShare && navigator.canShare({files: [arquivo.file]}))) return false;
+    navigator.share({files: [arquivo.file]}).then(ok, e => {
+      if (e && e.name === 'AbortError') return;
+      baixar(); dica('Foto baixada. Se não aparecer na galeria, segure o dedo na foto e toque em “Salvar”.');
+    });
+    return true;
+  }
+  function salvarGaleria() {
+    if (!arquivo) return dica('Um segundo, a foto ainda está ficando pronta…');
+    if (IOS) {
+      if (compartilhar(() => dica('Pronto! Se tocou em “Salvar imagem”, ela está no app Fotos.'))) {
+        dica('Na janela que abriu, toque em <b>“Salvar imagem”</b>.'); return;
+      }
+      return dica('Segure o dedo na foto e toque em <b>“Adicionar às Fotos”</b>.');
+    }
+    baixar();
+    dica('Foto salva na galeria (pasta Downloads).');
+  }
+  function postarInsta() {
+    if (!arquivo) return dica('Um segundo, a foto ainda está ficando pronta…');
+    try { navigator.clipboard && navigator.clipboard.writeText('Jardim do Éder 🐆 @spesso.rio'); } catch {}
+    if (compartilhar(() => {})) { dica('Escolha o <b>Instagram</b> (Story ou Feed) e marque <b>@spesso.rio</b>. A legenda já está copiada.'); return; }
+    baixar(); dica('Foto salva. Abra o Instagram, escolha a foto e marque <b>@spesso.rio</b>.');
   }
 
   ligarAcoes();
@@ -1220,7 +1299,7 @@ function abrirVoucher(p, novo) {
       ${p.entregue ? '' : `<button class="bt creme" style="padding:14px;font-size:17px" id="recebi">✓ ${BOTAO_RECEBI(p)}</button>`}
       <button class="bt ouro" style="padding:14px" id="mais-um">Pedir mais alguma coisa</button>
       <button class="bt linha" style="padding:12px" id="ok">Fechar</button>
-    </div>${novo ? anivHtml() : ''}</div>`);
+    </div>${novo ? seguirHtml(3) + anivHtml() : ''}</div>`);
   $('#ok').onclick = fecharFolha;
   const rb = $('#recebi'); if (rb) rb.onclick = () => confirmarRecebi(p);
   ligarAniv();
