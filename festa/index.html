@@ -27,36 +27,63 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
 img{display:block;max-width:100%;}
 .oculto{display:none!important;}
 
-/* ---------- capa ---------- */
-.capa{position:relative;min-height:62vh;display:flex;flex-direction:column;justify-content:flex-end;
-  padding:0 18px 22px;overflow:hidden;isolation:isolate;}
-.capa .bg{position:absolute;inset:0;z-index:-2;background:var(--selva) url(img/selva.jpg) center 30%/cover no-repeat;}
-.capa::after{content:"";position:absolute;inset:0;z-index:-1;
-  background:linear-gradient(180deg,rgba(11,34,22,0) 30%,rgba(11,34,22,.55) 62%,var(--selva) 98%);}
-.fita{align-self:center;background:var(--creme);color:var(--tinta);font-family:'Kaushan Script',cursive;
-  font-size:clamp(19px,5.6vw,24px);line-height:1.15;text-align:center;padding:10px 26px 12px;margin-bottom:10px;
-  box-shadow:0 6px 18px rgba(0,0,0,.35);transform:rotate(-2deg);
-  clip-path:polygon(0 0,100% 0,96% 50%,100% 100%,0 100%,4% 50%);}
-.capa h1{font-family:'Pinyon Script',cursive;font-weight:400;text-align:center;color:var(--creme);
-  font-size:clamp(50px,15vw,68px);line-height:1;text-shadow:0 3px 18px rgba(0,0,0,.55);margin:4px 0 6px;}
-.capa .marca{text-align:center;font-family:'Alegreya SC',serif;letter-spacing:.32em;font-size:12px;color:var(--ouro-2);}
-.eu{align-self:center;margin-top:14px;display:flex;align-items:center;gap:10px;background:rgba(11,34,22,.78);
-  border:1px solid var(--linha);border-radius:999px;padding:7px 16px 7px 8px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
-.eu .num{background:var(--ouro);color:var(--tinta);font-weight:800;border-radius:999px;min-width:38px;height:38px;
+/* ---------- topo compacto (Renato 24/11: a paisagem ocupava a tela; Beber/Comer logo de cara) ---------- */
+.topo{position:relative;height:104px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:calc(8px + env(safe-area-inset-top,0px)) 16px 8px;overflow:hidden;isolation:isolate;}
+.topo .bg{position:absolute;inset:0;z-index:-2;background:var(--selva) url(img/selva.jpg) center 38%/cover no-repeat;}
+.topo::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(11,34,22,.25),rgba(11,34,22,.7) 70%,var(--selva));}
+.topo h1{font-family:'Pinyon Script',cursive;font-weight:400;color:var(--creme);font-size:clamp(30px,9.4vw,40px);white-space:nowrap;line-height:1.1;text-shadow:0 2px 12px rgba(0,0,0,.6);}
+.topo .marca{font-family:'Alegreya SC',serif;letter-spacing:.26em;font-size:11px;color:var(--ouro-2);margin-top:4px;}
+.eu{flex:none;display:flex;align-items:center;gap:8px;background:rgba(11,34,22,.82);
+  border:1px solid var(--linha);border-radius:999px;padding:5px 12px 5px 5px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+.eu .num{background:var(--ouro);color:var(--tinta);font-weight:800;border-radius:999px;min-width:36px;height:36px;
   display:grid;place-items:center;font-size:17px;padding:0 8px;}
-.eu .q{font-size:15px;line-height:1.15;} .eu .q b{display:block;font-size:17px;}
+.eu .q{font-size:12px;line-height:1.1;color:var(--texto-2);} .eu .q b{display:block;font-size:15px;color:var(--creme);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-/* ---------- abas Beber / Comer ---------- */
-.portas{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:6px 16px 4px;}
-.porta{position:relative;height:150px;border-radius:var(--raio);overflow:hidden;text-align:left;
-  border:1px solid var(--linha);box-shadow:0 8px 22px rgba(0,0,0,.3);transition:transform .14s ease-out;}
-.porta:active{transform:scale(.97);}
-.porta img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.porta span{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 12px;
-  background:linear-gradient(180deg,transparent,rgba(6,20,12,.92));}
-.porta b{display:block;font-family:'Kaushan Script',cursive;font-weight:400;font-size:28px;color:var(--creme);line-height:1;}
-.porta small{font-size:14px;color:var(--texto-2);}
-.porta.on{outline:2px solid var(--ouro);outline-offset:2px;}
+/* ---------- Beber / Comer ---------- */
+.lados{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 0;}
+.lado{position:relative;height:108px;border-radius:var(--raio);overflow:hidden;border:2px solid var(--linha);
+  box-shadow:0 6px 18px rgba(0,0,0,.3);transition:transform .14s ease-out;}
+.lado:active{transform:scale(.97);}
+.lado img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.lado::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,20,12,.1),rgba(6,20,12,.85));}
+.lado b{position:absolute;left:14px;bottom:10px;z-index:1;font-family:'Kaushan Script',cursive;font-weight:400;font-size:32px;color:var(--creme);line-height:1;}
+.lado.on{border-color:var(--ouro);}
+.lado.on b{color:var(--ouro-2);}
+.dica{margin:12px 16px 0;font-size:15px;color:var(--texto-2);}
+.dica b{color:var(--creme);}
+
+/* ---------- foto grande ---------- */
+.lupa{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;}
+.lupa img{max-width:100%;max-height:78dvh;border-radius:14px;object-fit:contain;}
+.lupa .lg{margin-top:14px;color:var(--creme);font-size:19px;font-weight:700;text-align:center;}
+.lupa .lg small{display:block;font-weight:400;font-size:13px;color:var(--texto-2);margin-top:4px;}
+.foto-g{display:block;position:relative;width:calc(100% + 36px);margin:-4px -18px 14px;height:240px;overflow:hidden;background:var(--selva);}
+.foto-g img{width:100%;height:100%;object-fit:cover;}
+.foto-g span{position:absolute;right:10px;bottom:10px;font-size:12px;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:4px 10px;}
+
+/* ---------- onde receber + mesa bistrô ---------- */
+.voltar{color:var(--ouro-2);font-size:15px;padding:4px 0;}
+.ondes{display:grid;gap:8px;margin-top:14px;}
+.onde-op{display:block;text-align:left;width:100%;border:2px solid var(--linha);border-radius:16px;padding:12px 14px;}
+.onde-op b{display:block;font-size:18px;color:var(--creme);}
+.onde-op small{font-size:14px;color:var(--texto-2);}
+.onde-op.on{border-color:var(--ouro);background:rgba(224,169,63,.12);}
+.onde-op.on b{color:var(--ouro-2);}
+.bistro{margin-top:14px;padding:14px;border-radius:16px;background:rgba(0,0,0,.18);}
+.bistro.ok{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:18px;color:var(--creme);}
+.bistro.ok b{color:var(--ouro-2);font-size:22px;}
+.bistro .escanear{width:100%;padding:14px;font-size:17px;}
+.grade{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.grade button{height:48px;border-radius:12px;border:1px solid var(--linha);font-size:19px;font-weight:800;color:var(--creme);}
+.grade button.on{background:var(--ouro);color:var(--tinta);border-color:var(--ouro);}
+.leitor{position:fixed;inset:0;z-index:70;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 16px calc(24px + var(--sab));}
+.leitor video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.leitor .mira{position:absolute;left:50%;top:42%;width:min(66vw,260px);aspect-ratio:1;transform:translate(-50%,-50%);border:3px solid var(--ouro);border-radius:22px;box-shadow:0 0 0 2000px rgba(0,0,0,.45);}
+.leitor p{position:relative;color:#fff;font-size:17px;margin-bottom:14px;text-align:center;}
+.leitor .bt{position:relative;padding:12px 28px;}
+.voucher .cod-g{font-family:ui-monospace,Menlo,monospace;font-weight:800;letter-spacing:.14em;font-size:44px;color:var(--creme);margin-top:6px;line-height:1;}
+.ped .acoes{flex-wrap:wrap;}
 
 /* ---------- categorias ---------- */
 .cats{position:sticky;top:0;z-index:5;background:rgba(11,34,22,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
@@ -176,7 +203,8 @@ img{display:block;max-width:100%;}
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v4 24/11/2026';
+const VER = 'festa-v5 24/11/2026';
+const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
 
@@ -201,12 +229,14 @@ try {
   if (token) localStorage.setItem('festa_token', token);
   else token = localStorage.getItem('festa_token');
 } catch {}
-if (token && location.search) history.replaceState(null, '', location.pathname);
+/* QR da mesa bistrô aberto pela câmera do celular: spesso.com.br/festa/?b=N guarda a mesa por 3 h */
+const B_URL = +(new URLSearchParams(location.search).get('b') || 0);
+if (B_URL > 0 && B_URL <= 40) guardarBistro(B_URL);
+if ((token || B_URL) && location.search) history.replaceState(null, '', location.pathname);
 
 let D = null;            // último ev_cliente
 let aba = 'cardapio';    // cardapio | pedidos | conta
 let lado = 'bebida';     // bebida | comida
-let local = null; try { local = localStorage.getItem('festa_local'); } catch {}
 
 async function carregar() {
   if (!token) return carregarVitrine();
@@ -238,9 +268,14 @@ async function carregarVitrine() {
 /* só pede quem abriu o próprio link (cada link é uma mesa). Sem link: cardápio para ver e o garçom.
    Renato 24/11: "cada link é de uma mesa e só pelo link o cliente pode pedir. como plano b, o cliente pede pro garçom." */
 const podePedir = () => !!(D && !D.vitrine && D.eu.pulseira != null && !D.eu.liberada);
+let avisouBistro = false;
 function conviteHtml() {
+  if (D.vitrine && B_URL) return `<div class="convite"><b>Mesa bistrô ${B_URL}</b>
+      <p>Abra o seu link (a mensagem da Minerva no WhatsApp), escolha "Na minha mesa bistrô" e toque no <b>${B_URL}</b>. Sem o link? Peça a um garçom.</p></div>`;
   if (D.vitrine) return `<div class="convite"><b>Para pedir, use o seu link</b>
       <p>Na entrada, aponte a câmera para o QR: a Minerva abre a sua mesa no WhatsApp e te manda o seu link. Sem celular? Peça a um garçom.</p></div>`;
+  if (B_URL && bistroAtual() === B_URL && !avisouBistro) { avisouBistro = true;
+    return `<div class="convite"><b>Você está na mesa bistrô ${B_URL}</b><p>Peça pelo cardápio: o garçom traz aqui.</p></div>`; }
   if (D.eu.pulseira == null) return `<div class="convite"><b>Falta ligar a sua pulseira</b>
       <p>Fale com alguém da entrada ou com um garçom para ligar a sua pulseira a este link.</p></div>`;
   return '';
@@ -255,17 +290,17 @@ function telaErro(t, d, tentar) {
 }
 
 /* ---------------------------------------------------------------- desenho */
+/* Renato 24/11: "a primeira tela precisa já aparecer os botões de comida e bebida ... a paisagem
+   está ocupando demais ... mais funcional pra cliente já bêbada pedir com facilidade." */
 function desenhar() {
   const eu = D.eu, conta = D.conta;
   const primeiroNome = eu ? (eu.nome || '').split(' ')[0] : '';
   if (D.vitrine) aba = 'cardapio';
   const ativos = conta ? conta.itens.filter(i => !i.entregue).length : 0;
   $('#app').innerHTML = `
-    <header class="capa"><div class="bg"></div>
-      <div class="fita">Abra as suas asas,<br/>solte suas feras</div>
-      <h1>Jardim do Éder</h1>
-      <div class="marca">SPESSO · 27·11·26</div>
-      ${eu ? `<div class="eu">${eu.pulseira != null ? `<span class="num">${eu.pulseira}</span>` : ''}<span class="q">Olá, <b>${esc(primeiroNome)}</b></span></div>` : ''}
+    <header class="topo"><div class="bg"></div>
+      <div class="tt"><h1>Jardim do Éder</h1><div class="marca">SPESSO · 27·11·26</div></div>
+      ${eu && eu.pulseira != null ? `<div class="eu"><span class="num">${eu.pulseira}</span><span class="q">mesa<b>${esc(primeiroNome)}</b></span></div>` : ''}
     </header>
     ${conviteHtml()}
     <main id="corpo"></main>
@@ -281,7 +316,7 @@ function desenhar() {
     </nav>`}`;
   document.querySelectorAll('.nav button').forEach(b => {
     b.classList.toggle('on', b.dataset.aba === aba);
-    b.onclick = () => { aba = b.dataset.aba; desenhar(); window.scrollTo({top: $('#corpo').offsetTop - 8, behavior:'smooth'}); };
+    b.onclick = () => { aba = b.dataset.aba; desenhar(); window.scrollTo({top: 0, behavior:'smooth'}); };
   });
   if (!D.vitrine) desenharConsumo();
   ({cardapio: desenharCardapio, pedidos: desenharPedidos, conta: desenharConta})[aba]();
@@ -296,29 +331,37 @@ function desenharConsumo() {
     : `<span>Consumação de <b>${brl(c.minimo)}</b> completa</span><span class="trilho"><i style="width:100%"></i></span>`;
 }
 
+const fotoP = m => m.foto ? `img/${esc(m.foto)}.jpg` : '';
+const fotoG = m => m.foto ? (FOTOS_G.includes(m.foto) ? `img/g/${esc(m.foto)}.jpg` : `img/${esc(m.foto)}.jpg`) : '';
 function desenharCardapio() {
   const itens = D.cardapio.filter(m => m.tipo === lado);
   const cats = [...new Set(itens.map(m => m.categoria))];
   $('#corpo').innerHTML = `
-    <div class="portas">
-      <button class="porta ${lado==='bebida'?'on':''}" data-lado="bebida"><img src="img/arara.jpg" alt=""/><span><b>Beber</b><small>drinks, cervejas, vinhos</small></span></button>
-      <button class="porta ${lado==='comida'?'on':''}" data-lado="comida"><img src="img/onca.jpg" alt=""/><span><b>Comer</b><small>entradas, pizzas, pratos</small></span></button>
+    <div class="lados">
+      <button class="lado ${lado==='bebida'?'on':''}" data-lado="bebida"><img src="img/arara.jpg" alt=""/><b>Beber</b></button>
+      <button class="lado ${lado==='comida'?'on':''}" data-lado="comida"><img src="img/onca.jpg" alt=""/><b>Comer</b></button>
     </div>
     <nav class="cats"><div class="in">${cats.map(c => `<a href="#c-${slug(c)}">${esc(c)}</a>`).join('')}</div></nav>
+    ${lado === 'comida' && !D.vitrine ? `<p class="dica">A comida vai até a sua <b>mesa bistrô</b>. Sem bistrô? Peça a um garçom.</p>` : ''}
     ${cats.map(c => `<section class="secao" id="c-${slug(c)}"><h2>${esc(c)}</h2>
       ${itens.filter(m => m.categoria === c).map(itemHtml).join('')}</section>`).join('')}`;
-  document.querySelectorAll('.porta').forEach(b => b.onclick = () => { lado = b.dataset.lado; desenharCardapio(); });
+  document.querySelectorAll('.lado').forEach(b => b.onclick = () => {
+    lado = b.dataset.lado; desenharCardapio();
+    window.scrollTo({top: $('.lados').offsetTop - 6, behavior: 'smooth'});
+  });
   document.querySelectorAll('.item').forEach(b => b.onclick = () => abrirItem(+b.dataset.id));
+  document.querySelectorAll('.item .foto').forEach(f => f.onclick = e => {
+    e.stopPropagation(); const m = D.cardapio.find(x => x.id === +f.closest('.item').dataset.id); verFoto(m);
+  });
   marcarCats();
 }
 function itemHtml(m) {
   const precos = m.opcoes.map(o => o.preco);
   const min = Math.min(...precos), max = Math.max(...precos);
   return `<button class="item" data-id="${m.id}">
-    ${m.foto ? `<div class="foto"><img src="img/${esc(m.foto)}.jpg" alt="" loading="lazy"/></div>` : ''}
+    ${m.foto ? `<div class="foto"><img src="${fotoP(m)}" alt="" loading="lazy"/></div>` : ''}
     <div class="tx"><h3>${esc(m.nome)}</h3>
       ${m.chamada ? `<div class="chamada">${esc(m.chamada)}</div>` : ''}
-      ${m.descricao ? `<p>${esc(m.descricao)}</p>` : ''}
       <div class="pr">${min === max ? brl(min) : 'a partir de ' + brl(min)}</div></div>
     <span class="mais" aria-hidden="true">+</span></button>`;
 }
@@ -334,28 +377,47 @@ function marcarCats() {
   }), {rootMargin:'-70px 0px -70% 0px'});
   document.querySelectorAll('.secao').forEach(s => io.observe(s));
 }
+/* foto em tela cheia: toque para fechar */
+function verFoto(m) {
+  if (!m || !m.foto) return;
+  const v = document.createElement('div');
+  v.className = 'lupa';
+  v.innerHTML = `<img src="${fotoG(m)}" alt="${esc(m.nome)}"/><div class="lg">${esc(m.nome)}<small>toque para fechar</small></div>`;
+  v.onclick = () => v.remove();
+  document.body.appendChild(v);
+}
 
+/* ---------- entrega: bistrô (garçom leva) ou retirada no bar ---------- */
+function onde(p) {
+  if (p.bistro) return `na bistrô ${p.bistro}`;
+  if (p.retirar) return `no ${nomeBar(p.retirar)}`;
+  return '';
+}
 const STATUS = p => {
-  if (p.entregue) return ['Entregue', 'ok'];
-  if (p.tipo === 'comida') {
-    if (p.garcom) return [`Com ${p.garcom.split(' ')[0]}, que vai levar até você`, 'vivo'];
-    return ['Na cozinha · mostre o voucher a um garçom', 'vivo'];
-  }
-  return [`Retire no ${p.retirar ? nomeBar(p.retirar) : 'bar'} com o voucher`, 'vivo'];
+  if (p.entregue) return [p.entregue_por === 'cliente' ? 'Você confirmou que recebeu' : 'Entregue', 'ok'];
+  if (p.bistro) return [p.garcom ? `${p.garcom.split(' ')[0]} está levando até a bistrô ${p.bistro}` : `Preparando · o garçom leva até a bistrô ${p.bistro}`, 'vivo'];
+  if (p.retirar) return [`Retire no ${nomeBar(p.retirar)} com o voucher`, 'vivo'];
+  if (p.tipo === 'comida') return [p.garcom ? `Com ${p.garcom.split(' ')[0]}, que vai levar até você` : 'Na cozinha', 'vivo'];
+  return ['Retire no bar com o voucher', 'vivo'];
 };
+const BOTAO_RECEBI = p => p.bistro ? 'Recebi' : 'Peguei';
 function desenharPedidos() {
   const its = [...D.conta.itens].reverse();
   $('#corpo').innerHTML = `<div class="titulo-bloco">Meus pedidos</div>
     ${its.length ? '' : '<p class="vazio">Nada pedido ainda. Toque em Cardápio e escolha o primeiro.</p>'}
-    ${its.map(p => { const [t, c] = STATUS(p); return `<div class="ped">
+    ${its.map(p => { const [t, c] = STATUS(p); return `<div class="ped ${p.entregue ? 'feito' : ''}">
       <div><div class="n">${p.qtd}× ${esc(p.nome)}</div><div class="st ${c}">${esc(t)}</div></div>
       <div>${brl(p.qtd * p.preco)}</div>
       <div class="acoes">
-        ${p.entregue ? '' : `<button class="bt ouro" data-v="${p.voucher}">Ver voucher</button>`}
-        <button class="bt linha" data-de-novo="${p.id}">Pedir outro igual</button>
+        ${p.entregue ? '' : `<button class="bt ouro" data-v="${p.voucher}">Ver voucher</button>
+          <button class="bt creme" data-recebi="${p.voucher}">✓ ${BOTAO_RECEBI(p)}</button>`}
+        <button class="bt linha" data-de-novo="${p.id}">Pedir de novo</button>
       </div></div>`; }).join('')}`;
   document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => {
     const p = D.conta.itens.find(x => x.voucher === b.dataset.v); abrirVoucher(p);
+  });
+  document.querySelectorAll('[data-recebi]').forEach(b => b.onclick = () => {
+    const p = D.conta.itens.find(x => x.voucher === b.dataset.recebi); confirmarRecebi(p);
   });
   document.querySelectorAll('[data-de-novo]').forEach(b => b.onclick = () => {
     const p = D.conta.itens.find(x => String(x.id) === b.dataset.deNovo);
@@ -398,6 +460,7 @@ function abrirFolha(html) {
   const f = $('#folha'), v = $('#veu');
   f.innerHTML = '<div class="pega"></div>' + html;
   f.classList.remove('oculto'); v.classList.remove('oculto');
+  f.scrollTop = 0;
   requestAnimationFrame(() => { f.classList.add('on'); v.classList.add('on'); });
   v.onclick = fecharFolha;
 }
@@ -407,46 +470,63 @@ function fecharFolha() {
   setTimeout(() => { f.classList.add('oculto'); v.classList.add('oculto'); }, 260);
 }
 
+/* pedido em dois passos: 1) o quê e quantos  2) onde receber + confirmar */
 function abrirItem(id, codIni, qtdIni) {
   const m = D.cardapio.find(x => x.id === id); if (!m) return;
-  let cod = codIni || m.opcoes[0].cod, qtd = qtdIni || 1, enviando = false;
-  const locais = D.evento.locais || [];
+  let cod = codIni || m.opcoes[0].cod, qtd = qtdIni || 1, passo = 1, enviando = false;
+  let entrega = m.tipo === 'comida' ? (bistroAtual() ? 'bistro' : null)
+              : (bistroAtual() ? 'bistro' : (bar || null));
   const pintar = () => {
     const op = m.opcoes.find(o => o.cod === cod);
+    const nomeOp = m.nome + (op.rotulo && m.opcoes.length > 1 ? ' · ' + op.rotulo : '');
+    if (passo === 1) {
+      abrirFolha(`
+        ${m.foto ? `<button class="foto-g" id="fg"><img src="${fotoG(m)}" alt=""/><span>toque para ampliar</span></button>` : ''}
+        <h3>${esc(m.nome)}</h3>
+        ${m.chamada ? `<div class="chamada">${esc(m.chamada)}</div>` : ''}
+        ${m.descricao ? `<p class="d">${esc(m.descricao)}</p>` : ''}
+        ${m.opcoes.length > 1 ? `<div class="rot">Qual?</div><div class="chips">${m.opcoes.map(o =>
+          `<button class="chip ${o.cod===cod?'on':''}" data-cod="${o.cod}">${esc(o.rotulo)} · ${brl(o.preco)}</button>`).join('')}</div>` : ''}
+        ${podePedir() ? `<div class="rot">Quantos?</div>
+          <div class="qtd"><button id="menos" aria-label="menos">−</button><span>${qtd}</span><button id="mais" aria-label="mais">+</button></div>
+          <button class="pedir" id="seguir"><span>Pedir</span><span>${brl(op.preco * qtd)}</span></button>`
+        : (D.vitrine || D.eu.pulseira == null ? '' : `<div class="aviso">Sua conta já foi paga. Fale com o caixa para abrir de novo.</div>`)}`);
+      const fg = $('#fg'); if (fg) fg.onclick = () => verFoto(m);
+      document.querySelectorAll('[data-cod]').forEach(b => b.onclick = () => { cod = b.dataset.cod; pintar(); });
+      if (!podePedir()) return;
+      $('#menos').onclick = () => { if (qtd > 1) { qtd--; pintar(); } };
+      $('#mais').onclick = () => { if (qtd < 10) { qtd++; pintar(); } };
+      $('#seguir').onclick = () => { passo = 2; pintar(); };
+      return;
+    }
+    // passo 2: onde receber
+    const b = bistroAtual();
+    const opcoes = m.tipo === 'comida'
+      ? [['bistro', b ? `Na bistrô ${b}` : 'Na minha mesa bistrô', 'o garçom leva até você']]
+      : [['bistro', b ? `Na bistrô ${b}` : 'Na minha mesa bistrô', 'o garçom leva até você'],
+         ['baixo', 'Pego no Bar do 1º piso', 'mostre o voucher no balcão'],
+         ['cima', 'Pego no Bar do 2º piso', 'mostre o voucher no balcão']];
     abrirFolha(`
-      <h3>${esc(m.nome)}</h3>
-      ${m.chamada ? `<div class="chamada">${esc(m.chamada)}</div>` : ''}
-      ${m.descricao ? `<p class="d">${esc(m.descricao)}</p>` : ''}
-      ${m.opcoes.length > 1 ? `<div class="rot">Qual?</div><div class="chips">${m.opcoes.map(o =>
-        `<button class="chip ${o.cod===cod?'on':''}" data-cod="${o.cod}">${esc(o.rotulo)}</button>`).join('')}</div>` : ''}
-      ${podePedir() ? `<div class="rot">Quantos?</div>
-      <div class="qtd"><button id="menos" aria-label="menos">−</button><span>${qtd}</span><button id="mais" aria-label="mais">+</button></div>` : ''}
-      ${podePedir() && m.tipo === 'bebida' ? `<div class="rot">Onde você vai pegar?</div><div class="chips">${BARES.map(([k, n]) =>
-        `<button class="chip ${k===bar?'on':''}" data-bar="${k}">${n}</button>`).join('')}</div>` : ''}
-      ${podePedir() && m.tipo === 'comida' && locais.length ? `<div class="rot">Onde você vai estar?</div><div class="chips">${locais.map(l =>
-        `<button class="chip ${l===local?'on':''}" data-local="${esc(l)}">${esc(l)}</button>`).join('')}</div>` : ''}
-      ${!podePedir() ? (D.vitrine || D.eu.pulseira == null ? '' : `<div style="margin-top:14px"><div class="aviso">Sua conta já foi paga. Fale com o caixa para abrir de novo.</div></div>`) : `<button class="pedir" id="pedir"><span>${enviando ? 'Enviando…' : 'Pedir'}</span><span>${brl(op.preco * qtd)}</span></button>
-      <div id="msg"></div>
-      <p class="d" style="text-align:center;margin-top:10px">${m.tipo === 'bebida'
-        ? (bar ? `Você recebe um voucher para retirar no ${nomeBar(bar)}.` : 'Você recebe um voucher para retirar no bar.')
-        : 'Você recebe um voucher: mostre a um garçom e ele leva até você.'}</p>`}`);
-    document.querySelectorAll('[data-cod]').forEach(b => b.onclick = () => { cod = b.dataset.cod; pintar(); });
-    document.querySelectorAll('[data-local]').forEach(b => b.onclick = () => {
-      local = b.dataset.local; try { localStorage.setItem('festa_local', local); } catch {} pintar(); });
-    document.querySelectorAll('[data-bar]').forEach(b => b.onclick = () => {
-      bar = b.dataset.bar; try { localStorage.setItem('festa_bar', bar); } catch {} pintar(); });
-    if (!podePedir()) return;
-    $('#menos').onclick = () => { if (qtd > 1) { qtd--; pintar(); } };
-    $('#mais').onclick = () => { if (qtd < 10) { qtd++; pintar(); } };
+      <button class="voltar" id="voltar">‹ ${esc(nomeOp)}</button>
+      <h3 style="margin-top:6px">${m.tipo === 'comida' ? 'Onde entregamos?' : 'Onde você quer receber?'}</h3>
+      <div class="ondes">${opcoes.map(([k, t, s]) => `<button class="onde-op ${entrega===k?'on':''}" data-onde="${k}"><b>${t}</b><small>${s}</small></button>`).join('')}</div>
+      ${entrega === 'bistro' ? bistroHtml() : ''}
+      ${m.tipo === 'comida' ? '<p class="d" style="margin-top:10px">Sem mesa bistrô? Chame um garçom: ele anota o seu pedido.</p>' : ''}
+      <button class="pedir" id="pedir" ${podeConfirmar() ? '' : 'disabled'}><span>${enviando ? 'Enviando…' : 'Confirmar ' + qtd + '× ' + esc(op.rotulo && m.opcoes.length > 1 ? op.rotulo : m.nome)}</span><span>${brl(op.preco * qtd)}</span></button>
+      <div id="msg"></div>`);
+    $('#voltar').onclick = () => { passo = 1; pintar(); };
+    document.querySelectorAll('[data-onde]').forEach(x => x.onclick = () => {
+      entrega = x.dataset.onde;
+      if (entrega !== 'bistro') { bar = entrega; try { localStorage.setItem('festa_bar', bar); } catch {} }
+      pintar();
+    });
+    ligarBistro(pintar);
     $('#pedir').onclick = async () => {
-      if (enviando) return;
-      if (m.tipo === 'bebida' && !bar) {
-        $('#msg').innerHTML = '<div class="aviso">Escolha em qual bar você vai pegar.</div>';
-        return;
-      }
+      if (enviando || !podeConfirmar()) return;
       enviando = true; $('#pedir').disabled = true; $('#pedir span').textContent = 'Enviando…';
       try {
-        const r = await rpc('ev_pedir', {p_token: token, p_item: m.id, p_cod: cod, p_qtd: qtd, p_local: m.tipo === 'comida' ? local : null, p_retirar: m.tipo === 'bebida' ? bar : null});
+        const r = await rpc('ev_pedir', {p_token: token, p_item: m.id, p_cod: cod, p_qtd: qtd, p_local: null,
+          p_retirar: entrega === 'bistro' ? null : entrega, p_bistro: entrega === 'bistro' ? bistroAtual() : null});
         D = await rpc('ev_cliente', {p_token: token});
         desenhar();
         const p = D.conta.itens.find(x => x.voucher === r.voucher);
@@ -454,15 +534,108 @@ function abrirItem(id, codIni, qtdIni) {
       } catch (e) {
         enviando = false; $('#pedir').disabled = false; $('#pedir span').textContent = 'Tentar de novo';
         const txt = {conta_ja_paga:'Sua conta já foi paga. Fale com o caixa para abrir de novo.',
-                     sem_pulseira:'Falta a sua pulseira: passe na entrada e depois peça aqui.',
+                     sem_pulseira:'Falta a sua pulseira: fale com um garçom.',
                      evento_fechado:'Os pedidos pelo celular foram encerrados. Fale com um garçom.',
+                     escolha_a_bistro:'Escolha a sua mesa bistrô.', escolha_o_bar:'Escolha onde vai pegar.',
+                     bistro_invalida:'Essa mesa bistrô não existe. Confira o número na plaquinha.',
                      sem_preco:'Esse item saiu do cardápio agora. Escolha outro, por favor.'}[e.codigo]
           || 'Não consegui enviar. O pedido NÃO foi feito. Confira a internet e toque em "Tentar de novo".';
         $('#msg').innerHTML = `<div class="aviso">${esc(txt)}</div>`;
       }
     };
   };
+  const podeConfirmar = () => entrega === 'bistro' ? !!bistroAtual() : !!entrega;
   pintar();
+}
+
+/* ---------- mesa bistrô: QR da mesa (câmera) ou o número da plaquinha ---------- */
+function bistroAtual() {
+  try {
+    const b = JSON.parse(localStorage.getItem('festa_bistro') || 'null');
+    if (b && Date.now() - b.em < 3 * 3600e3) return b.n;
+  } catch {}
+  return null;
+}
+function guardarBistro(n) { try { localStorage.setItem('festa_bistro', JSON.stringify({n, em: Date.now()})); } catch {} }
+let trocarBistro = false;
+function bistroHtml() {
+  const b = bistroAtual(), tot = (D.evento && D.evento.bistros) || 15;
+  if (b && !trocarBistro) return `<div class="bistro ok"><span>Mesa bistrô <b>${b}</b> ✓</span><button class="bt linha" id="trocar-b">Trocar</button></div>`;
+  return `<div class="bistro">
+    <button class="bt ouro escanear" id="escanear">📷 Ler o QR da mesa</button>
+    <div class="rot" style="margin-top:12px">ou toque no número da plaquinha</div>
+    <div class="grade">${Array.from({length: tot}, (_, i) => `<button class="${b===i+1?'on':''}" data-bistro="${i+1}">${i+1}</button>`).join('')}</div>
+  </div>`;
+}
+function ligarBistro(pintar) {
+  document.querySelectorAll('[data-bistro]').forEach(x => x.onclick = () => { guardarBistro(+x.dataset.bistro); trocarBistro = false; pintar(); });
+  const e = $('#escanear'); if (e) e.onclick = () => lerQr(n => { guardarBistro(n); trocarBistro = false; pintar(); });
+  const tb = $('#trocar-b'); if (tb) tb.onclick = () => { trocarBistro = true; pintar(); };
+}
+/* leitor de QR na própria página (BarcodeDetector ou jsQR); o QR da mesa traz ?b=N */
+async function lerQr(ok) {
+  const v = document.createElement('div');
+  v.className = 'leitor';
+  v.innerHTML = `<video playsinline muted></video><div class="mira"></div>
+    <p>Aponte para o QR da mesa</p><button class="bt creme" id="lq-x">Cancelar</button>`;
+  document.body.appendChild(v);
+  const video = v.querySelector('video');
+  let stream = null, vivo = true;
+  const fim = () => { vivo = false; if (stream) stream.getTracks().forEach(t => t.stop()); v.remove(); };
+  v.querySelector('#lq-x').onclick = fim;
+  const numero = txt => { const m = String(txt || '').match(/[?&]b=(\d{1,2})\b/) || String(txt || '').match(/^BISTRO-(\d{1,2})$/i); return m ? +m[1] : null; };
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}, audio: false});
+    video.srcObject = stream; await video.play();
+  } catch (e) {
+    v.querySelector('p').textContent = 'Não consegui abrir a câmera. Toque no número da plaquinha.';
+    return;
+  }
+  let detector = null;
+  if ('BarcodeDetector' in window) { try { detector = new BarcodeDetector({formats: ['qr_code']}); } catch {} }
+  if (!detector && !window.jsQR) {
+    await new Promise(r => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'; s.onload = r; s.onerror = r; document.head.appendChild(s); });
+  }
+  const cv = document.createElement('canvas'), cx = cv.getContext('2d', {willReadFrequently: true});
+  const passo = async () => {
+    if (!vivo) return;
+    let txt = null;
+    try {
+      if (detector) { const r = await detector.detect(video); if (r[0]) txt = r[0].rawValue; }
+      else if (window.jsQR && video.videoWidth) {
+        cv.width = video.videoWidth; cv.height = video.videoHeight; cx.drawImage(video, 0, 0);
+        const r = jsQR(cx.getImageData(0, 0, cv.width, cv.height).data, cv.width, cv.height); if (r) txt = r.data;
+      }
+    } catch {}
+    const n = numero(txt);
+    if (n) { if (navigator.vibrate) navigator.vibrate(40); fim(); ok(n); return; }
+    if (txt) v.querySelector('p').textContent = 'Esse QR não é de uma mesa bistrô.';
+    setTimeout(passo, 220);
+  };
+  passo();
+}
+
+/* "Peguei" (bar) / "Recebi" (bistrô): a convidada confirma e o pedido sai da tela do garçom */
+function confirmarRecebi(p) {
+  if (!p) return;
+  abrirFolha(`<div class="voucher">
+    <h3>${p.bistro ? 'O pedido chegou?' : 'Já está com ele na mão?'}</h3>
+    <p class="d" style="margin-top:6px">${p.qtd}× ${esc(p.nome)}</p>
+    <div style="display:grid;gap:10px;margin-top:18px">
+      <button class="bt ouro" style="padding:16px;font-size:18px" id="sim">✓ Sim, ${p.bistro ? 'recebi' : 'peguei'}</button>
+      <button class="bt linha" style="padding:12px" id="nao">Ainda não</button>
+    </div></div>`);
+  $('#nao').onclick = fecharFolha;
+  $('#sim').onclick = async () => {
+    try {
+      await rpc('ev_cliente_recebi', {p_token: token, p_voucher: p.voucher});
+      if (navigator.vibrate) navigator.vibrate(30);
+      D = await rpc('ev_cliente', {p_token: token});
+      fecharFolha(); desenhar();
+    } catch (e) {
+      $('#nao').insertAdjacentHTML('afterend', '<div class="aviso">Não consegui confirmar. Confira a internet e tente de novo.</div>');
+    }
+  };
 }
 
 /* aniversário (dia e mês): para convidar a fazer a festa dela aqui */
@@ -499,20 +672,22 @@ function qrSvg(texto) {
 }
 function abrirVoucher(p, novo) {
   if (!p) return;
-  const bar = p.tipo === 'bebida';
+  const titulo = p.bistro ? `O garçom leva até a bistrô ${p.bistro}`
+               : p.retirar ? `Retire no ${nomeBar(p.retirar)}` : (p.tipo === 'bebida' ? 'Mostre no bar' : 'Mostre a um garçom');
   abrirFolha(`<div class="voucher">
-    ${novo ? '<div class="aviso info" style="margin:0 0 6px">Pedido feito! Ele já foi para o ' + (bar ? 'bar.' : 'a cozinha.') + '</div>' : ''}
-    <div class="onde">${bar ? 'Mostre no bar' : 'Mostre a um garçom'}</div>
-    <div class="qr">${qrSvg(EQUIPE + 'V-' + p.voucher)}</div>
-    <div class="cod">${p.voucher}</div>
-    <h3 style="margin-top:10px">${p.qtd}× ${esc(p.nome)}</h3>
+    ${novo ? `<div class="aviso info" style="margin:0 0 6px">Pedido feito! ${p.bistro ? 'Já está sendo preparado.' : 'Mostre este voucher no balcão.'}</div>` : ''}
+    <div class="onde">${esc(titulo)}</div>
+    <div class="cod-g">${p.voucher}</div>
+    <h3 style="margin-top:6px">${p.qtd}× ${esc(p.nome)}</h3>
     <div class="quem">Pulseira ${D.eu.pulseira} · ${esc(D.eu.nome)}</div>
-    ${p.entregue ? '<div class="usado">Já entregue</div>' : ''}
-    <div style="display:grid;gap:10px;margin-top:18px">
+    ${p.entregue ? '<div class="usado">Já entregue</div>' : `<div class="qr">${qrSvg(EQUIPE + 'V-' + p.voucher)}</div>`}
+    <div style="display:grid;gap:10px;margin-top:14px">
+      ${p.entregue ? '' : `<button class="bt creme" style="padding:14px;font-size:17px" id="recebi">✓ ${BOTAO_RECEBI(p)}</button>`}
       <button class="bt ouro" style="padding:14px" id="mais-um">Pedir mais alguma coisa</button>
       <button class="bt linha" style="padding:12px" id="ok">Fechar</button>
     </div>${novo ? anivHtml() : ''}</div>`);
   $('#ok').onclick = fecharFolha;
+  const rb = $('#recebi'); if (rb) rb.onclick = () => confirmarRecebi(p);
   ligarAniv();
   $('#mais-um').onclick = () => { fecharFolha(); aba = 'cardapio'; desenhar(); };
 }

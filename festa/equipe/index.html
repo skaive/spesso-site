@@ -41,6 +41,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 .tag{display:inline-block;font-size:12.5px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--selva-3);color:var(--texto-2);}
 .tag.erro{background:rgba(255,122,87,.15);color:var(--erro);} .tag.ok{background:rgba(63,185,107,.18);color:#8EE6AE;}
 .tag.vivo{background:rgba(224,169,63,.16);color:var(--ouro-2);}
+.tag.bistro{background:var(--ouro);color:#1d1208;font-size:14px;}
 .res{border-width:2px;}
 .res.bom{border-color:var(--ok);} .res.ruim{border-color:var(--erro);}
 .res .grande-txt{font-size:24px;font-weight:800;color:var(--creme);line-height:1.15;}
@@ -105,7 +106,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v4 24/11/2026';
+const VER='festa-equipe-v5 24/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -176,9 +177,11 @@ function pedidoCard(p){
     : p.pronto ? '<span class="tag ok">pronto na cozinha</span>' : '<span class="tag">no Frest</span>';
   return `<div class="card"><div class="lin"><div><b>${p.qtd}× ${esc(p.nome)}</b>
     <div class="mut">${esc(p.cliente)} · mesa ${p.mesa}${p.local?' · '+esc(p.local):''} · há ${minutos(p.criado_em)} min</div>
-    <div style="margin-top:4px">${st}${p.garcom?` <span class="tag">${esc(p.garcom)}</span>`:''}</div>
+    <div style="margin-top:4px">${p.bistro?`<span class="tag bistro">BISTRÔ ${p.bistro}</span> `:p.retirar?`<span class="tag">pega no bar ${p.retirar==='cima'?'2º':'1º'} piso</span> `:''}${st}${p.garcom?` <span class="tag">${esc(p.garcom)}</span>`:''}</div>
     ${p.status==='erro'&&p.erro?`<div class="mut" style="margin-top:4px">${esc(p.erro)}</div>`:''}</div>
     <div class="puls"><small>PULS.</small>${p.pulseira}</div></div>
+    ${S.papel==='garcom'&&p.bistro&&!p.garcom?`<div class="acoes"><button class="bt ouro" data-assumir="${p.voucher}">É meu: levo à bistrô ${p.bistro}</button></div>`:''}
+    ${S.papel==='garcom'&&p.garcom===S.nome?`<div class="acoes"><button class="bt ok" data-entreguei="${p.voucher}">Entreguei${p.bistro?' na bistrô '+p.bistro:''}</button></div>`:''}
     ${p.status==='erro'&&(S.papel==='gestao'||S.papel==='caixa')?`<div class="acoes"><button class="bt linha" data-relancar="${p.voucher}">Conferi no Frest: não está lá. Lançar de novo</button></div>`:''}
   </div>`;
 }
@@ -225,8 +228,8 @@ function desenhar(){
   }
   const meus = S.papel==='garcom' ? pend.filter(p=>p.garcom===S.nome) : [];
   const resto = S.papel==='garcom' ? pend.filter(p=>p.garcom!==S.nome) : pend;
-  if(S.papel==='garcom') h+=`<h2>Minhas entregas (${meus.length})</h2>`+(meus.map(pedidoCard).join('')||'<p class="mut">Leia o voucher da cliente para assumir uma entrega.</p>');
-  const tit={bar:'Bebidas a entregar',garcom:'Comidas sem garçom',caixa:'Tudo que falta entregar',gestao:'Tudo que falta entregar',porta:'Tudo que falta entregar'}[S.papel];
+  if(S.papel==='garcom') h+=`<h2>Minhas entregas (${meus.length})</h2>`+(meus.map(pedidoCard).join('')||'<p class="mut">Assuma uma entrega abaixo ou leia o voucher da cliente. Quando ela tocar em "Recebi", o pedido sai daqui.</p>');
+  const tit={bar:'Bebidas a entregar',garcom:'Para levar (sem garçom)',caixa:'Tudo que falta entregar',gestao:'Tudo que falta entregar',porta:'Tudo que falta entregar'}[S.papel];
   h+=`<h2>${tit} (${resto.length})</h2>`+(resto.map(pedidoCard).join('')||'<p class="mut">Nada pendente.</p>');
   h+=`<p class="mut" style="text-align:center;margin-top:24px;font-size:11px">skv-versao ${VER}</p>`;
   $('#app').innerHTML=h;
@@ -235,8 +238,16 @@ function desenhar(){
     if(!confirm('Você conferiu no Frest que esse item NÃO está na mesa? Se estiver, vai cobrar duas vezes.')) return;
     try{ await rpc('ev_relancar',{p_sessao:S.sessao,p_voucher:b.dataset.relancar}); atualizar(); }catch(e){ alert(msgErro(e)); }
   });
+  document.querySelectorAll('[data-assumir],[data-entreguei]').forEach(b=>b.onclick=async()=>{
+    const v=b.dataset.assumir||b.dataset.entreguei, a=b.dataset.assumir?'assumir':'entregar';
+    b.disabled=true;
+    try{ const x=await rpc('ev_voucher_acao',{p_sessao:S.sessao,p_voucher:v,p_acao:a});
+      if(x&&x.ok===false) alert({ja_entregue:'Já entregue.',ja_tem_garcom:`Já é do(a) ${x.garcom}.`}[x.motivo]||x.motivo);
+      if(navigator.vibrate) navigator.vibrate(30); atualizar(); }
+    catch(e){ b.disabled=false; alert(msgErro(e)); }
+  });
   const pb=$('#porta'); if(pb) pb.onclick=()=>telaPorta();
-  const lp=$('#lp-ok'); if(lp) lp.onclick=()=>{ const n=parseInt($('#lp-num').value,10); if(n) telaLancar(n); };
+  const lp=$('#lp-ok'); if(lp) lp.onclick=()=>{ const n=parseInt($('#lp-num').value,10); if(n){ bisEq=null; telaLancar(n); } };
   const ln=$('#lp-num'); if(ln) ln.onkeydown=e=>{ if(e.key==='Enter') lp.click(); };
   document.querySelectorAll('[data-conf]').forEach(b=>b.onclick=async()=>{
     const saiu=b.dataset.saiu==='1';
@@ -271,7 +282,7 @@ function telaVoucher(r){
   const ruim=usado||cancel;
   let acoes='';
   if(!ruim){
-    if(p.tipo==='comida' && S.papel==='garcom'){
+    if((p.tipo==='comida'||p.bistro) && S.papel==='garcom'){
       acoes = p.garcom===S.nome
         ? `<button class="bt ok grande" data-a="entregar">Entreguei na mão dela</button><button class="bt linha" data-a="soltar">Não vou conseguir levar (soltar)</button>`
         : p.garcom ? `<div class="aviso">Já é do(a) ${esc(p.garcom)}.</div>`
@@ -289,6 +300,7 @@ function telaVoucher(r){
     ${cancel?`<div class="aviso">PEDIDO CANCELADO${p.cancelado_por?' por '+esc(p.cancelado_por):''}. Não entregue.</div>`:''}
     <div class="lin" style="margin-top:6px"><div class="grande-txt">${p.qtd}× ${esc(p.nome)}</div><div class="puls"><small>PULS.</small>${c.pulseira}</div></div>
     <p style="margin-top:8px"><b>${esc(c.nome)}</b> · mesa ${c.mesa}${p.local?' · '+esc(p.local):''}</p>
+    ${p.bistro?`<p style="margin-top:6px"><span class="tag bistro">ENTREGAR NA BISTRÔ ${p.bistro}</span></p>`:p.retirar?`<p class="mut">Ela pega no bar do ${p.retirar==='cima'?'2º':'1º'} piso.</p>`:''}
     <p class="mut">Pedido às ${hora(p.criado_em)} · ${p.status==='lancado'?'no Frest':p.status==='erro'?'NÃO entrou no Frest':'indo pro Frest'}</p>
     <p class="mut">Confira o número da pulseira no braço dela.</p>
     <div class="acoes">${acoes}<button class="bt linha" onclick="fechar()">Voltar</button></div></div>`);
@@ -351,6 +363,7 @@ function telaConta(r){
 /* ---------------------------------------------------------------- lançar pela pulseira */
 /* bebida lançada pela equipe: o papel sai no bar escolhido (quem é do bar entrega na hora: sem papel) */
 let barEq=null; try{ barEq=localStorage.getItem('festa_eq_bar'); }catch{}
+let bisEq=null;   // mesa bistrô (opcional): o garçom leva e ela confirma no celular
 async function telaLancar(n, aviso, ladoIni){
   resultado('<div class="card" id="res"><p class="mut">Abrindo a pulseira '+n+'…</p></div>');
   let r;
@@ -372,21 +385,25 @@ async function telaLancar(n, aviso, ladoIni){
         return `<button data-item="${x.id}" class="${x.id===sel?'on':''}"><span>${esc(x.nome)}</span><span class="mut">${brl(mn)}</span></button>`;}).join('')).join('')}</div>
       ${m?`<div class="escolha"><b>${esc(m.nome)}</b>
         ${m.opcoes.length>1?`<div class="chips">${m.opcoes.map(o=>`<button data-cod="${o.cod}" class="${o.cod===cod?'on':''}">${esc(o.rotulo)}</button>`).join('')}</div>`:''}
-        ${m.tipo==='bebida'&&S.papel!=='bar'?`<div class="mut" style="margin-top:10px">Pegar no</div><div class="chips">${[['baixo','Bar do 1º piso'],['cima','Bar do 2º piso']].map(([k,nb])=>`<button data-bar="${k}" class="${k===barEq?'on':''}">${nb}</button>`).join('')}</div>`:''}
+        ${m.tipo==='bebida'&&S.papel!=='bar'?`<div class="mut" style="margin-top:10px">Sai no</div><div class="chips">${[['baixo','Bar do 1º piso'],['cima','Bar do 2º piso'],['bistro','Bistrô']].map(([k,nb])=>`<button data-bar="${k}" class="${(k==='bistro'?bisEq:(!bisEq&&k===barEq))?'on':''}">${nb}</button>`).join('')}</div>`:''}
+        ${m.tipo==='comida'?`<div class="mut" style="margin-top:10px">Entregar na bistrô (opcional)</div>`:''}
+        ${(m.tipo==='comida'||bisEq)&&S.papel!=='bar'?`<div class="chips">${Array.from({length:15},(_,i)=>`<button data-bis="${i+1}" class="${bisEq===i+1?'on':''}">${i+1}</button>`).join('')}</div>`:''}
         <div class="qtd"><button id="menos">−</button><span>${qtd}</span><button id="mais">+</button></div>
         <div class="acoes"><button class="bt ok grande" id="lancar">${enviando?'Lançando…':'Lançar '+brl(op.preco*qtd)}</button></div></div>`:''}
       <div class="acoes"><button class="bt linha" onclick="fechar()">Pronto</button></div></div>`);
     document.querySelectorAll('[data-lado]').forEach(b=>b.onclick=()=>{ lado=b.dataset.lado; sel=null; pintar(); });
     document.querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>{ sel=+b.dataset.item; const mm=r.cardapio.find(x=>x.id===sel); cod=mm.opcoes[0].cod; qtd=1; pintar(); });
     document.querySelectorAll('[data-cod]').forEach(b=>b.onclick=()=>{ cod=b.dataset.cod; pintar(); });
-    document.querySelectorAll('[data-bar]').forEach(b=>b.onclick=()=>{ barEq=b.dataset.bar; try{localStorage.setItem('festa_eq_bar',barEq);}catch{} pintar(); });
+    document.querySelectorAll('[data-bar]').forEach(b=>b.onclick=()=>{ if(b.dataset.bar==='bistro'){ bisEq=bisEq||0; pintar(); return; } bisEq=null; barEq=b.dataset.bar; try{localStorage.setItem('festa_eq_bar',barEq);}catch{} pintar(); });
+    document.querySelectorAll('[data-bis]').forEach(b=>b.onclick=()=>{ const n=+b.dataset.bis; bisEq=(bisEq===n&&m.tipo==='comida')?null:n; pintar(); });
     const me=$('#menos'); if(me){ me.onclick=()=>{ if(qtd>1){qtd--;pintar();} }; $('#mais').onclick=()=>{ if(qtd<10){qtd++;pintar();} }; }
     const lb=$('#lancar'); if(lb) lb.onclick=async()=>{
       if(enviando) return;
-      if(m.tipo==='bebida'&&S.papel!=='bar'&&!barEq){ alert('Escolha em qual bar a bebida sai.'); return; }
+      if(m.tipo==='bebida'&&S.papel!=='bar'&&!bisEq&&!barEq){ alert('Escolha em qual bar a bebida sai.'); return; }
+      if(bisEq===0){ alert('Toque no número da bistrô.'); return; }
       enviando=true; lb.disabled=true; lb.textContent='Lançando…';
       try{
-        const x=await rpc('ev_equipe_pedir',{p_sessao:S.sessao,p_pulseira:r.pulseira,p_item:m.id,p_cod:cod,p_qtd:qtd,p_retirar:m.tipo==='bebida'&&S.papel!=='bar'?barEq:null});
+        const x=await rpc('ev_equipe_pedir',{p_sessao:S.sessao,p_pulseira:r.pulseira,p_item:m.id,p_cod:cod,p_qtd:qtd,p_retirar:m.tipo==='bebida'&&S.papel!=='bar'&&!bisEq?barEq:null,p_bistro:bisEq||null});
         if(navigator.vibrate) navigator.vibrate(40);
         const nomeItem=m.nome+(op.rotulo?' · '+op.rotulo:'');
         telaLancar(r.pulseira, `${qtd}× ${nomeItem} lançado para ${r.nome.split(' ')[0]}${S.papel==='garcom'&&m.tipo==='comida'?'. A entrega é sua.':'.'}`, lado);
