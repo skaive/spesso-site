@@ -11,372 +11,57 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='%23E0A93F'/></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;0,800;1,500&family=Alegreya+SC:wght@700&family=Kaushan+Script&family=Pinyon+Script&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;0,800;1,500&family=Alegreya+SC:wght@700&family=Kaushan+Script&family=Pinyon+Script&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..800;1,6..96,400..800&family=Jost:ital,wght@0,300..700;1,300..600&display=swap" rel="stylesheet"/>
 <style>
-:root{
-  --selva:#0B2216; --selva-2:#113021; --selva-3:#18402C; --linha:#2A5A40;
-  --creme:#F4E8CB; --creme-2:#E9D8AE; --tinta:#3A2312; --ouro:#E0A93F; --ouro-2:#F3C766;
-  --brasa:#D9502E; --texto:#F4EBD6; --texto-2:#BFD0BF; --ok:#7FD39A; --erro:#FF8A6B;
-  --raio:18px; --sab:env(safe-area-inset-bottom,0px);
-  --ease-out:cubic-bezier(0.23, 1, 0.32, 1); --ease-drawer:cubic-bezier(0.32, 0.72, 0, 1);
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html{background:var(--selva);}
-body{font-family:'Alegreya',Georgia,serif;color:var(--texto);background:var(--selva);min-height:100dvh;
-  font-size:17px;line-height:1.4;overscroll-behavior-y:none;-webkit-font-smoothing:antialiased;}
-button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;}
-img{display:block;max-width:100%;}
-.oculto{display:none!important;}
-
-/* ---------- topo compacto (Renato 24/11: a paisagem ocupava a tela; Beber/Comer logo de cara) ---------- */
-.topo{position:relative;height:104px;display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:calc(8px + env(safe-area-inset-top,0px)) 16px 8px;overflow:hidden;isolation:isolate;}
-.topo .bg{position:absolute;inset:0;z-index:-2;background:var(--selva) url(img/selva.jpg) center 38%/cover no-repeat;}
-.topo::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(11,34,22,.25),rgba(11,34,22,.7) 70%,var(--selva));}
-.topo h1{font-family:'Pinyon Script',cursive;font-weight:400;color:var(--creme);font-size:clamp(30px,9.4vw,40px);white-space:nowrap;line-height:1.1;text-shadow:0 2px 12px rgba(0,0,0,.6);}
-.topo .tt{min-width:0;}
-.topo .nome-topo{font-family:'Kaushan Script',cursive;color:var(--ouro-2);font-size:clamp(28px,8.6vw,36px);line-height:1;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 2px 12px rgba(0,0,0,.6);}
-.topo h1.com-nome{font-size:clamp(24px,7.4vw,32px);margin-top:2px;}
-.topo .marca{font-family:'Alegreya SC',serif;letter-spacing:.26em;font-size:11px;color:var(--ouro-2);margin-top:4px;}
-.eu{flex:none;display:flex;align-items:center;gap:8px;background:rgba(11,34,22,.82);
-  border:1px solid var(--linha);border-radius:999px;padding:5px 12px 5px 5px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
-.eu .num{background:var(--ouro);color:var(--tinta);font-weight:800;border-radius:999px;min-width:36px;height:36px;
-  display:grid;place-items:center;font-size:17px;padding:0 8px;}
-.eu{padding:5px 5px 5px 12px;} .eu .q{font-family:'Alegreya SC',serif;font-size:13px;letter-spacing:.14em;color:var(--creme);}
-.topo .dir{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
-.logo-casa{display:block;padding:2px 2px 0;opacity:.88;transition:opacity .15s ease,transform .1s ease-out;}
-.logo-casa img{width:76px;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6));}
-.logo-casa:active{transform:scale(.96);opacity:1;}
-
-/* ---------- Beber / Comer ---------- */
-.lados{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 0;}
-.lado{position:relative;height:136px;border-radius:var(--raio);overflow:hidden;border:2px solid var(--linha);
-  box-shadow:0 6px 18px rgba(0,0,0,.3);transition:transform .14s ease-out;}
-.lado:active{transform:scale(.97);}
-.lado img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.lado::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,20,12,0) 40%,rgba(6,20,12,.8));transition:opacity .2s ease;}
-.lado.on::after{background:linear-gradient(180deg,rgba(6,20,12,0) 55%,rgba(6,20,12,.6));}
-.lado b{text-shadow:0 2px 10px rgba(0,0,0,.7);}
-.lado b{position:absolute;left:14px;bottom:10px;z-index:1;font-family:'Kaushan Script',cursive;font-weight:400;font-size:40px;color:var(--creme);line-height:1;}
-.lado.on{border-color:var(--ouro);}
-.lado.on b{color:var(--ouro-2);}
-.dica{margin:12px 16px 0;font-size:15px;color:var(--texto-2);}
-.dica b{color:var(--creme);}
-
-/* ---------- foto grande ---------- */
-.lupa{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;}
-.lupa img{max-width:100%;max-height:78dvh;border-radius:14px;object-fit:contain;}
-.lupa .lg{margin-top:14px;color:var(--creme);font-size:19px;font-weight:700;text-align:center;}
-.lupa .lg small{display:block;font-weight:400;font-size:13px;color:var(--texto-2);margin-top:4px;}
-.foto-g{display:block;position:relative;width:calc(100% + 36px);margin:-4px -18px 14px;height:240px;overflow:hidden;background:var(--selva);}
-.foto-g img{width:100%;height:100%;object-fit:cover;}
-.foto-g span{position:absolute;right:10px;bottom:10px;font-size:12px;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:4px 10px;}
-
-/* ---------- onde receber + mesa bistrô ---------- */
-.volta-linha{display:flex;align-items:center;gap:12px;}
-.volta-linha span{color:var(--texto-2);font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.voltar{flex:none;border:2px solid var(--creme);color:var(--creme);border-radius:999px;padding:9px 18px 9px 14px;font-size:17px;font-weight:800;}
-.voltar:active{transform:scale(.96);}
-.ondes{display:grid;gap:8px;margin-top:14px;}
-.onde-op{display:block;text-align:left;width:100%;border:2px solid var(--linha);border-radius:16px;padding:12px 14px;}
-.onde-op b{display:block;font-size:18px;color:var(--creme);}
-.onde-op small{font-size:14px;color:var(--texto-2);}
-.onde-op.on{border-color:var(--ouro);background:rgba(224,169,63,.12);}
-.onde-op.on b{color:var(--ouro-2);}
-.bistro{margin-top:14px;padding:14px;border-radius:16px;background:rgba(0,0,0,.18);}
-.bistro.ok{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:18px;color:var(--creme);}
-.bistro.ok b{color:var(--ouro-2);font-size:22px;}
-.bistro .escanear{width:100%;padding:14px;font-size:17px;}
-.grade{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
-.grade button{height:48px;border-radius:12px;border:1px solid var(--linha);font-size:19px;font-weight:800;color:var(--creme);}
-.grade button.on{background:var(--ouro);color:var(--tinta);border-color:var(--ouro);}
-.leitor{position:fixed;inset:0;z-index:70;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 16px calc(24px + var(--sab));}
-.leitor video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.leitor .mira{position:absolute;left:50%;top:42%;width:min(66vw,260px);aspect-ratio:1;transform:translate(-50%,-50%);border:3px solid var(--ouro);border-radius:22px;box-shadow:0 0 0 2000px rgba(0,0,0,.45);}
-.leitor p{position:relative;color:#fff;font-size:17px;margin-bottom:14px;text-align:center;}
-.leitor .bt{position:relative;padding:12px 28px;}
-.ped .acoes{flex-wrap:wrap;}
-.alerta{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.82);display:grid;place-items:center;padding:20px;animation:veu-in .2s ease-out;}
-.alerta .cx{background:var(--selva-2);color:var(--texto);border:1px solid rgba(224,169,63,.6);border-radius:24px;padding:26px 20px 20px;text-align:center;
-  width:min(92vw,380px);display:grid;gap:10px;
-  box-shadow:0 0 0 6px rgba(11,34,22,.9),0 0 0 7px rgba(224,169,63,.22),0 30px 60px rgba(0,0,0,.6);animation:surge .3s var(--ease-out);}
-.alerta h2.it{font-family:'Pinyon Script',cursive;font-weight:400;font-size:clamp(40px,12vw,54px);line-height:1.1;color:var(--ouro-2);}
-.alerta .sub{font-weight:700;font-size:19px;color:var(--creme);}
-.alerta p{font-size:17px;}
-.alerta .bt{padding:14px;font-size:17px;}
-.alerta .bt.linha{border-color:var(--linha);color:var(--creme);}
-.meu-mural{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;}
-.meu-mural img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:12px;display:block;margin-bottom:6px;}
-.meu-mural .bt{width:100%;padding:9px;font-size:14px;}
-.convite-festa{margin:28px 16px 0;padding:22px 18px;border-radius:var(--raio);text-align:center;
-  border:1px solid rgba(243,199,102,.45);background:linear-gradient(180deg,rgba(243,199,102,.08),rgba(243,199,102,.02));}
-.convite-festa .it{color:var(--ouro-2);}
-.convite-festa h3{font-size:21px;margin:6px 0 8px;color:var(--creme);}
-.convite-festa p{color:var(--texto-2);font-size:15.5px;line-height:1.4;}
-.convite-festa .bt{margin-top:14px;padding:14px;width:100%;font-size:17px;}
-.pre-reserva .pr-tit{font-size:40px;color:var(--ouro-2);text-align:center;}
-.pre-reserva .pr-q{font-size:24px;margin:6px 0 14px;text-align:center;}
-.pr-ops{display:grid;gap:10px;}
-.pr-op{border:1.5px solid var(--linha);border-radius:16px;padding:16px;font-size:18px;font-weight:700;color:var(--creme);text-align:center;
-  transition:transform .12s var(--ease-out, ease-out),background-color .15s ease;}
-.pr-op:active{transform:scale(.97);background:rgba(244,232,203,.08);}
-.pr-meses{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-.pr-op.mes{padding:12px 6px;font-size:16px;text-transform:capitalize;}
-.pr-op.mes small{display:block;font-size:12px;font-weight:400;color:var(--texto-2);margin-top:2px;}
-.pr-op.sugerido{border-color:var(--ouro);color:var(--ouro-2);}
-.pr-dia{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;color:var(--texto-2);font-size:15px;}
-.pr-dia input{font:inherit;background:transparent;color:var(--creme);border:1.5px solid var(--linha);border-radius:12px;padding:10px;}
-.it{font-family:'Pinyon Script',cursive;font-weight:400;line-height:1.15;}
-.momento h3.it{font-size:50px;color:var(--ouro-2);margin-top:2px;}
-.paga{margin:10px 16px 0;background:var(--creme);color:var(--tinta);border-radius:var(--raio);padding:18px 16px;text-align:center;}
-.paga h3{font-family:'Kaushan Script',cursive;font-weight:400;font-size:30px;color:#1d6b3a;}
-.paga .qr{background:#fff;border-radius:16px;padding:12px;width:min(70vw,260px);margin:12px auto 8px;}
-.paga .qr svg{width:100%;height:auto;display:block;}
-.paga .pl{font-size:22px;font-weight:800;}
-.pagar{margin:14px 16px 0;padding:16px;border-radius:var(--raio);border:1px solid rgba(224,169,63,.45);text-align:center;}
-.pagar b{display:block;font-size:26px;color:var(--ouro-2);margin-top:4px;}
-.conta .l .de-novo{margin-left:8px;font-size:13px;font-weight:700;color:#8a5a12;text-decoration:underline;}
-
-/* ---------- categorias ---------- */
-.cats{position:sticky;top:0;z-index:5;background:rgba(11,34,22,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  border-bottom:1px solid var(--linha);margin-top:16px;}
-.troca{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.sent{height:1px;}
-/* a chave Beber/Comer só aparece com a barra presa, por cima do conteúdo (a lista não pula) */
-.cats .troca{position:absolute;left:0;right:0;top:100%;padding:8px 16px 10px;background:rgba(11,34,22,.96);border-bottom:1px solid var(--linha);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;transform:translateY(-6px);
-  transition:opacity .18s ease-out,transform .18s var(--ease-out);}
-.cats.preso .troca{opacity:1;pointer-events:auto;transform:none;}
-.cats .troca button{padding:10px 6px;font-size:18px;}
-.troca button{border:2px solid var(--linha);border-radius:14px;padding:11px 6px;font-size:20px;font-weight:800;color:var(--creme);}
-.troca button.on{background:var(--ouro);border-color:var(--ouro);color:var(--tinta);}
-.cats .in{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;scrollbar-width:none;}
-.cats .in::-webkit-scrollbar{display:none;}
-.cats a{flex:none;text-decoration:none;color:var(--texto-2);font-size:15px;padding:7px 14px;border-radius:999px;border:1px solid var(--linha);}
-.cats a.on{background:var(--creme);color:var(--tinta);border-color:var(--creme);font-weight:700;}
-
-.secao{padding:22px 16px 4px;scroll-margin-top:124px;}
-.secao h2{display:inline-block;font-family:'Alegreya SC',serif;font-size:15px;letter-spacing:.14em;color:var(--tinta);
-  background:var(--creme);padding:6px 18px 7px;margin:0 0 12px -16px;border-radius:0 999px 999px 0;}
-.item{width:100%;display:flex;gap:14px;align-items:flex-start;text-align:left;padding:14px 0;border-bottom:1px solid rgba(42,90,64,.6);}
-.item:active{background:rgba(255,255,255,.03);}
-.item .foto{flex:none;width:86px;height:86px;border-radius:14px;overflow:hidden;background:var(--selva-2);}
-.item .foto img{width:100%;height:100%;object-fit:cover;}
-.item .tx{flex:1;min-width:0;}
-.item h3{font-size:18px;font-weight:700;line-height:1.2;color:var(--creme);}
-.item .chamada{font-style:italic;color:var(--ouro-2);font-size:15.5px;margin-top:2px;}
-.item p{font-size:14.5px;color:var(--texto-2);margin-top:3px;}
-.item .pr{margin-top:6px;display:flex;align-items:center;gap:10px;font-weight:800;color:var(--ouro);}
-.item .mais{margin-left:auto;flex:none;width:34px;height:34px;border-radius:50%;background:var(--ouro);color:var(--tinta);
-  display:grid;place-items:center;font-size:24px;font-weight:800;line-height:1;align-self:center;}
-
-/* ---------- meus pedidos ---------- */
-.titulo-bloco{font-family:'Kaushan Script',cursive;font-size:26px;color:var(--creme);padding:22px 16px 6px;}
-.vazio{padding:10px 16px 0;color:var(--texto-2);}
-.ped{margin:10px 16px 0;background:var(--selva-2);border:1px solid var(--linha);border-radius:var(--raio);padding:12px 14px;
-  display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;}
-.ped .n{font-weight:700;color:var(--creme);}
-.ped .st{font-size:14px;color:var(--texto-2);}
-.ped .st.ok{color:var(--ok);} .ped .st.vivo{color:var(--ouro-2);}
-.ped .acoes{grid-column:1/-1;display:flex;gap:8px;margin-top:6px;}
-.bt{border-radius:999px;padding:9px 16px;font-weight:700;font-size:15px;}
-.bt.ouro{background:var(--ouro);color:var(--tinta);}
-.bt.linha{border:1px solid var(--linha);color:var(--creme);}
-.bt.creme{background:var(--creme);color:var(--tinta);}
-.bt{transition:transform .1s ease-out;}
-.bt:active{transform:scale(.97);}
-
-/* ---------- conta ---------- */
-.conta{margin:10px 16px 0;background:var(--creme);color:var(--tinta);border-radius:var(--raio);padding:16px 16px 18px;}
-.conta .l{display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:16px;}
-.conta .l.t{border-top:1px dashed rgba(58,35,18,.35);margin-top:8px;padding-top:10px;font-size:20px;font-weight:800;}
-.conta .nota{font-size:14px;margin-top:8px;color:#6B4A2E;}
-
-/* ---------- barra de baixo ---------- */
-.barra{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(9,27,17,.97);border-top:1px solid var(--linha);
-  padding:8px 12px calc(8px + var(--sab));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
-.consumo{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--texto-2);padding:0 4px 8px;}
-.consumo .trilho{flex:1;height:6px;border-radius:9px;background:var(--selva-3);overflow:hidden;}
-.consumo .trilho i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ouro),var(--ouro-2));transition:width .5s cubic-bezier(.2,.8,.2,1);}
-.consumo b{color:var(--creme);}
-.nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
-.nav button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:12px 4px;border-radius:12px;font-size:13px;color:var(--texto-2);}
-.nav button b{font-size:18px;color:var(--creme);}
-.nav button.on{background:var(--selva-3);}
-.nav button.on b{color:var(--ouro-2);}
-.espaco{height:calc(96px + var(--sab));}
-.seguir-topo,.seguir-card{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--creme);}
-.seguir-topo{margin:12px 16px 0;padding:8px 8px 8px 12px;border-radius:14px;
-  background:rgba(224,169,63,.06);border:1px solid rgba(224,169,63,.35);}
-.seguir-topo .tx{flex:1;font-size:15px;} .ig{flex:none;width:24px;height:24px;display:block;}
-.seguir-topo.feito .ig,.cam-seguir .ig{width:17px;height:17px;display:inline-block;vertical-align:-3px;}
-.seguir-topo .bt-s,.seguir-card .bt-s{flex:none;background:none;border:1.5px solid var(--ouro-2);color:var(--ouro-2);font-weight:700;
-  border-radius:999px;padding:7px 16px;font-size:15px;}
-.seguir-topo .ig,.seguir-card .ig{color:var(--ouro-2);}
-.seguir-topo.feito{justify-content:center;background:none;border:0;padding:6px;font-size:13.5px;color:var(--texto-2);}
-.seguir-topo.feito span{color:var(--ouro-2);margin-left:4px;}
-.seguir-card{margin:18px 16px 4px;padding:14px;border-radius:var(--raio);background:rgba(244,232,203,.04);border:1px solid rgba(224,169,63,.3);}
-.seguir-card .tx{flex:1;font-size:14.5px;color:var(--texto-2);line-height:1.3;}
-.seguir-card .tx b{display:block;color:var(--creme);font-size:16px;margin-bottom:2px;}
-.seguir-linha{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;padding-top:14px;
-  border-top:1px solid var(--linha);color:var(--texto-2);font-size:14.5px;text-decoration:none;}
-.seguir-linha .ig{width:18px;height:18px;flex:none;color:var(--ouro-2);}
-.seguir-linha b{color:var(--creme);font-weight:700;}
-.insta .bt{padding:11px 10px;font-size:15px;text-align:center;text-decoration:none;}
-/* ---------- câmera da festa ---------- */
-.camera{position:fixed;inset:0;z-index:80;background:#000;display:flex;flex-direction:column;
-  padding:calc(8px + env(safe-area-inset-top,0px)) 0 calc(10px + var(--sab));}
-.cam-topo{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px 8px;color:var(--creme);}
-.cam-topo .bt{padding:8px 14px;font-size:15px;font-weight:800;}
-.cam-fmt{display:flex;gap:4px;background:rgba(255,255,255,.08);border-radius:999px;padding:3px;}
-.cam-fmt button{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700;color:var(--texto-2);}
-.cam-fmt button.on{background:var(--creme);color:var(--tinta);}
-.cam-quadro{position:relative;flex:1;min-height:0;display:grid;place-items:center;overflow:hidden;padding:0 8px;}
-.cam-quadro.flash::after{content:"";position:absolute;inset:0;background:#fff;animation:flash .25s ease-out forwards;}
-@keyframes flash{from{opacity:.9}to{opacity:0}}
-.cam-caixa{position:relative;height:100%;max-width:100%;aspect-ratio:1080/1350;border-radius:14px;overflow:hidden;background:#111;}
-.cam-caixa video,.cam-caixa .cam-molde,.cam-caixa .cam-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.cam-caixa .cam-foto{object-fit:contain;background:#000;z-index:3;}
-.cam-caixa video.espelho{transform:scaleX(-1);}
-.cam-caixa .cam-molde{z-index:2;pointer-events:none;}
-.cam-aviso{position:absolute;left:12px;right:12px;bottom:12px;z-index:4;color:#fff;background:rgba(0,0,0,.6);padding:10px 14px;border-radius:12px;text-align:center;}
-.cam-ops{padding:6px 0 0;}
-.cam-linha{display:flex;gap:8px;overflow-x:auto;padding:3px 12px;scrollbar-width:none;}
-.cam-linha::-webkit-scrollbar{display:none;}
-.cam-linha button{flex:none;border:1px solid var(--linha);border-radius:999px;padding:7px 13px;font-size:14.5px;color:var(--creme);}
-.cam-linha button.on{background:var(--creme);color:var(--tinta);border-color:var(--creme);font-weight:700;}
-#cam-efeitos button.on{background:var(--ouro);border-color:var(--ouro);}
-.cam-acoes{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px 0;}
-.cam-acoes .bt{padding:12px 14px;}
-.cam-galeria{width:112px;text-align:center;font-size:14px;text-decoration:none;}
-.cam-disparo{flex:none;width:72px;height:72px;border-radius:50%;background:var(--creme);box-shadow:0 0 0 5px rgba(244,232,203,.35);}
-.cam-disparo:active{transform:scale(.94);}
-.cam-pronta{flex:1;display:grid;gap:8px;}
-.cam-dois{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.cam-dois .bt{padding:14px 8px;font-size:16px;font-weight:800;}
-.cam-dica{font-size:13.5px;color:var(--texto-2);text-align:center;line-height:1.3;}
-.cam-dica.forte{color:var(--creme);font-size:15px;}
-.cam-outra{padding:9px;font-size:14px;}
-.bt.cam-mural{padding:14px;font-size:16px;font-weight:800;border:1.5px solid var(--ouro);color:var(--ouro-2);}
-.cam-mural.feito{opacity:.75;}
-.cam-seguir{text-align:center;color:var(--ouro-2);font-size:15px;text-decoration:none;padding:2px 0;}
-.cam-caixa .cam-foto{-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto;pointer-events:auto;}
-
-/* ---------- La casa (fim do cardápio e a folha do logo) ---------- */
-.casa{margin:40px 16px 0;padding:30px 18px 6px;text-align:center;border-top:1px solid rgba(224,169,63,.3);
-  background:radial-gradient(120% 70% at 50% 0,rgba(224,169,63,.08),transparent 70%);}
-.casa.na-folha{margin:0;padding:8px 4px 4px;border:0;background:none;}
-.casa-logo-bt{display:block;margin:0 auto;}
-.casa-logo{width:150px;height:auto;margin:0 auto 14px;opacity:.92;}
-.casa-kick{font-family:'Alegreya SC',serif;font-size:12px;letter-spacing:.3em;color:var(--ouro);margin-bottom:14px;}
-.casa p{font-size:15.5px;line-height:1.45;color:var(--texto-2);max-width:34ch;margin:10px auto 0;}
-.casa p.casa-lema{font-size:30px;line-height:1.15;color:var(--ouro-2);max-width:none;margin:0 auto;}
-.casa-orn{color:var(--ouro);opacity:.8;margin:10px 0 4px;} .casa-orn svg{display:block;margin:0 auto;}
-.casa-rot{font-family:'Alegreya SC',serif;font-size:12px;letter-spacing:.3em;color:var(--ouro);margin-top:24px;}
-.casa p.casa-un{font-family:'Alegreya SC',serif;font-size:12.5px;letter-spacing:.16em;color:var(--creme);margin-top:6px;}
-.casa-bt{display:block;width:100%;margin-top:22px;padding:15px;font-size:17px;}
-.casa p.casa-pq{font-size:13.5px;margin-top:6px;}
-.casa-fechar{display:block;width:100%;margin-top:22px;padding:12px;}
-
-/* ---------- folhas (sheet) ---------- */
-.veu{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.55);opacity:0;transition:opacity .2s;}
-.veu.on{opacity:1;}
-.folha{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--selva-2);border-top:1px solid var(--linha);
-  border-radius:22px 22px 0 0;padding:10px 18px calc(18px + var(--sab));max-height:92dvh;overflow:auto;
-  transform:translateY(105%);transition:transform .32s var(--ease-drawer);}
-.folha.on{transform:none;}
-.folha .pega{width:44px;height:5px;border-radius:9px;background:var(--linha);margin:0 auto 12px;}
-.folha h3{font-size:22px;color:var(--creme);line-height:1.15;}
-.folha .chamada{font-style:italic;color:var(--ouro-2);margin-top:4px;}
-.folha p.d{color:var(--texto-2);font-size:15px;margin-top:6px;}
-.folha .rot{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--texto-2);margin:16px 0 8px;}
-.chips{display:flex;flex-wrap:wrap;gap:8px;}
-.chip{border:1px solid var(--linha);border-radius:999px;padding:9px 14px;font-size:15.5px;color:var(--creme);}
-.chip.on{background:var(--creme);color:var(--tinta);border-color:var(--creme);font-weight:700;}
-.qtd{display:flex;align-items:center;gap:16px;}
-.qtd button{width:52px;height:52px;border-radius:50%;border:1px solid var(--linha);font-size:26px;color:var(--creme);}
-.qtd span{font-size:26px;font-weight:800;min-width:28px;text-align:center;}
-.pedir{width:100%;margin-top:20px;background:var(--ouro);color:var(--tinta);border-radius:16px;padding:16px;font-size:19px;font-weight:800;
-  display:flex;justify-content:space-between;align-items:center;}
-.pedir:disabled{opacity:.6;}
-.aviso{margin-top:12px;font-size:15px;border-radius:12px;padding:10px 12px;background:rgba(255,138,107,.12);color:var(--erro);}
-.aviso.info{background:rgba(224,169,63,.12);color:var(--ouro-2);}
-
-/* ---------- voucher ---------- */
-.voucher{text-align:center;}
-.voucher .qr{background:#fff;border-radius:18px;padding:14px;width:min(78vw,300px);margin:12px auto 10px;}
-.voucher .qr svg,.voucher .qr img{width:100%;height:auto;display:block;}
-.voucher .cod{font-family:ui-monospace,Menlo,monospace;letter-spacing:.2em;font-size:20px;color:var(--creme);}
-.voucher .onde{font-family:'Kaushan Script',cursive;font-size:26px;color:var(--ouro-2);margin-top:4px;}
-.voucher .quem{margin-top:6px;color:var(--texto-2);}
-.voucher .usado{display:inline-block;margin-top:10px;padding:6px 14px;border-radius:999px;background:rgba(127,211,154,.15);color:var(--ok);font-weight:700;}
-/* o bilhete: é a tela que ela vira para o barman (item legível, QR preto no branco) */
-.vou-ok{font-size:50px;color:var(--ouro-2);text-align:center;line-height:1;}
-.vou-sub{text-align:center;color:var(--texto-2);font-size:15.5px;margin:4px 0 12px;}
-.bilhete{position:relative;max-width:340px;margin:0 auto;background:#F4E8CB;color:#3A2312;border:1px solid #C9973A;border-radius:20px;
-  padding:18px 16px 16px;text-align:center;box-shadow:0 16px 40px rgba(0,0,0,.45);}
-.bilhete::after{content:"";position:absolute;inset:7px;border:.75px solid rgba(58,35,18,.28);border-radius:14px;pointer-events:none;z-index:0;}
-.b-casa{font-family:'Alegreya SC',serif;font-size:11.5px;letter-spacing:.32em;color:#8a5a12;}
-.b-nome{font-family:'Kaushan Script',cursive;font-size:36px;line-height:1.1;color:#3A2312;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.b-mesa{font-family:'Alegreya SC',serif;font-size:13px;letter-spacing:.24em;color:#6B4A2E;margin-top:2px;}
-.b-item{font-weight:800;font-size:22px;line-height:1.2;margin-top:12px;}
-.bilhete .qr{position:relative;z-index:1;background:#fff;width:min(60vw,230px);padding:12px;margin:14px auto 8px;border-radius:14px;box-shadow:0 0 0 1px rgba(58,35,18,.12);}
-.b-cod{font-weight:800;font-size:24px;letter-spacing:.3em;padding-left:.3em;font-variant-numeric:lining-nums;}
-.bilhete .corte{position:relative;z-index:1;margin:16px -16px 12px;border-top:2px dashed rgba(58,35,18,.25);}
-.bilhete .corte::before,.bilhete .corte::after{content:"";position:absolute;top:-12px;width:22px;height:22px;border-radius:50%;background:var(--selva-2);}
-.bilhete .corte::before{left:-11px;} .bilhete .corte::after{right:-11px;}
-.b-onde{font-family:'Alegreya SC',serif;font-size:14px;letter-spacing:.14em;line-height:1.35;color:#1d6b3a;}
-.carimbo{display:inline-block;margin:18px 0 10px;padding:8px 20px;border:2px solid #1d6b3a;color:#1d6b3a;border-radius:8px;
-  font-family:'Alegreya SC',serif;font-size:16px;letter-spacing:.24em;transform:rotate(-6deg);}
-.bilhete.entregue .b-item,.bilhete.entregue .b-cod{opacity:.5;}
-.aniv-pedidos{margin:0 16px;}
-.aniv-pedidos .rot{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--texto-2);}
-.aniv-pedidos .d{color:var(--texto-2);font-size:15px;}
-
-.convite{margin:16px 16px 0;padding:14px 16px;border-radius:16px;background:rgba(224,169,63,.12);border:1px solid rgba(224,169,63,.35);}
-.folha .convite{margin:0;}
-.convite b{color:var(--ouro-2);} .convite p{margin:4px 0 0;font-size:15px;line-height:1.35;}
-.convite .bt{display:inline-block;margin-top:10px;text-decoration:none;}
-.aniv{margin-top:16px;padding:14px;border-radius:14px;border:1px dashed var(--linha);text-align:left;}
-.aniv .rot{margin:0 0 8px;} .aniv .sel{display:flex;gap:8px;}
-.aniv select{flex:1;font:inherit;font-size:16px;padding:10px;border-radius:10px;background:rgba(255,255,255,.06);color:var(--creme);border:1px solid var(--linha);}
-.aniv select option{color:#111;}
-.erro-tela{padding:28vh 26px 0;text-align:center;}
-.erro-tela h2{font-family:'Kaushan Script',cursive;font-size:30px;color:var(--creme);margin-bottom:10px;}
-.carregando{padding:30vh 20px;text-align:center;color:var(--texto-2);}
-.ver{font-size:11px;color:transparent;user-select:none;text-align:center;padding:24px 0 8px;}
-.rede{position:fixed;top:0;left:0;right:0;z-index:50;background:var(--brasa);color:#fff;text-align:center;font-size:14px;padding:6px calc(10px + env(safe-area-inset-right,0px)) 6px;padding-top:calc(6px + env(safe-area-inset-top,0px));}
-/* ---------- movimento: só nos momentos raros ---------- */
-@keyframes surge{from{transform:scale(.95);opacity:0}to{transform:none;opacity:1}}
-@keyframes veu-in{from{opacity:0}to{opacity:1}}
-@keyframes sobe{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
-@keyframes bilhete{from{transform:translateY(28px) scale(.97);opacity:0}to{transform:none;opacity:1}}
-@keyframes brilho{from{background-position:100% 0}to{background-position:0% 0}}
-@keyframes assenta{from{transform:scale(1.025);opacity:.4}to{transform:none;opacity:1}}
-/* o nome dela, na primeira abertura */
-.topo .tt.revela .nome-topo{animation:sobe .7s var(--ease-out) .1s both;}
-.topo .tt.revela h1{animation:sobe .7s var(--ease-out) .25s both;}
-/* as palavras em italiano entram e um brilho de ouro passa uma vez */
-.palavra{animation:sobe .5s var(--ease-out) .12s both;}
-@supports (-webkit-background-clip:text) or (background-clip:text){
-  /* a folga em volta deixa a ponta das letras cursivas dentro do fundo pintado */
-  .palavra{padding:0 .25em .12em;margin:0 -.25em -.12em;
-    background:linear-gradient(100deg,var(--ouro-2) 42%,#FFF4D6 50%,var(--ouro-2) 58%) 100% 0/300% 100% no-repeat;
-    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-    animation:sobe .5s var(--ease-out) .12s both,brilho 1.3s ease-in-out .5s both;}
-}
-/* o bilhete novo sobe como um cartão entregue na mão */
-.voucher.novo .bilhete{animation:bilhete .5s var(--ease-out) .18s both;}
-.voucher.novo .vou-sub{animation:sobe .4s var(--ease-out) .2s both;}
-/* a foto pronta assenta depois do flash */
-.cam-foto.assenta{animation:assenta .32s var(--ease-out);}
-@media (prefers-reduced-motion:reduce){
-  *{transition:none!important;}
-  .topo .tt.revela .nome-topo,.topo .tt.revela h1,.voucher.novo .bilhete,.voucher.novo .vou-sub,.cam-foto.assenta,.alerta .cx{animation:veu-in .2s ease both!important;}
-  .palavra{animation:none!important;}
-}
+/* comum a todos os estilos (o estilo de cada um vem de temas/<nome>.css, carregado logo abaixo e por cima) */
+.nav .nav-perfil{width:52px;display:grid;place-items:center;padding:0;}
+.perfil-bt{width:34px;height:34px;border-radius:50%;border:1px solid var(--ouro);background:rgba(0,0,0,.28);color:var(--ouro-2);
+  font:inherit;font-size:15px;font-weight:700;display:grid;place-items:center;padding:0;cursor:pointer;flex:none;
+  -webkit-tap-highlight-color:transparent;transition:transform 140ms var(--ease-out,ease-out);}
+.nav-perfil:active .perfil-bt{transform:scale(.94);}
+.estilos{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 6px;}
+.estilo{position:relative;border:1px solid var(--linha);border-radius:14px;padding:0;overflow:hidden;background:var(--selva-2);
+  color:var(--texto);text-align:left;font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:transform 160ms var(--ease-out,ease-out),border-color 160ms ease;}
+.estilo:active{transform:scale(.97);}
+.estilo img{display:block;width:100%;aspect-ratio:375/520;object-fit:cover;object-position:top;}
+.estilo .en{display:block;padding:9px 10px 2px;font-weight:700;font-size:16px;}
+.estilo .ed{display:block;padding:0 10px 10px;font-size:12.5px;line-height:1.3;color:var(--texto-2);}
+.estilo.on{border-color:var(--ouro-2);box-shadow:0 0 0 2px var(--ouro-2) inset;}
+.estilo.on::after{content:'';position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;
+  background:var(--ouro-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%23111' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat;}
+.estilos.mini{grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 2px;}
+.estilos.mini img{aspect-ratio:3/4;}
+.estilos.mini .en{font-size:13px;padding:6px 6px 7px;text-align:center;}
+.estilos.mini .ed,.estilos.mini .estilo.on::after{display:none;}
+.perfil .campo{margin-top:20px;}
+.perfil .campo .rot{display:block;margin:0;}
+.perfil .campo .pq{display:block;font-size:13px;line-height:1.35;color:var(--texto-2);margin:3px 0 8px;}
+.perfil input[type=text],.perfil input[type=email]{width:100%;font:inherit;font-size:16px;padding:12px 14px;border-radius:12px;
+  border:1px solid var(--linha);background:rgba(0,0,0,.22);color:var(--texto);}
+.perfil .arroba{position:relative;} .perfil .arroba span{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--texto-2);font-size:16px;}
+.perfil .arroba input{padding-left:30px;}
+.perfil .sel{display:flex;gap:8px;} .perfil .sel select{flex:1;}
+.perfil .simnao{display:flex;gap:8px;} .perfil .simnao button{flex:1;}
+.perfil .simnao button.on{outline:2px solid var(--ouro-2);outline-offset:2px;}
+/* o × da Bodoni é miúdo: nos estilos de grife ele vem da Jost */
+html:not([data-tema=jardim]) .vz{font-family:Jost,'Futura',sans-serif;font-weight:500;font-style:normal;}
+.perfil .rodape{font-size:12.5px;line-height:1.4;color:var(--texto-2);margin-top:14px;}
+@media (prefers-reduced-motion: reduce){.perfil-bt,.estilo{transition:none;}}
 </style>
+<script>
+/* o estilo que ela escolheu abre antes de qualquer desenho (sem piscar o estilo errado) */
+(function () {
+  var T = {jardim: ['#0B2216', 'dark'], notte: ['#0A0807', 'dark'], selva: ['#040B07', 'dark'], oro: ['#13100C', 'light']};
+  var t = null; try { t = localStorage.getItem('festa_tema'); } catch (e) {}
+  if (!T[t]) t = 'jardim';
+  document.documentElement.setAttribute('data-tema', t);
+  document.write('<link rel="stylesheet" id="tema-css" data-tema-css href="temas/' + t + '.css?v=16b"'
+    + ' onerror="if(!this.dataset.r){this.dataset.r=1;this.href=this.href+\'&r=1\'}else if(this.href.indexOf(\'jardim\')<0){this.href=\'temas/jardim.css?v=16b\';document.documentElement.setAttribute(\'data-tema\',\'jardim\')}"/>');
+  var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', T[t][0]);
+  var c = document.querySelector('meta[name=color-scheme]'); if (c) c.setAttribute('content', T[t][1]);
+})();
+</script>
 </head>
 <body>
 <div id="rede" class="rede oculto">Sem internet agora. Assim que voltar, a página se atualiza.</div>
@@ -389,7 +74,7 @@ img{display:block;max-width:100%;}
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v15 25/11/2026';
+const VER = 'festa-v16 25/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -422,7 +107,7 @@ if ((token || B_URL) && location.search) history.replaceState(null, '', location
 
 let D = null;            // último ev_cliente
 let EXTRA = {};          // ev_cliente_extra (sql/666): pasta do mural, novidades, pré-reserva, fotos dela no mural
-const carregarExtra = () => token ? rpc('ev_cliente_extra', {p_token: token}).then(x => { EXTRA = x || {}; }).catch(() => {}) : Promise.resolve();
+const carregarExtra = () => token ? rpc('ev_cliente_extra', {p_token: token}).then(x => { EXTRA = Object.assign(x || {}, {_ok: !!x}); }).catch(() => {}) : Promise.resolve();
 let aba = 'cardapio';    // cardapio | pedidos | conta
 let lado = 'bebida';     // bebida | comida
 let obsCats = null;      // a barra das categorias presa no alto → mostra a chave Beber/Comer
@@ -433,7 +118,7 @@ async function carregar() {
     D = await rpc('ev_cliente', {p_token: token});
     $('#rede').classList.add('oculto');
     desenhar(); checarProntos();
-    if (!EXTRA.mural_chave) carregarExtra().then(() => { if (aba === 'pedidos' && !D.vitrine) desenharPedidos(); });
+    if (!EXTRA.mural_chave) carregarExtra().then(() => { if (aba === 'pedidos' && !D.vitrine) desenharPedidos(); talvezEscolherEstilo(); });
   } catch (e) {
     if (e.codigo === 'link_invalido') {
       try { localStorage.removeItem('festa_token'); } catch {}
@@ -531,7 +216,7 @@ function desenhar() {
         : `<h1>Jardim do Éder</h1><div class="marca">SPESSO · 27·11·26</div>`}</div>
       <div class="dir"><button class="logo-casa" id="logo-casa" aria-label="Conheça o Spesso"><img src="img/spesso.png" alt="Spesso"/></button>
       ${eu && eu.pulseira != null ? `<div class="eu"><span class="q">MESA</span><span class="num">${eu.pulseira}</span></div>` : ''}</div>
-    </header>
+    </header><div class="faixa" aria-hidden="true"></div>
     ${conviteHtml()}
     <main id="corpo"></main>
     <div class="espaco"></div>
@@ -541,12 +226,14 @@ function desenhar() {
         <button data-aba="cardapio"><b>Cardápio</b></button>
         <button data-aba="pedidos"><b>Pedidos${ativos ? ' · ' + ativos : ''}</b></button>
         <button data-aba="fotos"><b>Fotos</b></button>
+        <button data-aba="perfil" class="nav-perfil" aria-label="Seu perfil e o estilo do app"><span class="perfil-bt">${esc((primeiroNome || '?').charAt(0).toUpperCase())}</span></button>
       </div>
     </nav>`}`;
   document.querySelectorAll('.nav button').forEach(b => {
     b.classList.toggle('on', b.dataset.aba === aba);
     b.onclick = () => {
       if (b.dataset.aba === 'fotos') return abrirCamera();
+      if (b.dataset.aba === 'perfil') return abrirPerfil();
       aba = b.dataset.aba; desenhar(); window.scrollTo({top: 0, behavior:'smooth'});
     };
   });
@@ -701,7 +388,7 @@ function checarProntos() {
     });
   } catch {}
   const v = document.createElement('div'); v.className = 'alerta';
-  v.innerHTML = `<div class="cx"><h2 class="it palavra">È pronto${comNome()}!</h2><p class="sub">${p.qtd}× ${esc(p.nome)}</p>
+  v.innerHTML = `<div class="cx"><h2 class="it palavra">È pronto${comNome()}!</h2><p class="sub">${p.qtd}<span class="vz">×</span> ${esc(p.nome)}</p>
     <p>Retire <b>ao lado do Bar do 2º piso</b>.</p>
     <button class="bt ouro" id="al-v">Ver voucher</button><button class="bt linha" id="al-ok">Já vou</button></div>`;
   document.body.appendChild(v);
@@ -713,7 +400,7 @@ function desenharPedidos() {
   $('#corpo').innerHTML = `${D.eu.liberada ? saidaHtml() : ''}<div class="titulo-bloco">Meus pedidos</div>
     ${its.length ? '' : '<p class="vazio"><span class="it" style="font-size:30px;color:var(--ouro-2)">Ancora niente…</span><br/>Toque em Cardápio e escolha o primeiro.</p>'}
     ${its.map(p => { const [t, c] = STATUS(p); return `<div class="ped ${p.entregue ? 'feito' : ''}">
-      <div><div class="n">${p.qtd}× ${esc(p.nome)}</div><div class="st ${c}">${esc(t)}</div></div>
+      <div><div class="n">${p.qtd}<span class="vz">×</span> ${esc(p.nome)}</div><div class="st ${c}">${esc(t)}</div></div>
       <div>${brl(p.qtd * p.preco)}</div>
       <div class="acoes">
         ${p.entregue ? '' : `<button class="bt ouro" data-v="${p.voucher}">Ver voucher</button>
@@ -766,7 +453,7 @@ function desenharConta() {
     ligarAniv();
     return;
   }
-  const linhas = c.itens.map(p => `<div class="l"><span>${p.qtd}× ${esc(p.nome)}${podePedir() ? `<button class="de-novo" data-de-novo="${p.id}">pedir de novo</button>` : ''}</span><span>${brl(p.qtd*p.preco)}</span></div>`).join('');
+  const linhas = c.itens.map(p => `<div class="l"><span>${p.qtd}<span class="vz">×</span> ${esc(p.nome)}${podePedir() ? `<button class="de-novo" data-de-novo="${p.id}">pedir de novo</button>` : ''}</span><span>${brl(p.qtd*p.preco)}</span></div>`).join('');
   alvo.innerHTML = `<div class="titulo-bloco" style="font-size:22px;padding-top:28px">Minha conta</div>
     <div class="conta">
       ${linhas || '<p>Nada pedido ainda.</p>'}
@@ -781,8 +468,147 @@ function desenharConta() {
   const u = $('#usar'); if (u) u.onclick = () => { aba = 'cardapio'; desenhar(); window.scrollTo(0, 0); };
 }
 
+/* ---------------------------------------------------------------- estilos e perfil
+   Renato 25/11: "gostei de todas e acho que podemos ter todas disponiveis. a cliente escolhe. logo no inicio
+   e depois no icone do perfil dela. la ela depois pode preencher outros dados caso queiramos pra alguma coisa."
+   O estilo fica no celular (abre sem esperar a rede) e no banco (sql/668), para a casa saber qual agradou. */
+const TV_TEMAS = '16b';
+const TEMAS = {
+  jardim: {nome: 'Jardim', d: 'O convite da festa: folhas, verde e ouro.', cor: '#0B2216', esquema: 'dark'},
+  notte:  {nome: 'Notte',  d: 'Preto e ouro, a onça no detalhe.',         cor: '#0A0807', esquema: 'dark'},
+  selva:  {nome: 'Selva',  d: 'Esmeralda, ouro e estampas.',              cor: '#040B07', esquema: 'dark'},
+  oro:    {nome: 'Oro',    d: 'Marfim e ouro, campanha dos anos 70.',     cor: '#13100C', esquema: 'light'},
+};
+const temaAtual = () => { const t = document.documentElement.getAttribute('data-tema'); return TEMAS[t] ? t : 'jardim'; };
+let temaGer = 0, temaPedido = null;   // só o último toque vale (toques rápidos no wi-fi lento)
+const temaLocal = () => { try { const t = localStorage.getItem('festa_tema'); return TEMAS[t] ? t : null; } catch { return null; } };
+function aplicarTema(t) {
+  if (!TEMAS[t]) return Promise.resolve(false);
+  const ger = ++temaGer; temaPedido = t;
+  document.querySelectorAll('link[data-tema-css]:not(#tema-css)').forEach(x => x.remove());   // pedidos antigos saem
+  if (t === temaAtual()) { try { localStorage.setItem('festa_tema', t); } catch {} return Promise.resolve(true); }
+  return new Promise(ok => {
+    const l = document.createElement('link');
+    l.rel = 'stylesheet'; l.setAttribute('data-tema-css', ''); l.href = `temas/${t}.css?v=${TV_TEMAS}`;
+    l.onload = () => {
+      if (ger !== temaGer) { l.remove(); return ok(false); }
+      document.querySelectorAll('link[data-tema-css]').forEach(x => { if (x !== l) x.remove(); });
+      l.id = 'tema-css'; document.documentElement.setAttribute('data-tema', t);
+      try { localStorage.setItem('festa_tema', t); } catch {}
+      const m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', TEMAS[t].cor);
+      const c = document.querySelector('meta[name=color-scheme]'); if (c) c.setAttribute('content', TEMAS[t].esquema);
+      ok(true);
+    };
+    l.onerror = () => { l.remove(); if (ger === temaGer) temaPedido = temaAtual(); ok(false); };
+    const ult = [...document.querySelectorAll('link[data-tema-css]')].pop();
+    (ult || document.head.lastChild).after(l);
+  });
+}
+const guardarTema = t => { if (!TEMAS[t]) return; EXTRA.tema = t; if (token) rpc('ev_tema', {p_token: token, p_tema: t}).catch(() => {}); };
+const cartoesEstilo = (mini, sel = temaPedido || temaAtual()) => `<div class="estilos${mini ? ' mini' : ''}">${Object.entries(TEMAS).map(([k, v]) =>
+  `<button class="estilo${k === sel ? ' on' : ''}" data-tema="${k}" aria-pressed="${k === sel}">
+    <img src="temas/${k}.jpg?v=${TV_TEMAS}" alt="" loading="lazy"/><span class="en">${v.nome}</span><span class="ed">${v.d}</span></button>`).join('')}</div>`;
+function marcarCartoes(raiz, t) {
+  raiz.querySelectorAll('.estilo').forEach(x => { const on = x.dataset.tema === t; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+}
+function ligarCartoes(raiz) {
+  raiz.querySelectorAll('.estilo').forEach(b => b.onclick = async () => {
+    const t = b.dataset.tema;
+    marcarCartoes(raiz, t);
+    const ok = await aplicarTema(t);
+    if (ok && temaPedido === t) guardarTema(t);
+    else if (!ok && temaPedido !== t) return;                 // outro toque veio depois: ele decide
+    else if (!ok) marcarCartoes(raiz, temaAtual());           // não carregou: fica o atual
+  });
+}
+/* primeira abertura: escolher o estilo (uma vez; tocar fora deixa o Jardim) */
+let viuEstilos = false; try { viuEstilos = localStorage.getItem('festa_tema_visto') === '1' || !!localStorage.getItem('festa_tema'); } catch {}
+const marcarVisto = () => { viuEstilos = true; try { localStorage.setItem('festa_tema_visto', '1'); } catch {} };
+let tentouEstilos = 0;
+function talvezEscolherEstilo() {
+  if (!D || D.vitrine || !token || !EXTRA._ok) return;
+  const local = temaLocal();
+  if (local) { if (EXTRA.tema !== local) guardarTema(local); return; }      // o celular manda
+  if (EXTRA.tema && TEMAS[EXTRA.tema]) { aplicarTema(EXTRA.tema); marcarVisto(); return; }   // escolheu em outro celular
+  if (viuEstilos || tentouEstilos > 6) return;
+  tentouEstilos++;
+  setTimeout(() => {
+    if (viuEstilos) return;
+    if (!$('#folha').classList.contains('oculto') || $('.alerta') || $('.camera') || $('.lupa') || $('.leitor')) return talvezEscolherEstilo();
+    abrirEstilos();
+  }, tentouEstilos === 1 ? 900 : 4000);
+}
+function abrirEstilos() {
+  const nome = esc(((D.eu && D.eu.nome) || '').split(' ')[0]);
+  abrirFolha(`<h3>${nome ? nome + ', escolha' : 'Escolha'} o seu estilo</h3>
+    <p class="d" style="margin:4px 0 0">O app inteiro muda. Dá para trocar quando quiser, no círculo com a sua inicial, na barra de baixo.</p>
+    ${cartoesEstilo(false)}
+    <button class="bt ouro" id="estilo-ok" style="width:100%;margin-top:10px">Seguir com este</button>`);
+  marcarVisto();
+  ligarCartoes($('#folha'));
+  $('#estilo-ok').onclick = () => { guardarTema(temaPedido || temaAtual()); fecharFolha(); };
+}
+/* perfil: o estilo e, se ela quiser, dados com a finalidade dita ao lado de cada um (P12) */
+async function abrirPerfil() {
+  const eu = D.eu || {}, nome = esc(eu.nome || '');
+  const topo = () => `<div class="perfil"><h3>${nome || 'Seu perfil'}</h3>
+    ${eu.pulseira != null ? `<p class="d" style="margin:2px 0 0">Mesa ${eu.pulseira} · Jardim do Éder</p>` : ''}
+    <div class="campo"><span class="rot">Estilo do app</span>${cartoesEstilo(true)}</div>`;
+  abrirFolha(topo() + '<p class="d" id="pf-carr" style="margin-top:16px">Abrindo os seus dados…</p></div>');
+  ligarCartoes($('#folha'));
+  EXTRA._ok = false;
+  await Promise.race([carregarExtra(), new Promise(r => setTimeout(r, 6000))]);
+  if (!$('#pf-carr') || $('#folha').classList.contains('oculto')) return;   // ela já fechou ou abriu outra coisa
+  if (!EXTRA._ok) { $('#pf-carr').outerHTML = `<div class="aviso">Não consegui abrir os seus dados agora (internet fraca). O estilo você já pode trocar aqui em cima.</div>
+      <button class="bt linha" id="pf-tenta" style="width:100%;margin-top:12px">Tentar de novo</button>`;
+    $('#pf-tenta').onclick = abrirPerfil; return; }
+  const novid = EXTRA.novidades;
+  const salvo = {ig: EXTRA.instagram || '', em: EXTRA.email || '', m: EXTRA.aniv_mes || null};
+  abrirFolha(`${topo()}
+    <div class="campo"><label class="rot" for="pf-ig">Instagram</label><span class="pq">Para te marcar quando a gente repostar as fotos da noite.</span>
+      <div class="arroba"><span>@</span><input type="text" id="pf-ig" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="text" maxlength="60" placeholder="seu.perfil" value="${esc(EXTRA.instagram || '')}"/></div></div>
+    <div class="campo"><label class="rot" for="pf-em">E-mail</label><span class="pq">Só para o convite das próximas festas do Spesso.</span>
+      <input type="email" id="pf-em" autocomplete="email" inputmode="email" maxlength="120" placeholder="voce@email.com" value="${esc(EXTRA.email || '')}"/></div>
+    <div class="campo"><span class="rot">Aniversário</span><span class="pq">Só dia e mês. A gente quer te chamar para fazer a sua festa aqui.</span>
+      <div class="sel"><select id="pf-d" aria-label="dia"><option value="">dia</option>${Array.from({length: 31}, (_, i) => `<option${EXTRA.aniv_dia === i + 1 ? ' selected' : ''}>${i + 1}</option>`).join('')}</select>
+      <select id="pf-m" aria-label="mês"><option value="">mês</option>${MESES.map((m, i) => `<option value="${i + 1}"${EXTRA.aniv_mes === i + 1 ? ' selected' : ''}>${m}</option>`).join('')}</select></div></div>
+    <div class="campo"><span class="rot">Novidades do Spesso no WhatsApp</span><span class="pq">Convites e novidades da casa. Pode mudar aqui quando quiser.</span>
+      <div class="simnao"><button class="bt linha${novid === true ? ' on' : ''}" data-nov="1">Quero</button><button class="bt linha${novid === false ? ' on' : ''}" data-nov="0">Não, obrigada</button></div></div>
+    <div id="pf-msg"></div>
+    <button class="bt ouro" id="pf-ok" style="width:100%;margin-top:18px">Salvar</button>
+    <p class="rodape">Tudo aqui é opcional. Para apagar um dado, deixe o campo em branco e salve.</p></div>`);
+  const f = $('#folha');
+  ligarCartoes(f);
+  let nov = novid;
+  f.querySelectorAll('[data-nov]').forEach(b => b.onclick = () => { nov = b.dataset.nov === '1';
+    f.querySelectorAll('[data-nov]').forEach(x => x.classList.toggle('on', x === b)); });
+  $('#pf-ok').onclick = async () => {
+    const d = +$('#pf-d').value || null, m = +$('#pf-m').value || null, msg = $('#pf-msg'), bt = $('#pf-ok');
+    if (!!d !== !!m) { msg.innerHTML = '<div class="aviso">Escolha o dia e o mês do aniversário (ou deixe os dois em branco).</div>'; return; }
+    bt.disabled = true; bt.textContent = 'Salvando…';
+    try {
+      /* nulo = não mexe; '' (ou dia 0) = ela apagou o que tinha */
+      const ig = $('#pf-ig').value.trim(), em = $('#pf-em').value.trim(), tema = temaPedido || temaAtual();
+      const r = await rpc('ev_perfil_salvar', {p_token: token, p_tema: tema,
+        p_instagram: ig || (salvo.ig ? '' : null), p_email: em || (salvo.em ? '' : null),
+        p_aniv_dia: d || (salvo.m ? 0 : null), p_aniv_mes: m || (salvo.m ? 0 : null), p_novidades: nov == null ? null : nov});
+      Object.assign(EXTRA, {tema, instagram: r.instagram, email: r.email, aniv_dia: r.aniv_dia, aniv_mes: r.aniv_mes, novidades: r.novidades});
+      if (D.eu) D.eu.tem_aniversario = !!r.aniv_mes;
+      bt.textContent = 'Salvo'; setTimeout(() => { if ($('#folha .perfil') && !$('#folha').classList.contains('oculto')) fecharFolha(); }, 700);
+      if (aba === 'pedidos') setTimeout(desenharPedidos, 760);
+    } catch (e) {
+      bt.disabled = false; bt.textContent = 'Salvar';
+      msg.innerHTML = `<div class="aviso">${({instagram_invalido: 'Esse Instagram não parece certo. Use só letras, números, ponto e _.',
+        email_invalido: 'Esse e-mail não parece certo. Confira.', data_invalida: 'Essa data não existe. Confira o dia.'})[e.codigo]
+        || 'Não consegui salvar. Confira a internet e tente de novo.'}</div>`;
+    }
+  };
+}
+
 /* ---------------------------------------------------------------- folhas */
+let timerFolha = 0;
 function abrirFolha(html) {
+  clearTimeout(timerFolha);
   const f = $('#folha'), v = $('#veu');
   f.innerHTML = '<div class="pega"></div>' + html;
   f.classList.remove('oculto'); v.classList.remove('oculto');
@@ -793,7 +619,8 @@ function abrirFolha(html) {
 function fecharFolha() {
   const f = $('#folha'), v = $('#veu');
   f.classList.remove('on'); v.classList.remove('on');
-  setTimeout(() => { f.classList.add('oculto'); v.classList.add('oculto'); }, 260);
+  clearTimeout(timerFolha);
+  timerFolha = setTimeout(() => { f.classList.add('oculto'); v.classList.add('oculto'); }, 260);
 }
 
 /* pedido em dois passos: 1) o quê e quantos  2) onde receber + confirmar */
@@ -834,12 +661,12 @@ function abrirItem(id, codIni, qtdIni) {
          ['baixo', 'Pego no Bar do 1º piso', 'mostre o voucher no balcão'],
          ['cima', 'Pego no Bar do 2º piso', 'mostre o voucher no balcão']];
     abrirFolha(`
-      <div class="volta-linha"><button class="voltar" id="voltar">Voltar</button><span>${qtd}× ${esc(nomeOp)}</span></div>
+      <div class="volta-linha"><button class="voltar" id="voltar">Voltar</button><span>${qtd}<span class="vz">×</span> ${esc(nomeOp)}</span></div>
       <h3 style="margin-top:6px">${m.tipo === 'comida' ? 'Onde entregamos?' : 'Onde você quer receber?'}</h3>
       <div class="ondes">${opcoes.map(([k, t, s]) => `<button class="onde-op ${entrega===k?'on':''}" data-onde="${k}"><b>${t}</b><small>${s}</small></button>`).join('')}</div>
       ${entrega === 'bistro' ? bistroHtml() : ''}
       ${m.tipo === 'comida' ? '<p class="d" style="margin-top:10px">Quer comer sentada? Desça para o 1º piso e peça a um garçom.</p>' : ''}
-      <button class="pedir" id="pedir" ${podeConfirmar() ? '' : 'disabled'}><span>${enviando ? 'Enviando…' : 'Confirmar ' + qtd + '× ' + esc(op.rotulo && m.opcoes.length > 1 ? op.rotulo : m.nome)}</span><span>${brl(op.preco * qtd)}</span></button>
+      <button class="pedir" id="pedir" ${podeConfirmar() ? '' : 'disabled'}><span>${enviando ? 'Enviando…' : 'Confirmar ' + qtd + '<span class="vz">×</span> ' + esc(op.rotulo && m.opcoes.length > 1 ? op.rotulo : m.nome)}</span><span>${brl(op.preco * qtd)}</span></button>
       <div id="msg"></div>`);
     $('#voltar').onclick = () => { passo = 1; pintar(); };
     document.querySelectorAll('[data-onde]').forEach(x => x.onclick = () => {
@@ -947,7 +774,7 @@ function confirmarRecebi(p) {
   if (!p) return;
   abrirFolha(`<div class="voucher">
     <h3>${p.bistro ? 'O pedido chegou?' : 'Já está com ele na mão?'}</h3>
-    <p class="d" style="margin-top:6px">${p.qtd}× ${esc(p.nome)}</p>
+    <p class="d" style="margin-top:6px">${p.qtd}<span class="vz">×</span> ${esc(p.nome)}</p>
     <div style="display:grid;gap:10px;margin-top:18px">
       <button class="bt ouro" style="padding:16px;font-size:18px" id="sim">Sim, ${p.bistro ? 'recebi' : 'peguei'}</button>
       <button class="bt linha" style="padding:12px" id="nao">Ainda não</button>
@@ -1152,6 +979,7 @@ function aplicarBrilho(x) {
 async function abrirCamera() {
   const v = document.createElement('div');
   v.className = 'camera';
+  const moldIni = ({notte: 'pantera', selva: 'folhas'})[temaAtual()] || 'feras';   // a câmera abre na moldura que combina com o estilo
   const linha = (id, lista, at, k) => `<div class="cam-linha" id="${id}">${lista.map(o => `<button data-${k}="${o[0]}" class="${o[0] === at ? 'on' : ''}">${o[1]}</button>`).join('')}</div>`;
   v.innerHTML = `
     <div class="cam-topo"><button class="bt linha" id="cam-x">Voltar</button>
@@ -1160,12 +988,12 @@ async function abrirCamera() {
     <div class="cam-quadro"><div class="cam-caixa"><video playsinline muted autoplay></video><canvas class="cam-molde"></canvas><img class="cam-foto oculto" alt=""/></div></div>
     <div class="cam-ops">
       ${linha('cam-filtros', FILTROS, 'dourado', 'f')}
-      ${linha('cam-molduras', MOLDURAS, 'feras', 'm')}
+      ${linha('cam-molduras', MOLDURAS, moldIni, 'm')}
     </div>
     <div class="cam-acoes" id="cam-acoes"></div>`;
   document.body.appendChild(v);
   const video = v.querySelector('video'), molde = v.querySelector('.cam-molde'), fotoEl = v.querySelector('.cam-foto'), caixa = v.querySelector('.cam-caixa');
-  let filtro = 'dourado', moldura = 'feras', efeito = 'nenhum', formato = 'feed', frente = true;
+  let filtro = 'dourado', moldura = moldIni, efeito = 'nenhum', formato = 'feed', frente = true;
   let stream = null, origem = null, rostos = null, rosto = null, vivo = true, final = null, camadaMoldura = null;
   const dims = () => { const f = FORMATOS.find(z => z[0] === formato); return [f[2], f[3]]; };
 
@@ -1401,10 +1229,19 @@ async function abrirCamera() {
   await ligar();
 }
 
+/* letras das molduras: Jardim usa as do convite; Notte, Selva e Oro, a Bodoni e a Jost do app */
+const LETRAS_CAM = {
+  jardim: {t: p => `${p}px "Pinyon Script"`, s: p => `${p}px "Kaushan Script"`, x: p => `700 ${p}px Alegreya, Georgia, serif`, caixa: s => s},
+  outro:  {t: p => `italic 400 ${Math.round(p * .66)}px "Bodoni Moda", Didot, serif`, s: p => `italic 400 ${Math.round(p * .8)}px "Bodoni Moda", Didot, serif`,
+           x: p => `500 ${Math.round(p * .78)}px Jost, "Futura", sans-serif`, caixa: s => s.toUpperCase()},
+};
+const letrasCam = () => LETRAS_CAM[temaAtual() === 'jardim' ? 'jardim' : 'outro'];
 /* molduras: folhas da selva em volta (a arte do convite), a fita creme do convite ou polaroid */
 async function desenharMoldura(x, m) {
   const W = x.canvas.width, H = x.canvas.height;
-  try { await document.fonts.load('80px "Pinyon Script"'); await document.fonts.load('40px "Kaushan Script"'); } catch {}
+  const L = letrasCam();
+  try { await Promise.race([Promise.all([L.t(80), L.s(40), L.x(30)].map(f => document.fonts.load(f, 'Jardim do Éder'))),
+                            new Promise(r => setTimeout(r, 1500))]); } catch {}
   if (m === 'folhas') {
     const img = await carregarFolhas();
     if (img) {
@@ -1428,9 +1265,9 @@ async function desenharMoldura(x, m) {
     x.save();
     x.fillStyle = '#F4E8CB'; x.textAlign = 'center';
     x.shadowColor = 'rgba(0,0,0,.75)'; x.shadowBlur = 18;
-    x.font = '108px "Pinyon Script"'; x.fillText('Jardim do Éder', W / 2, H - 92);
-    x.font = '700 30px Alegreya, Georgia, serif'; x.fillStyle = '#F3C766';
-    x.fillText('@spesso.rio  ·  27·11·26', W / 2, H - 38);
+    x.font = L.t(108); x.fillText('Jardim do Éder', W / 2, H - 92);
+    x.font = L.x(30); x.fillStyle = '#F3C766';
+    x.fillText(L.caixa('@spesso.rio  ·  27·11·26'), W / 2, H - 38);
     x.restore();
   } else if (PELES[m]) {
     desenharFeras(x, W, H, m);
@@ -1445,10 +1282,10 @@ async function desenharMoldura(x, m) {
     x.lineTo(-fw / 2, fh / 2); x.lineTo(-fw / 2 + 30, 0); x.closePath(); x.fill();
     x.shadowColor = 'transparent';
     x.fillStyle = '#3A2312'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.font = '64px "Kaushan Script"'; x.fillText('Solte suas feras', 0, -6);
+    x.font = L.s(64); x.fillText('Solte suas feras', 0, -6);
     x.restore();
     x.save(); x.fillStyle = '#F4E8CB'; x.textAlign = 'center'; x.shadowColor = 'rgba(0,0,0,.7)'; x.shadowBlur = 14;
-    x.font = '700 30px Alegreya, Georgia, serif'; x.fillText('Jardim do Éder  ·  @spesso.rio', W / 2, H - 42);
+    x.font = L.x(30); x.fillText(L.caixa('Jardim do Éder  ·  @spesso.rio'), W / 2, H - 42);
     x.restore();
   } else if (m === 'polaroid') {
     const lado = 54, cima = 54, baixo = H * .17;
@@ -1457,13 +1294,13 @@ async function desenharMoldura(x, m) {
     x.beginPath(); x.rect(0, 0, W, H); x.rect(lado, cima, W - lado * 2, H - cima - baixo); x.fill('evenodd');
     x.strokeStyle = 'rgba(0,0,0,.08)'; x.lineWidth = 2; x.strokeRect(lado, cima, W - lado * 2, H - cima - baixo);
     x.fillStyle = '#3A2312'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.font = `${Math.round(baixo * .36)}px "Kaushan Script"`; x.fillText('Jardim do Éder', W / 2, H - baixo * .58);
-    x.font = `700 ${Math.round(baixo * .15)}px Alegreya, Georgia, serif`; x.fillStyle = '#8a5a12';
-    x.fillText('27 · 11 · 26   @spesso.rio', W / 2, H - baixo * .22);
+    x.font = L.s(Math.round(baixo * .36)); x.fillText('Jardim do Éder', W / 2, H - baixo * .58);
+    x.font = L.x(Math.round(baixo * .15)); x.fillStyle = '#8a5a12';
+    x.fillText(L.caixa('27 · 11 · 26   @spesso.rio'), W / 2, H - baixo * .22);
     x.restore();
   } else {
     x.save(); x.fillStyle = 'rgba(244,232,203,.92)'; x.textAlign = 'right'; x.shadowColor = 'rgba(0,0,0,.6)'; x.shadowBlur = 10;
-    x.font = '700 28px Alegreya, Georgia, serif'; x.fillText('Jardim do Éder · @spesso.rio', W - 34, H - 34);
+    x.font = L.x(28); x.fillText(L.caixa('Jardim do Éder · @spesso.rio'), W - 34, H - 34);
     x.restore();
   }
 }
@@ -1508,10 +1345,11 @@ function desenharFeras(x, W, H, qual) {
   x.save();
   x.textAlign = 'center'; x.textBaseline = 'middle';
   x.shadowColor = 'rgba(0,0,0,.8)'; x.shadowBlur = 16;
-  x.fillStyle = '#F4E8CB'; x.font = `${Math.round(baixo * .42)}px "Kaushan Script"`;
+  const L = letrasCam();
+  x.fillStyle = '#F4E8CB'; x.font = L.s(Math.round(baixo * .42));
   x.fillText('Solte suas feras', W / 2, H - baixo * .56);
-  x.font = `700 ${Math.round(baixo * .15)}px Alegreya, Georgia, serif`; x.fillStyle = '#F3C766';
-  x.fillText('Jardim do Éder  ·  @spesso.rio  ·  27·11·26', W / 2, H - baixo * .18);
+  x.font = L.x(Math.round(baixo * .15)); x.fillStyle = '#F3C766';
+  x.fillText(L.caixa('Jardim do Éder  ·  @spesso.rio  ·  27·11·26'), W / 2, H - baixo * .18);
   x.restore();
 }
 
@@ -1694,7 +1532,7 @@ function ligarAniv() {
     if (!d || !m) { $('#aniv-msg').innerHTML = '<div class="aviso">Escolha o dia e o mês.</div>'; return; }
     try {
       await rpc('ev_cliente_aniversario', {p_token: token, p_dia: d, p_mes: m});
-      D.eu.tem_aniversario = true;
+      D.eu.tem_aniversario = true; EXTRA.aniv_dia = d; EXTRA.aniv_mes = m;
       $('#aniv').innerHTML = `<p style="margin:0">Anotado: <b>${d} de ${MESES[m-1]}</b>. Grazie!</p>`;
     } catch (e) {
       $('#aniv-msg').innerHTML = `<div class="aviso">${e.codigo === 'data_invalida' ? 'Essa data não existe. Confira o dia.' : 'Não consegui salvar. Tente de novo.'}</div>`;
@@ -1718,7 +1556,7 @@ function abrirVoucher(p, novo) {
       <div class="b-casa">SPESSO · JARDIM DO ÉDER</div>
       <div class="b-nome">${pn()}</div>
       <div class="b-mesa">MESA ${D.eu.pulseira}</div>
-      <div class="b-item">${p.qtd}× ${esc(p.nome)}</div>
+      <div class="b-item">${p.qtd}<span class="vz">×</span> ${esc(p.nome)}</div>
       ${p.entregue ? '<div class="carimbo">Entregue</div>' : `<div class="qr">${qrSvg(EQUIPE + 'V-' + p.voucher)}</div>`}
       <div class="b-cod">${p.voucher}</div>
       <div class="corte"></div>
