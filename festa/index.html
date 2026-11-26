@@ -1,39 +1,24 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-tema="convite">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Jardim do Éder · Spesso</title>
 <meta name="description" content="Jardim do Éder: solte suas feras. Peça bebidas e pratos pelo celular."/>
-<meta name="theme-color" content="#0B2216"/>
+<meta name="theme-color" content="#07130C"/>
 <meta name="color-scheme" content="dark"/>
 <meta name="robots" content="noindex"/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='%23E0A93F'/></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;0,800;1,500&family=Alegreya+SC:wght@700&family=Kaushan+Script&family=Pinyon+Script&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..800;1,6..96,400..800&family=Jost:ital,wght@0,300..700;1,300..600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..800&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Alegreya:ital,wght@0,500;0,700;0,800;1,500&family=Alegreya+SC:wght@500;700&family=Kaushan+Script&display=swap" rel="stylesheet"/>
 <style>
-/* comum a todos os estilos (o estilo de cada um vem de temas/<nome>.css, carregado logo abaixo e por cima) */
+/* comum (o visual da festa vem de temas/convite.css, carregado logo abaixo e por cima) */
 .nav .nav-perfil{width:52px;display:grid;place-items:center;padding:0;}
 .perfil-bt{width:34px;height:34px;border-radius:50%;border:1px solid var(--ouro);background:rgba(0,0,0,.28);color:var(--ouro-2);
   font:inherit;font-size:15px;font-weight:700;display:grid;place-items:center;padding:0;cursor:pointer;flex:none;
   -webkit-tap-highlight-color:transparent;transition:transform 140ms var(--ease-out,ease-out);}
 .nav-perfil:active .perfil-bt{transform:scale(.94);}
-.estilos{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 6px;}
-.estilo{position:relative;border:1px solid var(--linha);border-radius:14px;padding:0;overflow:hidden;background:var(--selva-2);
-  color:var(--texto);text-align:left;font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;
-  transition:transform 160ms var(--ease-out,ease-out),border-color 160ms ease;}
-.estilo:active{transform:scale(.97);}
-.estilo img{display:block;width:100%;aspect-ratio:375/520;object-fit:cover;object-position:top;}
-.estilo .en{display:block;padding:9px 10px 2px;font-weight:700;font-size:16px;}
-.estilo .ed{display:block;padding:0 10px 10px;font-size:12.5px;line-height:1.3;color:var(--texto-2);}
-.estilo.on{border-color:var(--ouro-2);box-shadow:0 0 0 2px var(--ouro-2) inset;}
-.estilo.on::after{content:'';position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;
-  background:var(--ouro-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%23111' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat;}
-.estilos.mini{grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 2px;}
-.estilos.mini img{aspect-ratio:3/4;}
-.estilos.mini .en{font-size:13px;padding:6px 6px 7px;text-align:center;}
-.estilos.mini .ed,.estilos.mini .estilo.on::after{display:none;}
 .perfil .campo{margin-top:20px;}
 .perfil .campo .rot{display:block;margin:0;}
 .perfil .campo .pq{display:block;font-size:13px;line-height:1.35;color:var(--texto-2);margin:3px 0 8px;}
@@ -44,24 +29,10 @@
 .perfil .sel{display:flex;gap:8px;} .perfil .sel select{flex:1;}
 .perfil .simnao{display:flex;gap:8px;} .perfil .simnao button{flex:1;}
 .perfil .simnao button.on{outline:2px solid var(--ouro-2);outline-offset:2px;}
-/* o × da Bodoni é miúdo: nos estilos de grife ele vem da Jost */
-html:not([data-tema=jardim]) .vz{font-family:Jost,'Futura',sans-serif;font-weight:500;font-style:normal;}
 .perfil .rodape{font-size:12.5px;line-height:1.4;color:var(--texto-2);margin-top:14px;}
-@media (prefers-reduced-motion: reduce){.perfil-bt,.estilo{transition:none;}}
+@media (prefers-reduced-motion: reduce){.perfil-bt{transition:none;}}
 </style>
-<script>
-/* o estilo que ela escolheu abre antes de qualquer desenho (sem piscar o estilo errado) */
-(function () {
-  var T = {jardim: ['#0B2216', 'dark'], notte: ['#0A0807', 'dark'], selva: ['#040B07', 'dark'], oro: ['#13100C', 'light']};
-  var t = null; try { t = localStorage.getItem('festa_tema'); } catch (e) {}
-  if (!T[t]) t = 'jardim';
-  document.documentElement.setAttribute('data-tema', t);
-  document.write('<link rel="stylesheet" id="tema-css" data-tema-css href="temas/' + t + '.css?v=16b"'
-    + ' onerror="if(!this.dataset.r){this.dataset.r=1;this.href=this.href+\'&r=1\'}else if(this.href.indexOf(\'jardim\')<0){this.href=\'temas/jardim.css?v=16b\';document.documentElement.setAttribute(\'data-tema\',\'jardim\')}"/>');
-  var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', T[t][0]);
-  var c = document.querySelector('meta[name=color-scheme]'); if (c) c.setAttribute('content', T[t][1]);
-})();
-</script>
+<link rel="stylesheet" id="tema-css" href="temas/convite.css?v=17a" onerror="if(!this.dataset.r){this.dataset.r=1;this.href=this.href+'&r=1'}"/>
 </head>
 <body>
 <div id="rede" class="rede oculto">Sem internet agora. Assim que voltar, a página se atualiza.</div>
@@ -74,7 +45,7 @@ html:not([data-tema=jardim]) .vz{font-family:Jost,'Futura',sans-serif;font-weigh
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v16 25/11/2026';
+const VER = 'festa-v17 26/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -118,7 +89,7 @@ async function carregar() {
     D = await rpc('ev_cliente', {p_token: token});
     $('#rede').classList.add('oculto');
     desenhar(); checarProntos();
-    if (!EXTRA.mural_chave) carregarExtra().then(() => { if (aba === 'pedidos' && !D.vitrine) desenharPedidos(); talvezEscolherEstilo(); });
+    if (!EXTRA.mural_chave) carregarExtra().then(() => { if (aba === 'pedidos' && !D.vitrine) desenharPedidos(); });
   } catch (e) {
     if (e.codigo === 'link_invalido') {
       try { localStorage.removeItem('festa_token'); } catch {}
@@ -226,7 +197,7 @@ function desenhar() {
         <button data-aba="cardapio"><b>Cardápio</b></button>
         <button data-aba="pedidos"><b>Pedidos${ativos ? ' · ' + ativos : ''}</b></button>
         <button data-aba="fotos"><b>Fotos</b></button>
-        <button data-aba="perfil" class="nav-perfil" aria-label="Seu perfil e o estilo do app"><span class="perfil-bt">${esc((primeiroNome || '?').charAt(0).toUpperCase())}</span></button>
+        <button data-aba="perfil" class="nav-perfil" aria-label="Seu perfil"><span class="perfil-bt">${esc((primeiroNome || '?').charAt(0).toUpperCase())}</span></button>
       </div>
     </nav>`}`;
   document.querySelectorAll('.nav button').forEach(b => {
@@ -468,98 +439,19 @@ function desenharConta() {
   const u = $('#usar'); if (u) u.onclick = () => { aba = 'cardapio'; desenhar(); window.scrollTo(0, 0); };
 }
 
-/* ---------------------------------------------------------------- estilos e perfil
-   Renato 25/11: "gostei de todas e acho que podemos ter todas disponiveis. a cliente escolhe. logo no inicio
-   e depois no icone do perfil dela. la ela depois pode preencher outros dados caso queiramos pra alguma coisa."
-   O estilo fica no celular (abre sem esperar a rede) e no banco (sql/668), para a casa saber qual agradou. */
-const TV_TEMAS = '16b';
-const TEMAS = {
-  jardim: {nome: 'Jardim', d: 'O convite da festa: folhas, verde e ouro.', cor: '#0B2216', esquema: 'dark'},
-  notte:  {nome: 'Notte',  d: 'Preto e ouro, a onça no detalhe.',         cor: '#0A0807', esquema: 'dark'},
-  selva:  {nome: 'Selva',  d: 'Esmeralda, ouro e estampas.',              cor: '#040B07', esquema: 'dark'},
-  oro:    {nome: 'Oro',    d: 'Marfim e ouro, campanha dos anos 70.',     cor: '#13100C', esquema: 'light'},
-};
-const temaAtual = () => { const t = document.documentElement.getAttribute('data-tema'); return TEMAS[t] ? t : 'jardim'; };
-let temaGer = 0, temaPedido = null;   // só o último toque vale (toques rápidos no wi-fi lento)
-const temaLocal = () => { try { const t = localStorage.getItem('festa_tema'); return TEMAS[t] ? t : null; } catch { return null; } };
-function aplicarTema(t) {
-  if (!TEMAS[t]) return Promise.resolve(false);
-  const ger = ++temaGer; temaPedido = t;
-  document.querySelectorAll('link[data-tema-css]:not(#tema-css)').forEach(x => x.remove());   // pedidos antigos saem
-  if (t === temaAtual()) { try { localStorage.setItem('festa_tema', t); } catch {} return Promise.resolve(true); }
-  return new Promise(ok => {
-    const l = document.createElement('link');
-    l.rel = 'stylesheet'; l.setAttribute('data-tema-css', ''); l.href = `temas/${t}.css?v=${TV_TEMAS}`;
-    l.onload = () => {
-      if (ger !== temaGer) { l.remove(); return ok(false); }
-      document.querySelectorAll('link[data-tema-css]').forEach(x => { if (x !== l) x.remove(); });
-      l.id = 'tema-css'; document.documentElement.setAttribute('data-tema', t);
-      try { localStorage.setItem('festa_tema', t); } catch {}
-      const m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', TEMAS[t].cor);
-      const c = document.querySelector('meta[name=color-scheme]'); if (c) c.setAttribute('content', TEMAS[t].esquema);
-      ok(true);
-    };
-    l.onerror = () => { l.remove(); if (ger === temaGer) temaPedido = temaAtual(); ok(false); };
-    const ult = [...document.querySelectorAll('link[data-tema-css]')].pop();
-    (ult || document.head.lastChild).after(l);
-  });
-}
-const guardarTema = t => { if (!TEMAS[t]) return; EXTRA.tema = t; if (token) rpc('ev_tema', {p_token: token, p_tema: t}).catch(() => {}); };
-const cartoesEstilo = (mini, sel = temaPedido || temaAtual()) => `<div class="estilos${mini ? ' mini' : ''}">${Object.entries(TEMAS).map(([k, v]) =>
-  `<button class="estilo${k === sel ? ' on' : ''}" data-tema="${k}" aria-pressed="${k === sel}">
-    <img src="temas/${k}.jpg?v=${TV_TEMAS}" alt="" loading="lazy"/><span class="en">${v.nome}</span><span class="ed">${v.d}</span></button>`).join('')}</div>`;
-function marcarCartoes(raiz, t) {
-  raiz.querySelectorAll('.estilo').forEach(x => { const on = x.dataset.tema === t; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
-}
-function ligarCartoes(raiz) {
-  raiz.querySelectorAll('.estilo').forEach(b => b.onclick = async () => {
-    const t = b.dataset.tema;
-    marcarCartoes(raiz, t);
-    const ok = await aplicarTema(t);
-    if (ok && temaPedido === t) guardarTema(t);
-    else if (!ok && temaPedido !== t) return;                 // outro toque veio depois: ele decide
-    else if (!ok) marcarCartoes(raiz, temaAtual());           // não carregou: fica o atual
-  });
-}
-/* primeira abertura: escolher o estilo (uma vez; tocar fora deixa o Jardim) */
-let viuEstilos = false; try { viuEstilos = localStorage.getItem('festa_tema_visto') === '1' || !!localStorage.getItem('festa_tema'); } catch {}
-const marcarVisto = () => { viuEstilos = true; try { localStorage.setItem('festa_tema_visto', '1'); } catch {} };
-let tentouEstilos = 0;
-function talvezEscolherEstilo() {
-  if (!D || D.vitrine || !token || !EXTRA._ok) return;
-  const local = temaLocal();
-  if (local) { if (EXTRA.tema !== local) guardarTema(local); return; }      // o celular manda
-  if (EXTRA.tema && TEMAS[EXTRA.tema]) { aplicarTema(EXTRA.tema); marcarVisto(); return; }   // escolheu em outro celular
-  if (viuEstilos || tentouEstilos > 6) return;
-  tentouEstilos++;
-  setTimeout(() => {
-    if (viuEstilos) return;
-    if (!$('#folha').classList.contains('oculto') || $('.alerta') || $('.camera') || $('.lupa') || $('.leitor')) return talvezEscolherEstilo();
-    abrirEstilos();
-  }, tentouEstilos === 1 ? 900 : 4000);
-}
-function abrirEstilos() {
-  const nome = esc(((D.eu && D.eu.nome) || '').split(' ')[0]);
-  abrirFolha(`<h3>${nome ? nome + ', escolha' : 'Escolha'} o seu estilo</h3>
-    <p class="d" style="margin:4px 0 0">O app inteiro muda. Dá para trocar quando quiser, no círculo com a sua inicial, na barra de baixo.</p>
-    ${cartoesEstilo(false)}
-    <button class="bt ouro" id="estilo-ok" style="width:100%;margin-top:10px">Seguir com este</button>`);
-  marcarVisto();
-  ligarCartoes($('#folha'));
-  $('#estilo-ok').onclick = () => { guardarTema(temaPedido || temaAtual()); fecharFolha(); };
-}
-/* perfil: o estilo e, se ela quiser, dados com a finalidade dita ao lado de cada um (P12) */
+/* ---------------------------------------------------------------- perfil
+   Renato 25/11: "la ela depois pode preencher outros dados caso queiramos pra alguma coisa." O visual é um só
+   (Renato 26/11: "vamos usar apenas um layout. nada de poder escolher"), o do convite da festa. */
+/* perfil: se ela quiser, dados com a finalidade dita ao lado de cada um (P12) */
 async function abrirPerfil() {
   const eu = D.eu || {}, nome = esc(eu.nome || '');
   const topo = () => `<div class="perfil"><h3>${nome || 'Seu perfil'}</h3>
-    ${eu.pulseira != null ? `<p class="d" style="margin:2px 0 0">Mesa ${eu.pulseira} · Jardim do Éder</p>` : ''}
-    <div class="campo"><span class="rot">Estilo do app</span>${cartoesEstilo(true)}</div>`;
+    ${eu.pulseira != null ? `<p class="d" style="margin:2px 0 0">Mesa ${eu.pulseira} · Jardim do Éder</p>` : ''}`;
   abrirFolha(topo() + '<p class="d" id="pf-carr" style="margin-top:16px">Abrindo os seus dados…</p></div>');
-  ligarCartoes($('#folha'));
   EXTRA._ok = false;
   await Promise.race([carregarExtra(), new Promise(r => setTimeout(r, 6000))]);
   if (!$('#pf-carr') || $('#folha').classList.contains('oculto')) return;   // ela já fechou ou abriu outra coisa
-  if (!EXTRA._ok) { $('#pf-carr').outerHTML = `<div class="aviso">Não consegui abrir os seus dados agora (internet fraca). O estilo você já pode trocar aqui em cima.</div>
+  if (!EXTRA._ok) { $('#pf-carr').outerHTML = `<div class="aviso">Não consegui abrir os seus dados agora (internet fraca). Tente de novo daqui a pouco.</div>
       <button class="bt linha" id="pf-tenta" style="width:100%;margin-top:12px">Tentar de novo</button>`;
     $('#pf-tenta').onclick = abrirPerfil; return; }
   const novid = EXTRA.novidades;
@@ -578,7 +470,6 @@ async function abrirPerfil() {
     <button class="bt ouro" id="pf-ok" style="width:100%;margin-top:18px">Salvar</button>
     <p class="rodape">Tudo aqui é opcional. Para apagar um dado, deixe o campo em branco e salve.</p></div>`);
   const f = $('#folha');
-  ligarCartoes(f);
   let nov = novid;
   f.querySelectorAll('[data-nov]').forEach(b => b.onclick = () => { nov = b.dataset.nov === '1';
     f.querySelectorAll('[data-nov]').forEach(x => x.classList.toggle('on', x === b)); });
@@ -588,11 +479,11 @@ async function abrirPerfil() {
     bt.disabled = true; bt.textContent = 'Salvando…';
     try {
       /* nulo = não mexe; '' (ou dia 0) = ela apagou o que tinha */
-      const ig = $('#pf-ig').value.trim(), em = $('#pf-em').value.trim(), tema = temaPedido || temaAtual();
+      const ig = $('#pf-ig').value.trim(), em = $('#pf-em').value.trim(), tema = null;
       const r = await rpc('ev_perfil_salvar', {p_token: token, p_tema: tema,
         p_instagram: ig || (salvo.ig ? '' : null), p_email: em || (salvo.em ? '' : null),
         p_aniv_dia: d || (salvo.m ? 0 : null), p_aniv_mes: m || (salvo.m ? 0 : null), p_novidades: nov == null ? null : nov});
-      Object.assign(EXTRA, {tema, instagram: r.instagram, email: r.email, aniv_dia: r.aniv_dia, aniv_mes: r.aniv_mes, novidades: r.novidades});
+      Object.assign(EXTRA, {instagram: r.instagram, email: r.email, aniv_dia: r.aniv_dia, aniv_mes: r.aniv_mes, novidades: r.novidades});
       if (D.eu) D.eu.tem_aniversario = !!r.aniv_mes;
       bt.textContent = 'Salvo'; setTimeout(() => { if ($('#folha .perfil') && !$('#folha').classList.contains('oculto')) fecharFolha(); }, 700);
       if (aba === 'pedidos') setTimeout(desenharPedidos, 760);
@@ -821,7 +712,7 @@ const FILTROS = [
    Tem que ser elegante, sempre." A fileira saiu da câmera; a foto fica só com filtro e moldura. */
 const EFEITOS = [['nenhum', 'Sem efeito'], ['coroa', 'Coroa da selva'], ['onca', 'Onça'], ['luzes', 'Luzes'], ['brilho', 'Pele de festa']];
 /* conselho 25/11: cinco molduras (Onça rosa, Tigre, Zebra e Fita saem; o desenho continua em PELES para voltar se quiser) */
-const MOLDURAS = [['feras', 'Onça'], ['pantera', 'Pantera'], ['folhas', 'Folhas'], ['polaroid', 'Polaroid'], ['limpa', 'Sem moldura']];
+const MOLDURAS = [['convite', 'Convite'], ['feras', 'Onça'], ['pantera', 'Pantera'], ['folhas', 'Folhas'], ['polaroid', 'Polaroid'], ['limpa', 'Sem moldura']];
 const FORMATOS = [['feed', 'Feed 4:5', 1080, 1350], ['story', 'Story 9:16', 1080, 1920]];
 
 /* o Safari do iPhone não aplica ctx.filter: testa de verdade (pinta vermelho em cinza e lê de volta) */
@@ -979,7 +870,7 @@ function aplicarBrilho(x) {
 async function abrirCamera() {
   const v = document.createElement('div');
   v.className = 'camera';
-  const moldIni = ({notte: 'pantera', selva: 'folhas'})[temaAtual()] || 'feras';   // a câmera abre na moldura que combina com o estilo
+  const moldIni = 'convite';   // a câmera abre na moldura do convite da festa
   const linha = (id, lista, at, k) => `<div class="cam-linha" id="${id}">${lista.map(o => `<button data-${k}="${o[0]}" class="${o[0] === at ? 'on' : ''}">${o[1]}</button>`).join('')}</div>`;
   v.innerHTML = `
     <div class="cam-topo"><button class="bt linha" id="cam-x">Voltar</button>
@@ -1229,19 +1120,61 @@ async function abrirCamera() {
   await ligar();
 }
 
-/* letras das molduras: Jardim usa as do convite; Notte, Selva e Oro, a Bodoni e a Jost do app */
-const LETRAS_CAM = {
-  jardim: {t: p => `${p}px "Pinyon Script"`, s: p => `${p}px "Kaushan Script"`, x: p => `700 ${p}px Alegreya, Georgia, serif`, caixa: s => s},
-  outro:  {t: p => `italic 400 ${Math.round(p * .66)}px "Bodoni Moda", Didot, serif`, s: p => `italic 400 ${Math.round(p * .8)}px "Bodoni Moda", Didot, serif`,
-           x: p => `500 ${Math.round(p * .78)}px Jost, "Futura", sans-serif`, caixa: s => s.toUpperCase()},
-};
-const letrasCam = () => LETRAS_CAM[temaAtual() === 'jardim' ? 'jardim' : 'outro'];
+/* letras das molduras: as do convite (Cinzel em caixa alta, pincel Kaushan, Alegreya no miúdo) */
+const LETRAS = {t: p => `600 ${Math.round(p * .62)}px Cinzel, "Trajan Pro", Georgia, serif`, s: p => `${p}px "Kaushan Script", cursive`,
+                x: p => `700 ${p}px Alegreya, Georgia, serif`, caixa: s => s};
+const letrasCam = () => LETRAS;
+/* a arte do convite em quatro tiras (em cima, embaixo e os lados): vira a moldura "Convite" */
+let conviteImgs = null;
+function carregarConvite() {
+  if (conviteImgs) return conviteImgs;
+  const um = n => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = `img/convite-${n}.jpg`; });
+  conviteImgs = Promise.all(['topo', 'base', 'esq', 'dir'].map(um)).then(l => l.every(Boolean) ? l : (conviteImgs = null, null));
+  return conviteImgs;
+}
+function molduraConvite(x, W, H, imgs) {
+  const [topo, base, esq, dir] = imgs, k = W / 1068;            // tudo na escala do convite (1068 px de largura)
+  const ht = Math.round(250 * k), hb = Math.round(173 * k), ls = Math.round(118 * k);
+  const o = document.createElement('canvas'); o.width = W; o.height = H;
+  const ox = o.getContext('2d');
+  /* os lados: a tira inteira, esticada só no comprido entre a faixa de cima e a de baixo */
+  const lh = H - ht - hb + 4;
+  ox.drawImage(esq, 0, ht - 2, ls, lh); ox.drawImage(dir, W - ls, ht - 2, ls, lh);
+  ox.drawImage(topo, 0, 0, W, ht); ox.drawImage(base, 0, H - hb, W, hb);
+  /* a janela da foto: some com a borda macia, como a luz entrando pelas folhas */
+  ox.globalCompositeOperation = 'destination-out';
+  const jx = ls * .62, jy = ht * .58, jw = W - jx * 2, jh = H - jy - hb * .92, r = 18;
+  ox.shadowColor = '#000'; ox.shadowBlur = Math.round(W * .035);
+  ox.beginPath(); ox.roundRect ? ox.roundRect(jx, jy, jw, jh, r) : ox.rect(jx, jy, jw, jh); ox.fill();
+  ox.shadowBlur = 0; ox.globalCompositeOperation = 'source-over';
+  x.drawImage(o, 0, 0);
+  /* o fio de ouro do convite, recuado, por cima de tudo */
+  x.save(); x.strokeStyle = 'rgba(226,190,112,.9)'; x.lineWidth = Math.max(2, Math.round(2.2 * k));
+  const m = Math.round(20 * k); x.strokeRect(m, m, W - m * 2, H - m * 2); x.restore();
+  /* o nome, no meio escuro da faixa de baixo */
+  const L = LETRAS, ouro = x.createLinearGradient(0, H - hb, 0, H - hb * .25);
+  ouro.addColorStop(0, '#F7DF9E'); ouro.addColorStop(.55, '#E0B45C'); ouro.addColorStop(1, '#A8782E');
+  x.save(); x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.shadowColor = 'rgba(0,0,0,.85)'; x.shadowBlur = 14;
+  x.fillStyle = ouro; x.font = L.t(Math.round(55 * k * 1.6));
+  if ('letterSpacing' in x) x.letterSpacing = Math.round(3 * k) + 'px';
+  x.fillText('JARDIM DO ÉDER', W / 2, H - hb * .6);
+  if ('letterSpacing' in x) x.letterSpacing = '0px';
+  x.fillStyle = '#F1DBA5'; x.font = L.x(Math.round(24 * k * 1.25));
+  x.fillText('27 · 11 · 26   ·   @spesso.rio', W / 2, H - hb * .27);
+  x.restore();
+}
 /* molduras: folhas da selva em volta (a arte do convite), a fita creme do convite ou polaroid */
 async function desenharMoldura(x, m) {
   const W = x.canvas.width, H = x.canvas.height;
   const L = letrasCam();
-  try { await Promise.race([Promise.all([L.t(80), L.s(40), L.x(30)].map(f => document.fonts.load(f, 'Jardim do Éder'))),
+  try { await Promise.race([Promise.all([L.t(80), L.s(40), L.x(30)].map(f => document.fonts.load(f, 'JARDIM DO ÉDER Jardim'))),
                             new Promise(r => setTimeout(r, 1500))]); } catch {}
+  if (m === 'convite') {
+    const imgs = await carregarConvite();
+    if (imgs) return molduraConvite(x, W, H, imgs);
+    m = 'folhas';                                                // sem a arte (rede), as folhas seguram
+  }
   if (m === 'folhas') {
     const img = await carregarFolhas();
     if (img) {

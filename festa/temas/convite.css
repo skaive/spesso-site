@@ -1,0 +1,448 @@
+/* Estilo Convite (26/11): o app vestido como o convite do Jardim do Éder.
+   Verde quase preto, fio de ouro recuado em moldura, folhagem do convite no topo e no fim do cardápio,
+   títulos em Cinzel com degradê de ouro, pincel Kaushan nos momentos e a pincelada dourada do "Dress code"
+   atrás do nome de cada seção. Texto de leitura sempre em creme. */
+:root{
+  --selva:#07130C; --selva-2:#0C1D13; --selva-3:#15291D; --linha:#34503D;
+  --creme:#F4EAD2; --creme-2:#E3D5B4; --tinta:#21160A; --ouro:#D9AA52; --ouro-2:#F0CC80;
+  --brasa:#D9502E; --texto:#F2E9D4; --texto-2:#CBC3AC; --ok:#86D9A0; --erro:#FF9373;
+  --raio:14px; --sab:env(safe-area-inset-bottom,0px);
+  --ease-out:cubic-bezier(0.23, 1, 0.32, 1); --ease-drawer:cubic-bezier(0.23, 1, 0.32, 1);
+  --metal:linear-gradient(180deg,#FBE6A6 0%,#EFC56C 36%,#D39A3B 64%,#E6B65C 84%,#F5D791 100%);
+  --ouro-txt:linear-gradient(180deg,#FFF1C2 6%,#F3CD78 40%,#D89D3E 66%,#F4D48A 96%);
+  --fio:rgba(233,191,106,.34); --fio-forte:rgba(238,198,118,.82);
+  --recuo:2.06vw;   /* o fio do convite fica a 21/1068 da borda */
+  --orn:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 22'%3E %3Cdefs%3E%3ClinearGradient id='l' x1='0' x2='240' gradientUnits='userSpaceOnUse'%3E %3Cstop offset='0' stop-color='%23E9BF6A' stop-opacity='0'/%3E%3Cstop offset='.38' stop-color='%23E9BF6A'/%3E %3Cstop offset='.62' stop-color='%23E9BF6A'/%3E%3Cstop offset='1' stop-color='%23E9BF6A' stop-opacity='0'/%3E%3C/linearGradient%3E %3ClinearGradient id='f' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FBE3A2'/%3E%3Cstop offset='1' stop-color='%23C98F2E'/%3E%3C/linearGradient%3E%3C/defs%3E %3Cpath d='M0 15.5H104M136 15.5H240' stroke='url(%23l)' stroke-width='1'/%3E %3Cpath d='M120 2c4.6 4.2 5.4 9.6 0 15-5.4-5.4-4.6-10.8 0-15z' fill='url(%23f)'/%3E %3Cpath d='M118 18c-6.4-.4-10.8-3.8-12.6-9.4 6 .6 10.4 3.8 12.6 9.4z' fill='url(%23f)'/%3E %3Cpath d='M122 18c6.4-.4 10.8-3.8 12.6-9.4-6 .6-10.4 3.8-12.6 9.4z' fill='url(%23f)'/%3E %3C/svg%3E");
+  --ramo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 22'%3E %3Cdefs%3E%3ClinearGradient id='f' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FBE3A2'/%3E%3Cstop offset='1' stop-color='%23C98F2E'/%3E%3C/linearGradient%3E%3C/defs%3E %3Cpath d='M22 2c4.6 4.2 5.4 9.6 0 15-5.4-5.4-4.6-10.8 0-15z' fill='url(%23f)'/%3E %3Cpath d='M20 18c-6.4-.4-10.8-3.8-12.6-9.4 6 .6 10.4 3.8 12.6 9.4z' fill='url(%23f)'/%3E %3Cpath d='M24 18c6.4-.4 10.8-3.8 12.6-9.4-6 .6-10.4 3.8-12.6 9.4z' fill='url(%23f)'/%3E %3C/svg%3E");
+  --pincel:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 60' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%23A8752A'/%3E%3Cstop offset='.14' stop-color='%23E2B458'/%3E%3Cstop offset='.4' stop-color='%23F7DC94'/%3E%3Cstop offset='.62' stop-color='%23E0AC4C'/%3E%3Cstop offset='.86' stop-color='%23F2D083'/%3E%3Cstop offset='1' stop-color='%23B07E2C'/%3E%3C/linearGradient%3E%3ClinearGradient id='v' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FFF6D8' stop-opacity='.3'/%3E%3Cstop offset='.45' stop-color='%23FFF6D8' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%235A3A0C' stop-opacity='.2'/%3E%3C/linearGradient%3E%3CclipPath id='c'%3E%3Cpath d='M30 13C90 10.5 170 12 236 11C256 10.8 268 12 274 14C279 22 279 40 273 48C220 50 150 49 86 50C60 50.4 42 49.6 30 48.4C25 40 25 22 30 13z'/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d='M30 13C90 10.5 170 12 236 11C256 10.8 268 12 274 14C279 22 279 40 273 48C220 50 150 49 86 50C60 50.4 42 49.6 30 48.4C25 40 25 22 30 13zM36 18Q19 17.5 10 15.25Q19 13.0 36 12.5zM36 20Q12 19.5 3 18Q12 16.5 36 16zM36 26Q24 25.5 15 22.75Q24 20.0 36 19.5zM36 28Q15 27.5 6 26Q15 24.5 36 24zM36 34Q27 33.5 18 30.5Q27 27.5 36 27zM36 36Q11 35.5 2 34Q11 32.5 36 32zM36 41Q21 40.5 12 38Q21 35.5 36 35zM36 44Q16 43.5 7 41.75Q16 40.0 36 39.5zM36 49Q29 48.5 20 46Q29 43.5 36 43zM264 12Q275 12.5 284 14.5Q275 16.5 264 17zM264 15.5Q287 16.0 296 17.75Q287 19.5 264 20zM264 19Q280 19.5 289 22Q280 24.5 264 25zM264 23.5Q290 24.0 299 25.5Q290 27.0 264 27.5zM264 27Q277 27.5 286 30Q277 32.5 264 33zM264 31.5Q285 32.0 294 33.75Q285 35.5 264 36zM264 35Q289 35.5 298 37.5Q289 39.5 264 40zM264 39Q276 39.5 285 42Q276 44.5 264 45zM264 43.5Q283 44.0 292 46Q283 48.0 264 48.5z' fill='url(%23g)'/%3E%3Cpath d='M30 13C90 10.5 170 12 236 11C256 10.8 268 12 274 14C279 22 279 40 273 48C220 50 150 49 86 50C60 50.4 42 49.6 30 48.4C25 40 25 22 30 13zM36 18Q19 17.5 10 15.25Q19 13.0 36 12.5zM36 20Q12 19.5 3 18Q12 16.5 36 16zM36 26Q24 25.5 15 22.75Q24 20.0 36 19.5zM36 28Q15 27.5 6 26Q15 24.5 36 24zM36 34Q27 33.5 18 30.5Q27 27.5 36 27zM36 36Q11 35.5 2 34Q11 32.5 36 32zM36 41Q21 40.5 12 38Q21 35.5 36 35zM36 44Q16 43.5 7 41.75Q16 40.0 36 39.5zM36 49Q29 48.5 20 46Q29 43.5 36 43zM264 12Q275 12.5 284 14.5Q275 16.5 264 17zM264 15.5Q287 16.0 296 17.75Q287 19.5 264 20zM264 19Q280 19.5 289 22Q280 24.5 264 25zM264 23.5Q290 24.0 299 25.5Q290 27.0 264 27.5zM264 27Q277 27.5 286 30Q277 32.5 264 33zM264 31.5Q285 32.0 294 33.75Q285 35.5 264 36zM264 35Q289 35.5 298 37.5Q289 39.5 264 40zM264 39Q276 39.5 285 42Q276 44.5 264 45zM264 43.5Q283 44.0 292 46Q283 48.0 264 48.5z' fill='url(%23v)'/%3E%3Cg clip-path='url(%23c)' stroke-width='1'%3E%3Cpath d='M40 20H262M54 29H270M36 40H248' stroke='%23FFF3C8' stroke-opacity='.3'/%3E%3Cpath d='M60 24H232M72 34H258M48 45H214' stroke='%236E4710' stroke-opacity='.14'/%3E%3C/g%3E%3C/svg%3E");
+  --folha-svg:var(--ramo);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{background:var(--selva);}
+body{font-family:'Alegreya',Georgia,serif;color:var(--texto);background:var(--selva);min-height:100dvh;
+  font-size:17px;line-height:1.4;overscroll-behavior-y:none;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;}
+img{display:block;max-width:100%;}
+.oculto{display:none!important;}
+
+/* ---------- topo: a folhagem do convite e a moldura de fio de ouro que desce até o raminho ---------- */
+.topo{position:relative;height:calc(23.4vw + 76px + env(safe-area-inset-top,0px));display:flex;align-items:flex-end;justify-content:space-between;gap:10px;
+  padding:0 calc(var(--recuo) + 12px) 12px;overflow:hidden;isolation:isolate;}
+.topo .bg{position:absolute;inset:0;z-index:-2;background:var(--selva) url(../img/convite-topo.jpg) center env(safe-area-inset-top,0px)/100% auto no-repeat;}
+.topo::after{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(7,19,12,0) calc(23.4vw * .42),rgba(7,19,12,.55) calc(23.4vw * .8),rgba(7,19,12,.9) calc(23.4vw - 2px),var(--selva) calc(23.4vw + 10px));}
+.topo::before{content:"";position:absolute;z-index:0;pointer-events:none;left:var(--recuo);right:var(--recuo);top:calc(23.4vw - 26px);bottom:0;
+  border:solid var(--fio-forte);border-width:0 1px;-webkit-mask:linear-gradient(transparent,#000 26px);mask:linear-gradient(transparent,#000 26px);}
+.topo h1{font-family:'Cinzel',serif;font-weight:700;color:var(--ouro-2);font-size:clamp(22px,6.8vw,28px);line-height:1.08;letter-spacing:.03em;white-space:nowrap;}
+.topo .tt{min-width:0;flex:1;}
+.topo .nome-topo{font-family:'Kaushan Script',cursive;color:var(--ouro-2);font-size:clamp(27px,8.4vw,34px);line-height:1.12;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.topo h1.com-nome{font-weight:600;font-size:clamp(13.5px,4.4vw,18px);letter-spacing:.07em;}
+/* o acento do É sobe acima da caixa: a folga deixa o ouro pintar o acento */
+.topo h1{padding-top:.2em;margin-top:-.2em;}
+.topo .marca{font-family:'Cinzel',serif;font-weight:600;letter-spacing:.24em;font-size:11px;color:var(--creme-2);margin-top:5px;}
+.eu{flex:none;display:flex;align-items:center;gap:7px;background:rgba(7,19,12,.86);
+  border:1px solid var(--fio);border-radius:999px;padding:4px 4px 4px 11px;}
+.eu .num{background:var(--metal);color:var(--tinta);font-weight:800;border-radius:999px;min-width:34px;height:34px;
+  display:grid;place-items:center;font-size:16px;padding:0 8px;font-variant-numeric:lining-nums;box-shadow:inset 0 1px 0 rgba(255,246,220,.55);}
+.eu .q{font-family:'Cinzel',serif;font-weight:600;font-size:11px;letter-spacing:.18em;color:var(--ouro-2);}
+/* a base da moldura: fio com o raminho no meio, como os divisores do convite */
+.faixa{height:22px;margin:0 var(--recuo);
+  background:var(--ramo) center 0/44px 22px no-repeat,
+    linear-gradient(90deg,var(--fio-forte) calc(50% - 26px),transparent calc(50% - 26px) calc(50% + 26px),var(--fio-forte) calc(50% + 26px)) 0 10px/100% 1px no-repeat,
+    linear-gradient(var(--fio-forte),var(--fio-forte)) left 0/1px 11px no-repeat,
+    linear-gradient(var(--fio-forte),var(--fio-forte)) right 0/1px 11px no-repeat;}
+.topo .dir{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.logo-casa{display:block;padding:2px 2px 0;border-radius:50%;background:radial-gradient(closest-side,rgba(7,19,12,.72),rgba(7,19,12,.4) 60%,rgba(7,19,12,0));opacity:.92;transition:opacity .15s var(--ease-out),transform .12s var(--ease-out);}
+.logo-casa img{width:64px;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.8));}
+.logo-casa:active{transform:scale(.96);opacity:1;}
+
+/* ---------- Beber / Comer: cartões com fio de ouro, como o convite ---------- */
+.lados{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 16px 0;}
+.lado{position:relative;height:136px;border-radius:6px;overflow:hidden;border:1px solid rgba(233,191,106,.5);
+  box-shadow:0 8px 22px rgba(0,0,0,.45);transition:transform .14s var(--ease-out);}
+.lado:active{transform:scale(.97);}
+.lado img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.lado::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,12,7,0) 38%,rgba(4,12,7,.86));}
+/* fio interno de papelaria (cartões, alerta, conta, bilhete) */
+.lado::before,.alerta .cx::before,.conta::after,.bilhete::after{content:"";position:absolute;inset:6px;z-index:2;border:1px solid rgba(160,118,48,.42);border-radius:2px;pointer-events:none;}
+.lado::before{border-color:rgba(240,204,128,.4);transition:border-color .2s var(--ease-out);}
+.lado.on{border-color:var(--ouro);box-shadow:0 0 0 1px rgba(217,170,82,.35),0 10px 26px rgba(0,0,0,.5);}
+.lado.on::before{border-color:var(--fio-forte);}
+.lado.on::after{background:linear-gradient(180deg,rgba(4,12,7,0) 50%,rgba(4,12,7,.7));}
+.lado b{position:absolute;left:12px;bottom:10px;z-index:1;font-family:'Kaushan Script',cursive;font-weight:400;font-size:36px;color:var(--creme);line-height:1.15;
+  padding:0 .2em .08em;margin:0 -.2em;filter:drop-shadow(0 2px 6px rgba(0,0,0,.85));}
+.lado.on b{color:var(--ouro-2);}
+.dica{margin:12px 16px 0;font-size:15px;color:var(--texto-2);}
+.dica b{color:var(--creme);}
+
+/* ---------- foto grande ---------- */
+.lupa{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;}
+.lupa img{max-width:100%;max-height:78dvh;border-radius:6px;object-fit:contain;box-shadow:0 0 0 1px var(--fio);}
+.lupa .lg{margin-top:14px;color:var(--creme);font-size:19px;font-weight:700;text-align:center;}
+.lupa .lg small{display:block;font-weight:400;font-size:13px;color:var(--texto-2);margin-top:4px;}
+.foto-g{display:block;position:relative;width:calc(100% + 36px);margin:-4px -18px 14px;height:240px;overflow:hidden;background:var(--selva);}
+.foto-g img{width:100%;height:100%;object-fit:cover;}
+.foto-g span{position:absolute;right:10px;bottom:10px;font-size:13px;background:rgba(0,0,0,.6);color:#fff;border-radius:999px;padding:4px 10px;}
+
+/* ---------- onde receber + mesa bistrô ---------- */
+.volta-linha{display:flex;align-items:center;gap:12px;}
+.volta-linha span{color:var(--texto-2);font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.voltar{flex:none;border:1px solid var(--ouro);color:var(--creme);border-radius:999px;padding:9px 18px 9px 14px;min-height:44px;font-size:17px;font-weight:800;}
+.voltar:active{transform:scale(.96);}
+.ondes{display:grid;gap:8px;margin-top:14px;}
+.onde-op{display:block;text-align:left;width:100%;border:1px solid var(--linha);border-radius:10px;padding:12px 14px;}
+.onde-op b{display:block;font-size:18px;color:var(--creme);}
+.onde-op small{font-size:14px;color:var(--texto-2);}
+.onde-op.on{border-color:var(--ouro);background:rgba(217,170,82,.1);box-shadow:inset 0 0 0 1px rgba(217,170,82,.4);}
+.onde-op.on b{color:var(--ouro-2);}
+.bistro{margin-top:14px;padding:14px;border-radius:10px;background:rgba(0,0,0,.22);border:1px solid rgba(233,191,106,.16);}
+.bistro.ok{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:18px;color:var(--creme);}
+.bistro.ok b{color:var(--ouro-2);font-size:22px;}
+.bistro .escanear{width:100%;padding:14px;font-size:17px;}
+.grade{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.grade button{height:48px;border-radius:8px;border:1px solid var(--linha);font-size:19px;font-weight:800;color:var(--creme);}
+.grade button.on{background:var(--metal);color:var(--tinta);border-color:var(--ouro);}
+.leitor{position:fixed;inset:0;z-index:70;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 16px calc(24px + var(--sab));}
+.leitor video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.leitor .mira{position:absolute;left:50%;top:42%;width:min(66vw,260px);aspect-ratio:1;transform:translate(-50%,-50%);border:2px solid var(--ouro-2);border-radius:14px;box-shadow:0 0 0 2000px rgba(0,0,0,.45);}
+.leitor p{position:relative;color:#fff;font-size:17px;margin-bottom:14px;text-align:center;}
+.leitor .bt{position:relative;padding:12px 28px;}
+
+/* ---------- "È pronto!": um pedaço do convite na mão dela ---------- */
+.alerta{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.84);display:grid;place-items:center;padding:20px;animation:veu-in .2s var(--ease-out);}
+.alerta .cx{position:relative;color:var(--texto);
+  background:linear-gradient(180deg,rgba(12,29,19,0) calc(min(92vw,380px) * .14),var(--selva-2) calc(min(92vw,380px) * .234)) 0 0/100% calc(min(92vw,380px) * .234 + 1px) no-repeat,
+    url(../img/convite-topo.jpg) center top/100% auto no-repeat,var(--selva-2);
+  border:1px solid rgba(233,191,106,.6);border-radius:6px;padding:calc(min(92vw,380px) * .2) 22px 24px;text-align:center;
+  width:min(92vw,380px);display:grid;gap:10px;box-shadow:0 30px 60px rgba(0,0,0,.65);animation:surge .28s var(--ease-out);}
+.alerta .cx::before{inset:var(--recuo-cx,7px);border-color:var(--fio);z-index:0;
+  -webkit-mask:linear-gradient(transparent 0,transparent calc(min(92vw,380px) * .16),#000 calc(min(92vw,380px) * .24));mask:linear-gradient(transparent 0,transparent calc(min(92vw,380px) * .16),#000 calc(min(92vw,380px) * .24));}
+.alerta .cx>*{position:relative;z-index:1;}
+.alerta h2.it{font-family:'Kaushan Script',cursive;font-weight:400;font-size:clamp(32px,9.6vw,42px);line-height:1.12;color:var(--ouro-2);}
+.alerta .sub{font-weight:700;font-size:19px;color:var(--creme);}
+.alerta .sub::before{content:"";display:block;height:22px;margin:0 auto 10px;width:170px;background:var(--orn) center/contain no-repeat;}
+.alerta p{font-size:17px;}
+.alerta p b{color:var(--ouro-2);}
+.alerta .bt{padding:14px;font-size:17px;min-height:50px;}
+.alerta .bt.linha{border-color:var(--fio);color:var(--creme);}
+.meu-mural{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;}
+.meu-mural img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:6px;display:block;margin-bottom:6px;box-shadow:0 0 0 1px var(--fio);}
+.meu-mural .bt{width:100%;padding:9px;font-size:14px;}
+.convite-festa{position:relative;margin:28px 16px 0;padding:24px 18px;border-radius:6px;text-align:center;
+  border:1px solid rgba(233,191,106,.5);background:radial-gradient(120% 70% at 50% 0,rgba(217,170,82,.1),transparent 70%);}
+.convite-festa::before{content:"";position:absolute;inset:5px;border:1px solid rgba(233,191,106,.22);border-radius:2px;pointer-events:none;}
+.convite-festa .it{color:var(--ouro-2);}
+.convite-festa h3{font-size:21px;margin:6px 0 8px;color:var(--creme);}
+.convite-festa p{color:var(--texto-2);font-size:15.5px;line-height:1.4;}
+.convite-festa .bt{position:relative;margin-top:14px;padding:14px;width:100%;font-size:17px;}
+.pre-reserva .pr-tit{font-size:36px;color:var(--ouro-2);text-align:center;}
+.pre-reserva .pr-q{font-size:24px;margin:6px 0 14px;text-align:center;}
+.pr-ops{display:grid;gap:10px;}
+.pr-op{border:1px solid var(--linha);border-radius:10px;padding:16px;min-height:44px;font-size:18px;font-weight:700;color:var(--creme);text-align:center;
+  transition:transform .12s var(--ease-out),background-color .15s var(--ease-out);}
+.pr-op:active{transform:scale(.97);background:rgba(244,234,210,.08);}
+.pr-meses{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.pr-op.mes{padding:12px 6px;font-size:16px;text-transform:capitalize;}
+.pr-op.mes small{display:block;font-size:13px;font-weight:400;color:var(--texto-2);margin-top:2px;}
+.pr-op.sugerido{border-color:var(--ouro);color:var(--ouro-2);}
+.pr-dia{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;color:var(--texto-2);font-size:15px;}
+.pr-dia input{font:inherit;background:transparent;color:var(--creme);border:1px solid var(--linha);border-radius:8px;padding:10px;min-height:44px;color-scheme:dark;}
+/* o pincel do convite ("Abra as suas asas…"): Kaushan dourado */
+.it{font-family:'Kaushan Script',cursive;font-weight:400;line-height:1.15;}
+.momento h3.it{font-size:42px;color:var(--ouro-2);margin-top:2px;}
+.paga{margin:10px 16px 0;background:linear-gradient(180deg,#F8EFDC,#EEDFBD);color:var(--tinta);border-radius:6px;padding:18px 16px;text-align:center;border:1px solid #C99A48;}
+.paga h3{font-family:'Cinzel',serif;font-weight:700;font-size:20px;letter-spacing:.04em;color:#1F4A2E;margin-top:4px;}
+.paga .qr{background:#fff;border-radius:6px;padding:12px;width:min(70vw,260px);margin:12px auto 8px;}
+.paga .qr svg{width:100%;height:auto;display:block;}
+.paga .pl{font-size:22px;font-weight:800;}
+.pagar{margin:14px 16px 0;padding:16px;border-radius:6px;border:1px solid rgba(233,191,106,.45);text-align:center;color:var(--texto);}
+.pagar b{display:block;font-family:'Cinzel',serif;font-weight:700;font-size:26px;letter-spacing:.04em;color:var(--ouro-2);margin-top:4px;}
+.conta .l .de-novo{margin-left:8px;font-size:13px;font-weight:700;color:#7A5822;text-decoration:underline;}
+
+/* ---------- categorias ---------- */
+.cats{position:sticky;top:0;z-index:5;background:var(--selva);border-bottom:1px solid var(--fio);margin-top:16px;}
+.troca{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sent{height:1px;}
+.cats .troca{position:absolute;left:0;right:0;top:100%;padding:8px 16px 10px;background:var(--selva);border-bottom:1px solid var(--fio);
+  opacity:0;pointer-events:none;transform:translateY(-6px);
+  transition:opacity .18s var(--ease-out),transform .18s var(--ease-out);}
+.cats.preso .troca{opacity:1;pointer-events:auto;transform:none;}
+.cats .troca button{padding:8px 6px;font-size:22px;}
+.troca button{border:1px solid var(--fio);border-radius:8px;padding:9px 6px;min-height:46px;font-family:'Kaushan Script',cursive;font-weight:400;font-size:24px;line-height:1.1;color:var(--creme);}
+.troca button.on{background:var(--metal);border-color:var(--ouro);color:var(--tinta);}
+.cats .in{display:flex;gap:2px;overflow-x:auto;padding:2px 8px;scrollbar-width:none;}
+.cats .in::-webkit-scrollbar{display:none;}
+.cats a{position:relative;flex:none;display:flex;align-items:center;min-height:46px;text-decoration:none;color:var(--texto-2);
+  font-family:'Cinzel',serif;font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;padding:0 10px;}
+.cats a::after{content:"";position:absolute;left:10px;right:10px;bottom:8px;height:1px;background:var(--ouro-2);transform:scaleX(0);transition:transform .25s var(--ease-out);}
+.cats a.on{color:var(--ouro-2);}
+.cats a.on::after{transform:none;}
+
+.secao{padding:26px 16px 4px;scroll-margin-top:124px;}
+/* rótulo da seção: a pincelada dourada do "Dress code", texto escuro em itálico */
+.secao h2{display:inline-block;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:600;font-size:24px;line-height:1.05;letter-spacing:.005em;
+  color:#1E1408;background:var(--pincel) center/100% 100% no-repeat;padding:10px 36px 12px 29px;margin:0 0 8px -10px;
+  filter:drop-shadow(0 4px 10px rgba(0,0,0,.45));}
+.secao h2::before{content:none;}
+.item{width:100%;display:flex;gap:14px;align-items:flex-start;text-align:left;padding:15px 0;border-bottom:1px solid rgba(233,191,106,.15);}
+.item:last-child{border-bottom:0;}
+.item:active{background:rgba(255,255,255,.03);}
+.item .foto{flex:none;width:86px;height:86px;border-radius:6px;overflow:hidden;background:var(--selva-2);box-shadow:0 0 0 1px rgba(233,191,106,.45);}
+.item .foto img{width:100%;height:100%;object-fit:cover;}
+.item .tx{flex:1;min-width:0;}
+.item h3{font-size:18px;font-weight:700;line-height:1.2;color:var(--creme);}
+.item .chamada{font-style:italic;color:var(--creme-2);font-size:15.5px;margin-top:3px;line-height:1.35;}
+.item p{font-size:14.5px;color:var(--texto-2);margin-top:3px;}
+.item .pr{margin-top:7px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;color:#EDC676;font-variant-numeric:lining-nums;letter-spacing:.02em;}
+.item .mais{margin-left:auto;flex:none;width:42px;height:42px;border-radius:50%;border:1px solid var(--ouro);color:var(--ouro-2);
+  background:rgba(217,170,82,.08);display:grid;place-items:center;font-size:26px;font-weight:500;line-height:1;align-self:center;padding-bottom:2px;}
+.item:active .mais{background:var(--metal);color:var(--tinta);}
+
+/* ---------- meus pedidos ---------- */
+.titulo-bloco{font-family:'Cinzel',serif;font-weight:700;font-size:21px;letter-spacing:.05em;line-height:1.15;color:var(--ouro-2);padding:24px 16px 4px;}
+.titulo-bloco::after{content:"";display:block;width:150px;height:22px;margin-top:6px;background:var(--orn) left center/contain no-repeat;}
+.vazio{padding:10px 16px 0;color:var(--texto-2);}
+.ped{margin:10px 16px 0;background:var(--selva-2);border:1px solid var(--fio);border-radius:8px;padding:12px 14px;
+  display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;}
+.ped .n{font-weight:700;color:var(--creme);}
+.ped .st{font-size:14px;color:var(--texto-2);}
+.ped .st.ok{color:var(--ok);} .ped .st.vivo{color:var(--ouro-2);}
+.ped .acoes{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.bt{border-radius:999px;padding:9px 16px;min-height:44px;font-weight:700;font-size:15px;transition:transform .1s var(--ease-out);}
+.bt.ouro{background:var(--metal);color:var(--tinta);box-shadow:inset 0 1px 0 rgba(255,246,220,.55),0 6px 16px rgba(0,0,0,.3);}
+.bt.linha{border:1px solid rgba(233,191,106,.5);color:var(--creme);}
+.bt.creme{background:var(--creme);color:var(--tinta);}
+.bt:active{transform:scale(.97);}
+
+/* ---------- conta: papel marfim com fio de ouro ---------- */
+.conta{position:relative;margin:10px 16px 0;background:linear-gradient(180deg,#F8EFDC,#EFE1BF);color:var(--tinta);border-radius:6px;padding:18px;
+  border:1px solid #C99A48;box-shadow:0 12px 30px rgba(0,0,0,.45);}
+.conta .l{display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:16px;font-variant-numeric:lining-nums;}
+.conta .l.t{border-top:1px solid rgba(132,97,42,.35);margin-top:8px;padding-top:10px;font-size:20px;font-weight:800;}
+.conta .nota{font-size:14px;margin-top:8px;color:#5E4127;}
+
+/* ---------- barra de baixo ---------- */
+.barra{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(5,14,9,.97);border-top:1px solid var(--fio);
+  padding:8px 12px calc(8px + var(--sab));}
+.barra::before{content:"";position:absolute;left:var(--recuo);right:var(--recuo);top:3px;height:1px;background:linear-gradient(90deg,transparent,rgba(233,191,106,.22),transparent);}
+.consumo{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--texto-2);padding:0 4px 8px;}
+.consumo .trilho{flex:1;height:6px;border-radius:9px;background:var(--selva-3);overflow:hidden;}
+.consumo .trilho i{display:block;height:100%;width:0;background:var(--metal);}
+.consumo b{color:var(--creme);}
+.nav{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;}
+.nav button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:52px;padding:10px 4px;font-size:13px;color:var(--texto-2);}
+.nav button b{font-family:'Cinzel',serif;font-weight:600;font-size:13.5px;letter-spacing:.08em;color:var(--creme);}
+.nav button::after{content:"";position:absolute;left:30%;right:30%;bottom:6px;height:1px;background:var(--ouro-2);transform:scaleX(0);transition:transform .25s var(--ease-out);}
+.nav button.on::after{transform:none;}
+.nav button.on b{color:var(--ouro-2);}
+/* o círculo dela: monograma em Cinzel, como o título do convite */
+.perfil-bt{width:40px;height:40px;background:#0F2418;font-family:'Cinzel',serif;font-weight:700;font-size:18px;line-height:1;padding:1px 0 0 1px;color:var(--ouro-2);
+  box-shadow:0 0 0 3px #050E09,0 0 0 4px var(--fio);}
+.espaco{height:calc(96px + var(--sab));}
+.seguir-topo,.seguir-card{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--creme);}
+.seguir-topo{margin:12px 16px 0;padding:8px 8px 8px 12px;border-radius:10px;
+  background:rgba(217,170,82,.06);border:1px solid rgba(233,191,106,.35);}
+.seguir-topo .tx{flex:1;font-size:15px;} .ig{flex:none;width:24px;height:24px;display:block;}
+.seguir-topo.feito .ig,.cam-seguir .ig{width:17px;height:17px;display:inline-block;vertical-align:-3px;}
+.seguir-topo .bt-s,.seguir-card .bt-s{flex:none;background:none;border:1px solid var(--ouro-2);color:var(--ouro-2);font-weight:700;
+  border-radius:999px;padding:7px 16px;min-height:40px;font-size:15px;}
+.seguir-topo .ig,.seguir-card .ig{color:var(--ouro-2);}
+.seguir-topo.feito{justify-content:center;background:none;border:0;padding:6px;font-size:14px;color:var(--texto-2);}
+.seguir-topo.feito span{color:var(--ouro-2);margin-left:4px;}
+.seguir-card{margin:18px 16px 4px;padding:14px;border-radius:8px;background:rgba(244,234,210,.04);border:1px solid rgba(233,191,106,.3);}
+.seguir-card .tx{flex:1;font-size:14.5px;color:var(--texto-2);line-height:1.3;}
+.seguir-card .tx b{display:block;color:var(--creme);font-size:16px;margin-bottom:2px;}
+.seguir-linha{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;padding-top:14px;min-height:44px;
+  border-top:1px solid var(--fio);color:var(--texto-2);font-size:14.5px;text-decoration:none;}
+.seguir-linha .ig{width:18px;height:18px;flex:none;color:var(--ouro-2);}
+.seguir-linha b{color:var(--creme);font-weight:700;}
+.insta .bt{padding:11px 10px;font-size:15px;text-align:center;text-decoration:none;}
+/* ---------- câmera da festa ---------- */
+.camera{position:fixed;inset:0;z-index:80;background:#000;display:flex;flex-direction:column;
+  padding:calc(8px + env(safe-area-inset-top,0px)) 0 calc(10px + var(--sab));}
+.cam-topo{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px 8px;color:var(--creme);}
+.cam-topo .bt{padding:8px 14px;font-size:15px;font-weight:800;}
+.cam-fmt{display:flex;gap:4px;background:rgba(255,255,255,.08);border-radius:999px;padding:3px;}
+.cam-fmt button{min-height:40px;padding:6px 13px;border-radius:999px;font-size:14px;font-weight:700;color:var(--texto-2);}
+.cam-fmt button.on{background:var(--creme);color:var(--tinta);}
+.cam-quadro{position:relative;flex:1;min-height:0;display:grid;place-items:center;overflow:hidden;padding:0 8px;}
+.cam-quadro.flash::after{content:"";position:absolute;inset:0;background:#fff;animation:flash .25s var(--ease-out) forwards;}
+@keyframes flash{from{opacity:.9}to{opacity:0}}
+.cam-caixa{position:relative;height:100%;max-width:100%;aspect-ratio:1080/1350;border-radius:6px;overflow:hidden;background:#111;}
+.cam-caixa video,.cam-caixa .cam-molde,.cam-caixa .cam-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.cam-caixa .cam-foto{object-fit:contain;background:#000;z-index:3;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto;pointer-events:auto;}
+.cam-caixa video.espelho{transform:scaleX(-1);}
+.cam-caixa .cam-molde{z-index:2;pointer-events:none;}
+.cam-aviso{position:absolute;left:12px;right:12px;bottom:12px;z-index:4;color:#fff;background:rgba(0,0,0,.6);padding:10px 14px;border-radius:10px;text-align:center;}
+.cam-ops{padding:6px 0 0;}
+.cam-linha{display:flex;gap:8px;overflow-x:auto;padding:3px 12px;scrollbar-width:none;}
+.cam-linha::-webkit-scrollbar{display:none;}
+.cam-linha button{flex:none;min-height:44px;border:1px solid rgba(233,191,106,.5);border-radius:999px;padding:7px 15px;font-size:15px;color:var(--creme);}
+.cam-linha button.on{background:var(--creme);color:var(--tinta);border-color:var(--creme);font-weight:700;}
+#cam-efeitos button.on{background:var(--metal);border-color:var(--ouro);}
+.cam-acoes{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px 0;}
+.cam-acoes .bt{padding:12px 14px;}
+.cam-galeria{width:112px;text-align:center;font-size:14px;text-decoration:none;}
+.cam-disparo{flex:none;width:72px;height:72px;border-radius:50%;background:var(--creme);box-shadow:0 0 0 4px #000,0 0 0 5.5px var(--ouro);}
+.cam-disparo:active{transform:scale(.94);}
+.cam-pronta{flex:1;display:grid;gap:8px;}
+.cam-dois{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cam-dois .bt{padding:14px 8px;font-size:16px;font-weight:800;}
+.cam-dica{font-size:13.5px;color:var(--texto-2);text-align:center;line-height:1.3;}
+.cam-dica.forte{color:var(--creme);font-size:15px;}
+.cam-outra{padding:9px;font-size:14px;}
+.bt.cam-mural{padding:14px;font-size:16px;font-weight:800;border:1px solid var(--ouro);color:var(--ouro-2);}
+.cam-mural.feito{opacity:.75;}
+.cam-seguir{text-align:center;color:var(--ouro-2);font-size:15px;text-decoration:none;padding:2px 0;}
+
+/* ---------- La casa: o fim do cardápio fecha como o convite (moldura e a folhagem de baixo) ---------- */
+.casa{position:relative;margin:44px 0 0;padding:40px calc(var(--recuo) + 18px) calc(16.2vw + 20px);text-align:center;
+  /* a folhagem nasce do escuro (a orquídea vem cortada no alto do recorte) e o pé do recorte some no fundo */
+  background:linear-gradient(180deg,var(--selva) 0,var(--selva) 10%,rgba(7,19,12,.78) 34%,rgba(7,19,12,.3) 70%,rgba(7,19,12,0) 100%) center bottom calc(16.2vw * .38)/100% calc(16.2vw * .62 + 1px) no-repeat,
+    linear-gradient(0deg,var(--selva) 0,rgba(7,19,12,.6) 45%,rgba(7,19,12,0) 100%) center bottom/100% 2.1vw no-repeat,
+    url(../img/convite-base.jpg) center bottom/100% auto no-repeat;}
+.casa::before{content:"";position:absolute;pointer-events:none;left:var(--recuo);right:var(--recuo);top:11px;bottom:calc(2.25vw + 2px);
+  border:solid var(--fio-forte);border-width:0 1px;}
+.casa::after{content:"";position:absolute;pointer-events:none;left:var(--recuo);right:var(--recuo);top:0;height:22px;
+  background:var(--ramo) center 0/44px 22px no-repeat,
+    linear-gradient(90deg,var(--fio-forte) calc(50% - 26px),transparent calc(50% - 26px) calc(50% + 26px),var(--fio-forte) calc(50% + 26px)) 0 10px/100% 1px no-repeat;}
+.casa.na-folha{margin:0;padding:8px 4px 4px;border:0;background:none;}
+.casa.na-folha::before,.casa.na-folha::after{content:none;}
+.casa-logo-bt{display:block;margin:0 auto;}
+.casa-logo{width:150px;height:auto;margin:0 auto 14px;opacity:.94;}
+.casa-kick{font-family:'Cinzel',serif;font-weight:600;font-size:12px;letter-spacing:.26em;color:var(--ouro);margin-bottom:14px;}
+.casa p{font-size:15.5px;line-height:1.45;color:var(--texto-2);max-width:34ch;margin:10px auto 0;}
+.casa p.casa-lema{font-size:29px;line-height:1.2;color:var(--ouro-2);max-width:none;margin:0 auto;}
+.casa-orn{height:22px;margin:12px auto 6px;max-width:220px;background:var(--orn) center/contain no-repeat;}
+.casa-orn svg{display:none;}
+.casa-rot{font-family:'Cinzel',serif;font-weight:600;font-size:12px;letter-spacing:.24em;color:var(--ouro);margin-top:24px;}
+.casa p.casa-un{font-family:'Cinzel',serif;font-weight:600;font-size:12px;letter-spacing:.1em;line-height:1.6;color:var(--creme);margin-top:6px;}
+.casa-bt{display:block;width:100%;margin-top:22px;padding:15px;font-size:17px;}
+.casa p.casa-pq{font-size:13.5px;margin-top:6px;}
+.casa-fechar{display:block;width:100%;margin-top:22px;padding:12px;}
+
+/* ---------- folhas (sheet) ---------- */
+.veu{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.6);opacity:0;transition:opacity .2s var(--ease-out);}
+.veu.on{opacity:1;}
+.folha{position:fixed;left:0;right:0;bottom:0;z-index:41;background:radial-gradient(130% 40% at 50% 0,rgba(217,170,82,.08),transparent 70%),var(--selva-2);
+  border-top:1px solid rgba(233,191,106,.5);border-radius:18px 18px 0 0;padding:10px 18px calc(18px + var(--sab));max-height:92dvh;overflow:auto;
+  box-shadow:inset 0 5px 0 -4px rgba(233,191,106,.18);
+  transform:translateY(105%);transition:transform .3s var(--ease-out);}
+.folha.on{transform:none;}
+.folha .pega{width:40px;height:4px;border-radius:9px;background:rgba(233,191,106,.5);margin:0 auto 14px;}
+.folha h3{font-size:22px;color:var(--creme);line-height:1.15;}
+.folha .chamada{font-style:italic;color:var(--creme-2);margin-top:4px;}
+.folha p.d{color:var(--texto-2);font-size:15px;margin-top:6px;}
+.folha .rot{font-family:'Cinzel',serif;font-weight:600;font-size:12.5px;letter-spacing:.16em;color:var(--ouro-2);margin:18px 0 8px;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{min-height:44px;border:1px solid rgba(233,191,106,.4);border-radius:999px;padding:9px 15px;font-size:15.5px;color:var(--creme);}
+.chip.on{background:var(--creme);color:var(--tinta);border-color:var(--creme);font-weight:700;}
+.qtd{display:flex;align-items:center;gap:16px;}
+.qtd button{width:52px;height:52px;border-radius:50%;border:1px solid var(--ouro);font-size:26px;color:var(--ouro-2);}
+.qtd span{font-size:26px;font-weight:800;min-width:28px;text-align:center;font-variant-numeric:lining-nums;}
+.pedir{width:100%;margin-top:20px;background:var(--metal);color:var(--tinta);border-radius:999px;padding:16px 22px;font-size:19px;font-weight:800;
+  display:flex;justify-content:space-between;align-items:center;font-variant-numeric:lining-nums;box-shadow:inset 0 1px 0 rgba(255,246,220,.55),0 6px 16px rgba(0,0,0,.3);}
+.pedir:disabled{opacity:.6;}
+.aviso{margin-top:12px;font-size:15px;border-radius:8px;padding:10px 12px;background:rgba(255,147,115,.12);color:var(--erro);}
+
+/* ---------- voucher ---------- */
+.voucher{text-align:center;}
+.voucher .bt{position:relative;}
+.voucher .qr{background:#fff;border-radius:8px;padding:14px;width:min(78vw,300px);margin:12px auto 10px;}
+.voucher .qr svg,.voucher .qr img{width:100%;height:auto;display:block;}
+.voucher .cod{font-family:ui-monospace,Menlo,monospace;letter-spacing:.2em;font-size:20px;color:var(--creme);}
+.voucher .onde{font-family:'Kaushan Script',cursive;font-size:26px;color:var(--ouro-2);margin-top:4px;}
+.voucher .quem{margin-top:6px;color:var(--texto-2);}
+/* o bilhete: a tela que ela vira para o barman (item legível, QR preto no branco) */
+.vou-ok{font-size:44px;color:var(--ouro-2);text-align:center;line-height:1.1;}
+.vou-sub{text-align:center;color:var(--texto-2);font-size:15.5px;margin:4px 0 12px;}
+.bilhete{position:relative;max-width:340px;margin:0 auto;background:radial-gradient(120% 80% at 50% 30%,#FBF3E0,#EFE0BD);color:#21160A;
+  border:1px solid #C3954A;border-radius:6px;padding:20px 18px 16px;text-align:center;box-shadow:0 14px 34px rgba(0,0,0,.5);}
+.bilhete::after{z-index:0;}
+.b-casa{font-family:'Cinzel',serif;font-weight:600;font-size:11px;letter-spacing:.26em;padding-left:.26em;color:#6E4C1A;}
+.b-casa::after{content:"";display:block;width:130px;height:20px;margin:6px auto 0;background:var(--orn) center/contain no-repeat;filter:brightness(.72) saturate(1.3);}
+.b-nome{font-family:'Kaushan Script',cursive;font-size:34px;line-height:1.15;color:#7A4F12;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 .15em;}
+.b-mesa{font-family:'Cinzel',serif;font-weight:600;font-size:12.5px;letter-spacing:.22em;padding-left:.22em;color:#5E4127;margin-top:2px;font-variant-numeric:lining-nums;}
+.b-item{font-weight:800;font-size:22px;line-height:1.2;margin-top:12px;}
+.bilhete .qr{position:relative;z-index:1;background:#fff;width:min(60vw,230px);padding:12px;margin:14px auto 8px;border-radius:4px;box-shadow:0 0 0 1px rgba(132,97,42,.3),0 0 0 4px #fff,0 0 0 5px rgba(132,97,42,.25);}
+.b-cod{font-weight:800;font-size:24px;letter-spacing:.3em;padding-left:.3em;font-variant-numeric:lining-nums;}
+.bilhete .corte{position:relative;z-index:1;margin:16px -18px 12px;border-top:1.5px dashed rgba(132,97,42,.4);}
+.bilhete .corte::before,.bilhete .corte::after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:#0D1F14;box-shadow:inset 0 0 0 1px #C3954A;}
+.bilhete .corte::before{left:-11px;clip-path:inset(0 0 0 50%);} .bilhete .corte::after{right:-11px;clip-path:inset(0 50% 0 0);}
+.b-onde{font-family:'Cinzel',serif;font-weight:600;font-size:13px;letter-spacing:.1em;line-height:1.4;color:#1F4A2E;}
+.carimbo{display:inline-block;margin:18px 0 10px;padding:8px 20px;border:2px solid #1F5A36;color:#1F5A36;border-radius:4px;
+  font-family:'Cinzel',serif;font-weight:700;font-size:15px;letter-spacing:.2em;transform:rotate(-6deg);}
+.bilhete.entregue .b-item,.bilhete.entregue .b-cod{opacity:.5;}
+.aniv-pedidos{margin:0 16px;}
+.aniv-pedidos .rot{font-family:'Cinzel',serif;font-weight:600;font-size:12.5px;letter-spacing:.16em;color:var(--ouro-2);}
+.aniv-pedidos .d{color:var(--texto-2);font-size:15px;}
+
+.convite{margin:16px 16px 0;padding:14px 16px;border-radius:8px;background:rgba(217,170,82,.1);border:1px solid rgba(233,191,106,.38);}
+.folha .convite{margin:0;}
+.convite b{color:var(--ouro-2);} .convite p{margin:4px 0 0;font-size:15px;line-height:1.35;}
+.convite .bt{display:inline-block;margin-top:10px;text-decoration:none;}
+.aniv{margin-top:16px;padding:14px;border-radius:8px;border:1px dashed var(--linha);text-align:left;}
+.aniv .rot{margin:0 0 8px;} .aniv .sel{display:flex;gap:8px;}
+.aniv select{flex:1;font:inherit;font-size:16px;padding:10px;min-height:44px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--creme);border:1px solid var(--linha);}
+.aniv select option{color:#111;}
+.erro-tela{padding:28vh 26px 0;text-align:center;}
+.erro-tela h2{font-family:'Kaushan Script',cursive;font-weight:400;font-size:30px;color:var(--ouro-2);margin-bottom:10px;}
+.carregando{padding:30vh 20px;text-align:center;color:var(--texto-2);}
+.ver{font-size:11px;color:transparent;user-select:none;text-align:center;padding:24px 0 8px;}
+/* ---------- seletor de estilo ---------- */
+.estilo{border-color:var(--fio);border-radius:8px;background:var(--selva);}
+.estilo img{border-bottom:1px solid var(--fio);}
+.estilo .en{font-family:'Cinzel',serif;font-weight:600;font-size:14px;letter-spacing:.14em;padding:11px 12px 2px;}
+.estilo .ed{font-style:italic;font-size:13px;padding:2px 12px 12px;}
+.estilo.on{border-color:var(--ouro);box-shadow:0 0 0 3px var(--selva-2),0 0 0 4px var(--ouro),0 10px 24px rgba(0,0,0,.35);}
+.estilo.on .en{color:var(--ouro-2);}
+.estilo.on::after{top:11px;right:11px;z-index:2;box-shadow:0 0 0 2px var(--selva);}
+.estilos.mini .en{font-size:12px;letter-spacing:.1em;padding:8px 2px 9px;}
+
+/* ---------- perfil: ficha de RSVP do convite ---------- */
+.perfil h3{font-family:'Kaushan Script',cursive;font-weight:400;font-size:32px;line-height:1.2;color:var(--ouro-2);}
+.perfil h3+p.d{font-family:'Cinzel',serif;font-weight:600;font-size:12.5px;letter-spacing:.14em;color:var(--creme-2);}
+.perfil h3+p.d::after{content:"";display:block;width:150px;height:22px;margin-top:8px;background:var(--orn) left center/contain no-repeat;}
+.perfil .campo{margin-top:22px;}
+.perfil .campo .pq{font-size:14px;font-style:italic;color:var(--texto-2);}
+.perfil input[type=text],.perfil input[type=email],.perfil select{min-height:48px;font:inherit;font-size:17px;color:var(--creme);
+  background-color:rgba(0,0,0,.22);border:0;border-bottom:1px solid var(--ouro);border-radius:6px 6px 0 0;}
+.perfil input::placeholder{color:#9C9A86;font-style:italic;}
+.perfil input:focus,.perfil select:focus{outline:0;background-color:rgba(217,170,82,.1);box-shadow:inset 0 -1px 0 var(--ouro-2);}
+.perfil .arroba span{color:var(--ouro);}
+.perfil select{-webkit-appearance:none;appearance:none;padding:12px 38px 12px 14px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23E9BF6A' stroke-width='1.6'/%3E%3C/svg%3E") right 12px center/18px no-repeat rgba(0,0,0,.22);}
+.perfil select option{background:#0C1D13;color:#F2E9D4;}
+.perfil .simnao button{min-height:50px;font-size:16px;}
+.perfil .simnao button.on{outline:0;background:rgba(217,170,82,.14);border-color:var(--ouro);color:var(--ouro-2);}
+.perfil .rodape{font-size:13px;font-style:italic;text-align:center;}
+.rede{position:fixed;top:0;left:0;right:0;z-index:50;background:var(--brasa);color:#fff;text-align:center;font-size:14px;padding:6px calc(10px + env(safe-area-inset-right,0px)) 6px;padding-top:calc(6px + env(safe-area-inset-top,0px));}
+
+/* ---------- ouro de verdade: o degradê metálico do título do convite, pintado nas letras ---------- */
+@supports (-webkit-background-clip:text) or (background-clip:text){
+  .topo h1,.topo .nome-topo,.lado.on b,.titulo-bloco,.palavra,.vou-ok,.alerta h2.it,.casa p.casa-lema,.perfil h3,.pagar b,.momento h3.it,.pre-reserva .pr-tit{
+    background-image:var(--ouro-txt);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;}
+  /* as letras de pincel saem da caixa: a folga deixa a ponta dentro do fundo pintado */
+  .topo .nome-topo{padding:0 .22em .1em 0;margin-bottom:-.1em;}
+  .palavra,.vou-ok,.alerta h2.it,.casa p.casa-lema,.perfil h3,.momento h3.it,.pre-reserva .pr-tit{padding:0 .25em .12em;margin-left:-.25em;margin-right:-.25em;}
+  .topo .tt{filter:drop-shadow(0 2px 6px rgba(0,0,0,.75));}
+  .titulo-bloco::after{-webkit-text-fill-color:initial;}
+}
+
+/* ---------- movimento: só nos momentos raros, curto e sem brilho piscando ---------- */
+@keyframes surge{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+@keyframes veu-in{from{opacity:0}to{opacity:1}}
+@keyframes sobe{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+@keyframes bilhete{from{transform:translateY(22px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+@keyframes assenta{from{transform:scale(1.02);opacity:.4}to{transform:none;opacity:1}}
+.topo .tt.revela .nome-topo{animation:sobe .3s var(--ease-out) .05s both;}
+.topo .tt.revela h1{animation:sobe .3s var(--ease-out) .12s both;}
+.palavra{animation:sobe .3s var(--ease-out) .08s both;}
+.voucher.novo .bilhete{animation:bilhete .3s var(--ease-out) .1s both;}
+.voucher.novo .vou-sub{animation:sobe .3s var(--ease-out) .12s both;}
+.cam-foto.assenta{animation:assenta .3s var(--ease-out);}
+@media (prefers-reduced-motion:reduce){
+  *,::before,::after{transition:none!important;}
+  .topo .tt.revela .nome-topo,.topo .tt.revela h1,.voucher.novo .bilhete,.voucher.novo .vou-sub,.cam-foto.assenta,.alerta .cx,.palavra{animation:veu-in .2s ease both!important;}
+}
