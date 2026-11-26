@@ -45,7 +45,7 @@
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v17 26/11/2026';
+const VER = 'festa-v18 26/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -77,7 +77,7 @@ if (B_URL > 0 && B_URL <= 40) guardarBistro(B_URL);
 if ((token || B_URL) && location.search) history.replaceState(null, '', location.pathname);
 
 let D = null;            // último ev_cliente
-let EXTRA = {};          // ev_cliente_extra (sql/666): pasta do mural, novidades, pré-reserva, fotos dela no mural
+let EXTRA = {};          // ev_cliente_extra (sql/666): novidades, pré-reserva, perfil
 const carregarExtra = () => token ? rpc('ev_cliente_extra', {p_token: token}).then(x => { EXTRA = Object.assign(x || {}, {_ok: !!x}); }).catch(() => {}) : Promise.resolve();
 let aba = 'cardapio';    // cardapio | pedidos | conta
 let lado = 'bebida';     // bebida | comida
@@ -89,7 +89,7 @@ async function carregar() {
     D = await rpc('ev_cliente', {p_token: token});
     $('#rede').classList.add('oculto');
     desenhar(); checarProntos();
-    if (!EXTRA.mural_chave) carregarExtra().then(() => { if (aba === 'pedidos' && !D.vitrine) desenharPedidos(); });
+    if (!EXTRA._ok) carregarExtra().then(() => { if (aba === 'pedidos' && !D.vitrine) desenharPedidos(); });
   } catch (e) {
     if (e.codigo === 'link_invalido') {
       try { localStorage.removeItem('festa_token'); } catch {}
@@ -380,11 +380,9 @@ function desenharPedidos() {
       </div></div>`; }).join('')}
     ${seguirHtml(0)}
     <div id="minha-conta"></div>
-    <div id="meu-mural"></div>
     <div id="convite-festa"></div>
     ${D.eu.liberada ? '' : `<div class="aniv-pedidos">${anivHtml()}</div>`}`;
   desenharConta();
-  desenharMeuMural();
   const cf = $('#convite-festa'); if (cf) { cf.innerHTML = conviteFestaHtml(); ligarConviteFesta(); }
   document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => {
     const p = D.conta.itens.find(x => x.voucher === b.dataset.v); abrirVoucher(p);
@@ -681,7 +679,7 @@ function confirmarRecebi(p) {
       const bebida = p.tipo === 'bebida';
       abrirFolha(`<div class="voucher momento">
         <h3 class="it palavra" style="font-size:clamp(38px,11vw,52px)">${bebida ? 'Cin cin' : 'Buon appetito'}${comNome()}!</h3>
-        <p class="d">${bebida ? 'Esse drink' : 'Esse prato'} merece uma foto. Com a moldura da festa, para o Instagram e para a TV da festa.</p>
+        <p class="d">${bebida ? 'Esse drink' : 'Esse prato'} merece uma foto. Com a moldura da festa, para guardar e para o Instagram.</p>
         <div style="display:grid;gap:10px;margin-top:16px">
           <button class="bt ouro" style="padding:16px;font-size:18px" id="m-foto">Tirar a foto</button>
           <button class="bt linha" style="padding:12px" id="m-nao">Agora não</button>
@@ -698,7 +696,7 @@ function confirmarRecebi(p) {
    Renato 24-25/11: "no mesmo lugar que ela bebe ela posta" · "quero fotos tops". Câmera dentro do app:
    formato (feed 4:5 ou story 9:16), filtro de cor, efeito (brilho, luzes, coroa da selva e onça, que
    seguem o rosto) e moldura (folhas do convite, fita, polaroid). A foto vai para a galeria ou direto para
-   o Instagram pelo compartilhar do celular. Só sobe a foto que ela mandar para o Mural, com o toque dela (sql/666-667).
+   o Instagram pelo compartilhar do celular. Nenhuma foto sai do celular dela (a TV da festa saiu: Renato 26/11).
    Rosto: MediaPipe Face Landmarker (roda no próprio celular; carrega só quando ela escolhe coroa ou onça). */
 const INSTA = 'https://www.instagram.com/spesso.rio/';
 const IG = '<svg class="ig" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.3"/><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none"/></svg>';
@@ -1036,8 +1034,6 @@ async function abrirCamera() {
     v.querySelector('#cam-acoes').innerHTML = `<div class="cam-pronta">
       <div class="cam-dois"><button class="bt creme" id="cam-salvar">Salvar na galeria</button>
         <button class="bt ouro" id="cam-insta">Postar no Instagram</button></div>
-      ${token && D && !D.vitrine ? `<button class="bt linha cam-mural" id="cam-mural">Mostrar no Mural</button>
-        <p class="cam-dica" id="cam-mural-tx">Sua foto passa na TV da festa esta noite, com o seu primeiro nome. Depois da festa, a gente apaga.</p>` : ''}
       <p class="cam-dica" id="cam-dica"></p>
       ${seguiu() ? '' : `<a class="cam-seguir" href="${INSTA}" target="_blank" rel="noopener" data-seguir>${IG} Siga o <b>@spesso.rio</b> e marque a gente</a>`}
       <button class="bt linha cam-outra" id="cam-outra">Outra foto</button></div>`;
@@ -1049,7 +1045,6 @@ async function abrirCamera() {
     };
     v.querySelector('#cam-salvar').onclick = salvarGaleria;
     v.querySelector('#cam-insta').onclick = postarInsta;
-    const bm = v.querySelector('#cam-mural'); if (bm) bm.onclick = () => mostrarNoMural(bm);
   }
   /* Salvar: no iPhone o caminho para o Fotos é o compartilhar ("Salvar imagem"); no Android o download
      cai na galeria (pasta Downloads). Sem texto junto: com texto o iPhone esconde o "Salvar imagem". */
@@ -1077,35 +1072,6 @@ async function abrirCamera() {
     }
     baixar();
     dica('<span class="it" style="font-size:24px">Bellissima!</span> Foto salva na galeria (pasta Downloads).');
-  }
-  /* Mural da noite (sql/666-667): o toque é o consentimento, com a frase à vista antes. A foto sobe reduzida
-     (900 px, JPEG, ~150 KB, leve para o 4G do salão) para a pasta secreta dela; a TV só mostra 60 s depois. */
-  async function mostrarNoMural(btn) {
-    if (!final) return;
-    const tx = v.querySelector('#cam-mural-tx');
-    btn.disabled = true; btn.textContent = 'Enviando…';
-    try {
-      if (!EXTRA.mural_chave) await carregarExtra();
-      if (!EXTRA.mural_chave) throw new Error('sem_chave');
-      const L = 900, m = document.createElement('canvas');
-      m.width = L; m.height = Math.round(L * final.height / final.width);
-      const mx = m.getContext('2d'); mx.imageSmoothingEnabled = true; mx.imageSmoothingQuality = 'high';
-      mx.drawImage(final, 0, 0, m.width, m.height);
-      let blob = await new Promise(r => m.toBlob(r, 'image/jpeg', .82));
-      if (blob && blob.size > 950000) blob = await new Promise(r => m.toBlob(r, 'image/jpeg', .68));
-      const nome = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
-      const caminho = `${EXTRA.mural_chave}/${nome}.jpg`;
-      const r = await fetch(`${SB}/storage/v1/object/festa-mural/${caminho}`, {method: 'POST',
-        headers: {apikey: K, Authorization: 'Bearer ' + K, 'Content-Type': 'image/jpeg', 'x-upsert': 'false'}, body: blob});
-      if (!r.ok) throw new Error('subida');
-      await rpc('ev_mural_enviar', {p_token: token, p_caminho: caminho});
-      carregarExtra().then(() => { if (aba === 'pedidos') desenharMeuMural(); });
-      btn.textContent = 'Está no Mural'; btn.classList.add('feito');
-      if (tx) tx.innerHTML = '<span class="it palavra" style="font-size:26px;color:var(--ouro-2)">Grazie!</span> Daqui a pouco ela aparece na TV. Se mudar de ideia, tire em Pedidos.';
-    } catch (e) {
-      if (e.codigo === 'limite_mural') { btn.textContent = 'Você já mandou 12 fotos'; if (tx) tx.textContent = 'Para mandar outra, tire uma das suas em Pedidos.'; return; }
-      btn.disabled = false; btn.textContent = 'Não foi. Toque de novo.';
-    }
   }
   function postarInsta() {
     if (!arquivo) return dica('Um segundo, a foto ainda está ficando pronta…');
@@ -1351,21 +1317,6 @@ function listras(ox, W, H, pele) {
       }
     }
   }
-}
-
-/* ---------------------------------------------------------------- as fotos dela no mural (pode tirar) */
-function desenharMeuMural() {
-  const el = $('#meu-mural'); if (!el) return;
-  const minhas = (EXTRA.mural || []).filter(m => !m.oculta);
-  if (!minhas.length) { el.innerHTML = ''; return; }
-  el.innerHTML = `<div class="titulo-bloco" style="font-size:22px;padding-top:28px">No mural da festa</div>
-    <div class="meu-mural">${minhas.map(m => `<div><img src="${SB}/storage/v1/object/public/festa-mural/${m.caminho}" alt="" loading="lazy"/>
-      <button class="bt linha" data-tirar-mural="${m.id}">Tirar do mural</button></div>`).join('')}</div>`;
-  el.querySelectorAll('[data-tirar-mural]').forEach(b => b.onclick = async () => {
-    b.disabled = true;
-    try { await rpc('ev_mural_remover', {p_token: token, p_id: +b.dataset.tirarMural}); await carregarExtra(); desenharMeuMural(); }
-    catch { b.disabled = false; }
-  });
 }
 
 /* ---------------------------------------------------------------- a festa dela no Spesso
