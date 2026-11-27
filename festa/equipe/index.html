@@ -103,6 +103,10 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <div class="scan oculto" id="scan">
   <video id="video" playsinline muted></video><div class="mira"></div>
   <div class="baixo"><div class="mut" id="scan-msg" style="text-align:center;color:#fff">Aponte para o QR do voucher ou da conta</div>
+  <form id="scan-form" class="lin" style="gap:8px" autocomplete="off">
+    <input class="campo" id="scan-cod" placeholder="ou digite o código" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go"
+      style="margin:0;background:rgba(0,0,0,.6);color:#fff;text-transform:uppercase;letter-spacing:.08em"/>
+    <button class="bt ouro" type="submit">Ok</button></form>
   <button class="bt linha" style="background:rgba(0,0,0,.5)" id="scan-fechar">Fechar câmera</button></div>
 </div>
 
@@ -110,7 +114,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v11 27/11/2026';
+const VER='festa-equipe-v12 27/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -557,7 +561,7 @@ async function abrirCamera(){
     const v=$('#video'); v.srcObject=stream; await v.play();
     if('BarcodeDetector' in window){ try{ detector=new BarcodeDetector({formats:['qr_code']}); }catch{ detector=null; } }
     rodando=true; laco();
-  }catch(e){ $('#scan-msg').textContent='Não consegui abrir a câmera. Use o botão ⌨︎ para digitar o código.'; }
+  }catch(e){ $('#scan-msg').textContent='Não consegui abrir a câmera. Digite o código do voucher aqui embaixo.'; }
 }
 function fecharCamera(){ rodando=false; if(stream) stream.getTracks().forEach(t=>t.stop()); stream=null; $('#scan').classList.add('oculto'); }
 const tela=document.createElement('canvas'), ctx=tela.getContext('2d',{willReadFrequently:true});
@@ -577,6 +581,9 @@ async function laco(){
 }
 const codigoDe=t=>String(t).toUpperCase().replace(/^.*[\/=:#-]/,'').replace(/[^A-Z0-9]/g,'');
 $('#ler').onclick=abrirCamera; $('#scan-fechar').onclick=fecharCamera;
+// celular da cliente sem bateria: digita o código impresso na etiqueta do drink (ex.: H8Z2 BN4U)
+$('#scan-form').onsubmit=e=>{ e.preventDefault(); const t=$('#scan-cod').value.trim().replace(/\s+/g,''); if(!t) return;
+  $('#scan-cod').value=''; $('#scan-cod').blur(); fecharCamera(); ultimoCodigo=codigoDe(t); ler(t); };
 $('#digitar').onclick=()=>{ const t=prompt('Código do voucher, da conta ou o número da pulseira:'); if(t){ ultimoCodigo=codigoDe(t); ler(t);} };
 window.addEventListener('hashchange',()=>{ const h=location.hash.slice(1); if(h&&S){ history.replaceState(null,'',location.pathname+location.search); ultimoCodigo=codigoDe(h); ler(h);} });
 
