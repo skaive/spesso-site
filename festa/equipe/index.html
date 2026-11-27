@@ -110,7 +110,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v9 26/11/2026';
+const VER='festa-equipe-v10 27/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -127,7 +127,10 @@ const MSG={sessao_invalida:'Sua sessão acabou. Entre de novo.',pin_errado:'PIN 
   voucher_invalido:'Voucher não encontrado.',voucher_cancelado:'Esse voucher foi CANCELADO.',conta_nao_encontrada_ou_ja_paga:'Essa conta não existe ou já foi paga.',
   convidada_nao_encontrada:'Convidada não encontrada.',sem_pulseira:'Ela ainda não tem pulseira.',
   pulseira_sem_dona:'Ninguém está com essa pulseira. Mande na entrada.',conta_ja_paga:'A conta dela já foi paga. Fale com o caixa.',
-  evento_fechado:'Evento fechado.',item_invalido:'Item fora do cardápio.',sem_preco:'Item sem preço no Frest.'};
+  evento_fechado:'Evento fechado.',item_invalido:'Item fora do cardápio.',sem_preco:'Item sem preço no Frest.',
+  codigo_errado:'Código errado. Confira com a gestão.',nome_em_uso:'Esse nome já é de outra pessoa da equipe. Ponha o sobrenome.',
+  muitas_tentativas:'Muitas tentativas erradas. Espere 10 minutos ou fale com a gestão.',sem_codigo:'Este evento não aceita código. Fale com a gestão.',
+  sem_nome:'Escreva seu nome.',papel_invalido:'Escolha onde você está hoje.'};
 const msgErro=e=>MSG[e.codigo]||'Falhou. Confira a internet e tente de novo.';
 
 let S=null; try{S=JSON.parse(localStorage.getItem('festa_eq_'+SLUG)||'null')}catch{}
@@ -137,15 +140,64 @@ let P=null, ultimoCodigo=null, timer=null;
 async function telaLogin(){
   $('#barra').classList.add('oculto'); $('#quem').innerHTML='';
   $('#app').innerHTML='<p class="mut">Carregando…</p>';
-  let nomes=[]; try{nomes=await rpc('ev_equipe_nomes',{p_slug:SLUG})}catch{}
+  let nomes=[], temCod=false;
+  try{ [nomes,temCod]=await Promise.all([rpc('ev_equipe_nomes',{p_slug:SLUG}), rpc('ev_equipe_tem_codigo',{p_slug:SLUG})]); }catch{}
   const PAP={bar:'bar',garcom:'garçom',caixa:'caixa',porta:'porta',gestao:'gestão'};
-  $('#app').innerHTML=`<h2>Quem é você?</h2><div class="nomes">${nomes.map(n=>`<button data-n="${esc(n.nome)}">${esc(n.nome)}<span>${PAP[n.papel]}</span></button>`).join('')||'<p class="mut">Ninguém cadastrado neste evento.</p>'}</div>`;
-  document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>telaPin(b.dataset.n));
+  $('#app').innerHTML=`${temCod?`<button class="bt ouro grande" id="primeira" style="margin-top:6px">Primeira vez aqui</button>
+      <p class="mut" style="margin-top:8px;text-align:center">Garçom, bar e porta: entre com o código da festa.</p>`:''}
+    <h2>${temCod?'Já entrou antes? Toque no seu nome':'Quem é você?'}</h2>
+    <div class="nomes">${nomes.map(n=>`<button data-n="${esc(n.nome)}">${esc(n.nome)}<span>${PAP[n.papel]}</span></button>`).join('')||'<p class="mut">Ninguém entrou ainda.</p>'}</div>`;
+  document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>telaPin(b.dataset.n, nomes.find(n=>n.nome===b.dataset.n)));
+  const pv=$('#primeira'); if(pv) pv.onclick=telaPrimeira;
 }
-function telaPin(nome){
+/* garçom, bar e porta se cadastram sozinhos com o código da festa (sql/671) */
+function telaPrimeira(){
+  let nome='', papel=null, pin='', passo='quem', erro='';
+  const PAPEIS=[['garcom','Garçom',null],['bar','Bar do 1º piso','baixo'],['bar','Bar do 2º piso','cima'],['porta','Porta (entrada)',null]];
+  let esc_i=null;
+  const pintar=()=>{
+    if(passo==='quem'){
+      $('#app').innerHTML=`<h2>Primeira vez aqui</h2>
+        <p class="mut">Seu nome, como a equipe te chama:</p>
+        <input class="campo" id="pv-nome" placeholder="Ex.: Rafael" autocomplete="off" autocapitalize="words" value="${esc(nome)}"/>
+        <p class="mut" style="margin-top:16px">Hoje você está no:</p>
+        <div class="nomes" style="margin-top:8px">${PAPEIS.map(([p,r],i)=>`<button data-pp="${i}" style="${esc_i===i?'background:var(--creme);color:var(--tinta)':''}">${r}<span></span></button>`).join('')}</div>
+        ${erro?`<div class="aviso">${esc(erro)}</div>`:''}
+        <div class="acoes"><button class="bt ouro grande" id="pv-seg">Continuar</button><button class="bt linha" id="pv-volta">Voltar</button></div>`;
+      const ni=$('#pv-nome'); ni.oninput=()=>{ nome=ni.value; };
+      document.querySelectorAll('[data-pp]').forEach(b=>b.onclick=()=>{ nome=ni.value; esc_i=+b.dataset.pp; erro=''; pintar(); });
+      $('#pv-seg').onclick=()=>{ nome=ni.value.trim();
+        if(nome.length<2){ erro='Escreva seu nome.'; return pintar(); }
+        if(esc_i==null){ erro='Toque onde você está hoje.'; return pintar(); }
+        papel=PAPEIS[esc_i][0]; erro=''; passo='codigo'; pintar(); };
+      $('#pv-volta').onclick=telaLogin;
+      return;
+    }
+    $('#app').innerHTML=`<h2>${esc(nome)} · ${esc(PAPEIS[esc_i][1])}</h2><p class="mut">Digite o código da festa (falado na reunião)</p>
+      <div class="bolinhas">${[0,1,2,3].map(i=>`<i class="${i<pin.length?'on':''}"></i>`).join('')}</div>
+      ${erro?`<div class="aviso">${esc(erro)}</div>`:''}
+      <div class="pin">${[1,2,3,4,5,6,7,8,9,'←',0,'ok'].map(k=>`<button data-k="${k}">${k}</button>`).join('')}</div>
+      <p style="margin-top:14px"><button class="bt linha" id="pv-volta">Voltar</button></p>`;
+    $('#pv-volta').onclick=()=>{ passo='quem'; pin=''; erro=''; pintar(); };
+    document.querySelectorAll('[data-k]').forEach(b=>b.onclick=async()=>{
+      const k=b.dataset.k;
+      if(k==='←'){ pin=pin.slice(0,-1); return pintar(); }
+      if(k!=='ok'){ if(pin.length<4) pin+=k; pintar(); }
+      if(pin.length<4) return;
+      try{
+        S=await rpc('ev_equipe_cadastrar',{p_slug:SLUG,p_nome:nome,p_papel:papel,p_codigo:pin});
+        const lado=PAPEIS[esc_i][2]; if(lado){ barEq=lado; try{localStorage.setItem('festa_eq_bar',lado);}catch{} }
+        localStorage.setItem('festa_eq_'+SLUG,JSON.stringify(S)); iniciar();
+      }catch(e){ pin=''; erro=MSG[e.codigo]||msgErro(e); pintar(); }
+    });
+  };
+  pintar();
+}
+function telaPin(nome, info){
   let pin='';
+  const auto = info && ['garcom','bar','porta'].includes(info.papel);
   const pintar=(erro)=>{
-    $('#app').innerHTML=`<h2>${esc(nome)}</h2><p class="mut">Digite seu PIN</p>
+    $('#app').innerHTML=`<h2>${esc(nome)}</h2><p class="mut">${auto?'Digite o código da festa':'Digite seu PIN'}</p>
       <div class="bolinhas">${[0,1,2,3].map(i=>`<i class="${i<pin.length?'on':''}"></i>`).join('')}</div>
       ${erro?`<div class="aviso">${esc(erro)}</div>`:''}
       <div class="pin">${[1,2,3,4,5,6,7,8,9,'←',0,'ok'].map(k=>`<button data-k="${k}">${k}</button>`).join('')}</div>
@@ -232,13 +284,21 @@ function desenhar(){
       <button class="bt linha" style="width:100%;margin-top:10px" id="porta">Não está na lista: cadastrar</button></div>`;
   }
   const meus = S.papel==='garcom' ? pend.filter(p=>p.garcom===S.nome) : [];
-  const resto = S.papel==='garcom' ? pend.filter(p=>p.garcom!==S.nome) : pend;
+  // bar: só as bebidas que saem no piso dele (bistrô sai no 2º piso, como o papel da impressora)
+  const destino=p=>p.tipo!=='bebida'?'baixo':p.bistro?'cima':(p.retirar||'baixo');
+  let resto = S.papel==='garcom' ? pend.filter(p=>p.garcom!==S.nome) : pend;
+  if(S.papel==='bar'){
+    h=`<div class="lado" style="margin-top:0"><button class="bt linha ${barEq==='baixo'?'on':''}" data-meubar="baixo">Bar 1º piso</button><button class="bt linha ${barEq==='cima'?'on':''}" data-meubar="cima">Bar 2º piso</button></div>`
+      +(barEq?'':'<div class="aviso">Toque no bar em que você está.</div>')+h;
+    if(barEq) resto=resto.filter(p=>destino(p)===barEq);
+  }
   if(S.papel==='garcom') h+=`<h2>Minhas entregas (${meus.length})</h2>`+(meus.map(pedidoCard).join('')||'<p class="mut">Assuma uma entrega abaixo ou leia o voucher da cliente. Quando ela tocar em "Recebi", o pedido sai daqui.</p>');
-  const tit={bar:'Bebidas a entregar',garcom:'Para levar (sem garçom)',caixa:'Tudo que falta entregar',gestao:'Tudo que falta entregar',porta:'Tudo que falta entregar'}[S.papel];
+  const tit={bar:'Bebidas a entregar'+(barEq?' no '+(barEq==='cima'?'2º':'1º')+' piso':''),garcom:'Para levar (sem garçom)',caixa:'Tudo que falta entregar',gestao:'Tudo que falta entregar',porta:'Tudo que falta entregar'}[S.papel];
   h+=`<h2>${tit} (${resto.length})</h2>`+(resto.map(pedidoCard).join('')||'<p class="mut">Nada pendente.</p>');
   h+=`<p class="mut" style="text-align:center;margin-top:24px;font-size:11px">skv-versao ${VER}</p>`;
   $('#app').innerHTML=h;
   document.querySelectorAll('[data-conta]').forEach(b=>b.onclick=()=>ler('C-'+b.dataset.conta));
+  document.querySelectorAll('[data-meubar]').forEach(b=>b.onclick=()=>{ barEq=b.dataset.meubar; try{localStorage.setItem('festa_eq_bar',barEq);}catch{} desenhar(); });
   document.querySelectorAll('[data-relancar]').forEach(b=>b.onclick=async()=>{
     if(!confirm('Você conferiu no Frest que esse item NÃO está na mesa? Se estiver, vai cobrar duas vezes.')) return;
     try{ await rpc('ev_relancar',{p_sessao:S.sessao,p_voucher:b.dataset.relancar}); atualizar(); }catch(e){ alert(msgErro(e)); }
@@ -409,7 +469,7 @@ async function telaLancar(n, aviso, ladoIni){
       if(bisEq===0){ alert('Toque no número da bistrô.'); return; }
       enviando=true; lb.disabled=true; lb.textContent='Lançando…';
       try{
-        const x=await rpc('ev_equipe_pedir',{p_sessao:S.sessao,p_pulseira:r.pulseira,p_item:m.id,p_cod:cod,p_qtd:qtd,p_retirar:m.tipo==='bebida'&&S.papel!=='bar'&&!bisEq?barEq:null,p_bistro:bisEq||null});
+        const x=await rpc('ev_equipe_pedir',{p_sessao:S.sessao,p_pulseira:r.pulseira,p_item:m.id,p_cod:cod,p_qtd:qtd,p_retirar:m.tipo==='bebida'&&!bisEq?(barEq||null):null,p_bistro:bisEq||null});
         if(navigator.vibrate) navigator.vibrate(40);
         const nomeItem=m.nome+(op.rotulo?' · '+op.rotulo:'');
         telaLancar(r.pulseira, `${qtd}× ${nomeItem} lançado para ${r.nome.split(' ')[0]}${S.papel==='garcom'&&m.tipo==='comida'?'. A entrega é sua.':'.'}`, lado);
