@@ -114,7 +114,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v15 27/11/2026';
+const VER='festa-equipe-v16 27/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -127,7 +127,7 @@ async function rpc(n,a){
   const t=await r.text(); let j=null; try{j=t?JSON.parse(t):null}catch{}
   if(!r.ok){const e=new Error((j&&j.message)||'erro'); e.codigo=j&&j.message; throw e;} return j;
 }
-const MSG={sessao_invalida:'Sua sessão acabou. Entre de novo.',pin_errado:'PIN errado.',sem_alcada:'Só a gerência pode fazer isso.',
+const MSG={escolha_invalida:'Escolha de novo a fruta e o açúcar ou adoçante.',sessao_invalida:'Sua sessão acabou. Entre de novo.',pin_errado:'PIN errado.',sem_alcada:'Só a gerência pode fazer isso.',
   voucher_invalido:'Voucher não encontrado.',voucher_cancelado:'Esse voucher foi CANCELADO.',conta_nao_encontrada_ou_ja_paga:'Essa conta não existe ou já foi paga.',
   convidada_nao_encontrada:'Convidada não encontrada.',sem_pulseira:'Ela ainda não tem pulseira.',
   pulseira_sem_dona:'Ninguém está com essa pulseira. Mande na entrada.',conta_ja_paga:'A conta dela já foi paga. Fale com o caixa.',
@@ -447,7 +447,7 @@ async function telaLancar(n, aviso, ladoIni){
   catch(e){ return resultado(`<div class="card res ruim" id="res"><div class="grande-txt">${esc(msgErro(e))}</div>${voltar()}</div>`); }
   if(!r.ok) return resultado(`<div class="card res ruim" id="res"><div class="grande-txt">${esc(MSG[r.motivo]||r.motivo)}</div>${voltar()}</div>`);
   if(r.paga) return resultado(`<div class="card res ruim" id="res"><div class="grande-txt">${esc(r.nome)}: conta já paga</div><p class="mut">Fale com o caixa para reabrir.</p>${voltar()}</div>`);
-  let lado=ladoIni||((S.papel==='bar')?'bebida':'comida'), sel=null, cod=null, qtd=1, enviando=false;
+  let lado=ladoIni||((S.papel==='bar')?'bebida':'comida'), sel=null, cod=null, qtd=1, enviando=false, resp=[];
   const pintar=()=>{
     const itens=r.cardapio.filter(m=>m.tipo===lado), cats=[...new Set(itens.map(m=>m.categoria))];
     const m=sel&&r.cardapio.find(x=>x.id===sel), op=m&&m.opcoes.find(o=>o.cod===cod);
@@ -462,6 +462,7 @@ async function telaLancar(n, aviso, ladoIni){
         return `<button data-item="${x.id}" class="${x.id===sel?'on':''}"><span>${esc(x.nome)}</span><span class="mut">${brl(mn)}</span></button>`;}).join('')).join('')}</div>
       ${m?`<div class="escolha"><b>${esc(m.nome)}</b>
         ${m.opcoes.length>1?`<div class="chips">${m.opcoes.map(o=>`<button data-cod="${o.cod}" class="${o.cod===cod?'on':''}">${esc(o.rotulo)}</button>`).join('')}</div>`:''}
+        ${(m.perguntas||[]).map((pg,i)=>`<div class="mut" style="margin-top:10px">${esc(pg.p)}</div><div class="chips">${pg.op.map((o,j)=>`<button data-perg="${i}" data-resp="${j}" class="${resp[i]===o?'on':''}">${esc(o)}</button>`).join('')}</div>`).join('')}
         ${m.tipo==='bebida'&&S.papel!=='bar'?`<div class="mut" style="margin-top:10px">Sai no</div><div class="chips">${[['baixo','Bar do 1º piso'],['cima','Bar do 2º piso'],['bistro','Bistrô']].map(([k,nb])=>`<button data-bar="${k}" class="${(k==='bistro'?bisEq:(!bisEq&&k===barEq))?'on':''}">${nb}</button>`).join('')}</div>`:''}
         ${m.tipo==='comida'?`<div class="mut" style="margin-top:10px">Entregar na bistrô (opcional)</div>`:''}
         ${(m.tipo==='comida'||bisEq)&&S.papel!=='bar'?`<div class="chips">${Array.from({length:15},(_,i)=>`<button data-bis="${i+1}" class="${bisEq===i+1?'on':''}">${i+1}</button>`).join('')}</div>`:''}
@@ -469,7 +470,8 @@ async function telaLancar(n, aviso, ladoIni){
         <div class="acoes"><button class="bt ok grande" id="lancar">${enviando?'Lançando…':'Lançar '+brl(op.preco*qtd)}</button></div></div>`:''}
       <div class="acoes"><button class="bt linha" onclick="fechar()">← Sair da mesa ${r.pulseira}</button></div></div>`);
     document.querySelectorAll('[data-lado]').forEach(b=>b.onclick=()=>{ lado=b.dataset.lado; sel=null; pintar(); });
-    document.querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>{ sel=+b.dataset.item; const mm=r.cardapio.find(x=>x.id===sel); cod=mm.opcoes[0].cod; qtd=1; pintar(); });
+    document.querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>{ sel=+b.dataset.item; const mm=r.cardapio.find(x=>x.id===sel); cod=mm.opcoes[0].cod; qtd=1; resp=(mm.perguntas||[]).map(()=>null); pintar(); });
+    document.querySelectorAll('[data-perg]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.perg; resp[i]=m.perguntas[i].op[+b.dataset.resp]; pintar(); });
     document.querySelectorAll('[data-cod]').forEach(b=>b.onclick=()=>{ cod=b.dataset.cod; pintar(); });
     document.querySelectorAll('[data-bar]').forEach(b=>b.onclick=()=>{ if(b.dataset.bar==='bistro'){ bisEq=bisEq||0; pintar(); return; } bisEq=null; barEq=b.dataset.bar; try{localStorage.setItem('festa_eq_bar',barEq);}catch{} pintar(); });
     document.querySelectorAll('[data-bis]').forEach(b=>b.onclick=()=>{ const n=+b.dataset.bis; bisEq=(bisEq===n&&m.tipo==='comida')?null:n; pintar(); });
@@ -478,11 +480,13 @@ async function telaLancar(n, aviso, ladoIni){
       if(enviando) return;
       if(m.tipo==='bebida'&&S.papel!=='bar'&&!bisEq&&!barEq){ alert('Escolha em qual bar a bebida sai.'); return; }
       if(bisEq===0){ alert('Toque no número da bistrô.'); return; }
+      const pg=m.perguntas||[]; const faltou=pg.findIndex((_,i)=>!resp[i]);
+      if(faltou>=0){ alert('Falta escolher: '+pg[faltou].p); return; }
       enviando=true; lb.disabled=true; lb.textContent='Lançando…';
       try{
-        const x=await rpc('ev_equipe_pedir',{p_sessao:S.sessao,p_pulseira:r.pulseira,p_item:m.id,p_cod:cod,p_qtd:qtd,p_retirar:m.tipo==='bebida'&&!bisEq?(barEq||null):null,p_bistro:bisEq||null});
+        const x=await rpc('ev_equipe_pedir',{p_sessao:S.sessao,p_pulseira:r.pulseira,p_item:m.id,p_cod:cod,p_qtd:qtd,p_retirar:m.tipo==='bebida'&&!bisEq?(barEq||null):null,p_bistro:bisEq||null,p_escolhas:pg.length?resp:null});
         if(navigator.vibrate) navigator.vibrate(40);
-        const nomeItem=m.nome+(op.rotulo?' · '+op.rotulo:'');
+        const nomeItem=m.nome+(op.rotulo?' · '+op.rotulo:'')+resp.filter(Boolean).map(x=>' · '+x).join('');
         telaLancar(r.pulseira, `${qtd}× ${nomeItem} lançado para ${r.nome.split(' ')[0]}${S.papel==='garcom'&&m.tipo==='comida'?'. A entrega é sua.':'.'}`, lado);
       }catch(e){ enviando=false; lb.disabled=false; lb.textContent='Tentar de novo'; alert(msgErro(e)+' O pedido NÃO foi feito.'); }
     };

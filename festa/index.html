@@ -45,7 +45,7 @@
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v18 26/11/2026';
+const VER = 'festa-v19 27/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -398,8 +398,10 @@ function ligarPedirDeNovo() {
     const p = D.conta.itens.find(x => String(x.id) === b.dataset.deNovo);
     const m = D.cardapio.find(m => p.nome.startsWith(m.nome));
     if (!m) return;
-    const op = m.opcoes.find(o => p.nome === m.nome + (o.rotulo ? ' · ' + o.rotulo : '')) || m.opcoes[0];
-    abrirItem(m.id, op.cod, p.qtd);
+    const partes = p.nome.slice(m.nome.length).split(' · ').filter(Boolean);
+    const op = m.opcoes.find(o => o.rotulo && partes.includes(o.rotulo)) || m.opcoes[0];
+    const resp = (m.perguntas || []).map(pg => partes.find(x => pg.op.includes(x)) || null);
+    abrirItem(m.id, op.cod, p.qtd, resp);
   });
 }
 
@@ -513,14 +515,19 @@ function fecharFolha() {
 }
 
 /* pedido em dois passos: 1) o quê e quantos  2) onde receber + confirmar */
-function abrirItem(id, codIni, qtdIni) {
+/* Renato 27/11: caipirinha pergunta açúcar ou adoçante; caipivodka, a fruta e açúcar ou adoçante (sql/680).
+   Sem resposta não segue: o bar recebe no papel o que preparar. */
+function abrirItem(id, codIni, qtdIni, respIni) {
   const m = D.cardapio.find(x => x.id === id); if (!m) return;
   let cod = codIni || m.opcoes[0].cod, qtd = qtdIni || 1, passo = 1, enviando = false;
+  const pergs = m.perguntas || [];
+  const resp = pergs.map((_, i) => (respIni && respIni[i]) || null);
+  const falta = () => resp.some(r => !r);
   let entrega = m.tipo === 'comida' ? (bistroAtual() ? 'bistro' : null)  // comida: bistrô ou retirada no 2º piso
               : (bistroAtual() ? 'bistro' : (bar || null));
   const pintar = () => {
     const op = m.opcoes.find(o => o.cod === cod);
-    const nomeOp = m.nome + (op.rotulo && m.opcoes.length > 1 ? ' · ' + op.rotulo : '');
+    const nomeOp = m.nome + (op.rotulo && m.opcoes.length > 1 ? ' · ' + op.rotulo : '') + resp.filter(Boolean).map(r => ' · ' + r).join('');
     if (passo === 1) {
       abrirFolha(`
         ${m.foto ? `<button class="foto-g" id="fg"><img src="${fotoG(m)}" alt=""/><span>toque para ampliar</span></button>` : ''}
@@ -529,16 +536,21 @@ function abrirItem(id, codIni, qtdIni) {
         ${m.descricao ? `<p class="d">${esc(m.descricao)}</p>` : ''}
         ${m.opcoes.length > 1 ? `<div class="rot">Qual?</div><div class="chips">${m.opcoes.map(o =>
           `<button class="chip ${o.cod===cod?'on':''}" data-cod="${o.cod}">${esc(o.rotulo)} · ${brl(o.preco)}</button>`).join('')}</div>` : ''}
+        ${podePedir() ? pergs.map((pg, i) => `<div class="rot">${esc(pg.p)}</div><div class="chips">${pg.op.map((o, j) =>
+          `<button class="chip ${resp[i]===o?'on':''}" data-perg="${i}" data-resp="${j}">${esc(o)}</button>`).join('')}</div>`).join('') : ''}
         ${podePedir() ? `<div class="rot">Quantos?</div>
           <div class="qtd"><button id="menos" aria-label="menos">−</button><span>${qtd}</span><button id="mais" aria-label="mais">+</button></div>
-          <button class="pedir" id="seguir"><span>Pedir</span><span>${brl(op.preco * qtd)}</span></button>`
+          <button class="pedir" id="seguir" ${falta() ? 'disabled' : ''}><span>${falta() ? 'Escolha acima' : 'Pedir'}</span><span>${brl(op.preco * qtd)}</span></button>`
         : (D.vitrine || D.eu.pulseira == null ? '' : `<div class="aviso">Sua conta já foi paga. Fale com o caixa para abrir de novo.</div>`)}`);
       const fg = $('#fg'); if (fg) fg.onclick = () => verFoto(m);
       document.querySelectorAll('[data-cod]').forEach(b => b.onclick = () => { cod = b.dataset.cod; pintar(); });
       if (!podePedir()) return;
-      $('#menos').onclick = () => { if (qtd > 1) { qtd--; pintar(); } };
-      $('#mais').onclick = () => { if (qtd < 10) { qtd++; pintar(); } };
-      $('#seguir').onclick = () => { passo = 2; pintar(); };
+      const fol = $('#folha'), topo = () => fol.scrollTop;
+      document.querySelectorAll('[data-perg]').forEach(b => b.onclick = () => {
+        const y = topo(); resp[+b.dataset.perg] = pergs[+b.dataset.perg].op[+b.dataset.resp]; pintar(); fol.scrollTop = y; });
+      $('#menos').onclick = () => { const y = topo(); if (qtd > 1) { qtd--; pintar(); fol.scrollTop = y; } };
+      $('#mais').onclick = () => { const y = topo(); if (qtd < 10) { qtd++; pintar(); fol.scrollTop = y; } };
+      $('#seguir').onclick = () => { if (falta()) return; passo = 2; pintar(); };
       return;
     }
     // passo 2: onde receber
@@ -569,7 +581,8 @@ function abrirItem(id, codIni, qtdIni) {
       enviando = true; $('#pedir').disabled = true; $('#pedir span').textContent = 'Enviando…';
       try {
         const r = await rpc('ev_pedir', {p_token: token, p_item: m.id, p_cod: cod, p_qtd: qtd, p_local: null,
-          p_retirar: entrega === 'bistro' ? null : entrega, p_bistro: entrega === 'bistro' ? bistroAtual() : null});
+          p_retirar: entrega === 'bistro' ? null : entrega, p_bistro: entrega === 'bistro' ? bistroAtual() : null,
+          p_escolhas: pergs.length ? resp : null});
         D = await rpc('ev_cliente', {p_token: token});
         desenhar();
         const p = D.conta.itens.find(x => x.voucher === r.voucher);
@@ -581,7 +594,8 @@ function abrirItem(id, codIni, qtdIni) {
                      evento_fechado:'Os pedidos pelo celular foram encerrados. Fale com um garçom.',
                      escolha_a_bistro:'Escolha a sua mesa bistrô.', escolha_o_bar:'Escolha onde vai pegar.',
                      bistro_invalida:'Essa mesa bistrô não existe. Confira o número na plaquinha.',
-                     sem_preco:'Esse item saiu do cardápio agora. Escolha outro, por favor.'}[e.codigo]
+                     sem_preco:'Esse item saiu do cardápio agora. Escolha outro, por favor.',
+                     escolha_invalida:'Volte e escolha de novo a fruta e o açúcar ou adoçante.'}[e.codigo]
           || 'Não consegui enviar. O pedido NÃO foi feito. Confira a internet e toque em "Tentar de novo".';
         $('#msg').innerHTML = `<div class="aviso">${esc(txt)}</div>`;
       }
