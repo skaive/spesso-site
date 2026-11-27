@@ -114,7 +114,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v14 27/11/2026';
+const VER='festa-equipe-v15 27/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -127,13 +127,13 @@ async function rpc(n,a){
   const t=await r.text(); let j=null; try{j=t?JSON.parse(t):null}catch{}
   if(!r.ok){const e=new Error((j&&j.message)||'erro'); e.codigo=j&&j.message; throw e;} return j;
 }
-const MSG={sessao_invalida:'Sua sessão acabou. Entre de novo.',pin_errado:'PIN errado.',sem_alcada:'Só o caixa ou a gestão pode fazer isso.',
+const MSG={sessao_invalida:'Sua sessão acabou. Entre de novo.',pin_errado:'PIN errado.',sem_alcada:'Só a gerência pode fazer isso.',
   voucher_invalido:'Voucher não encontrado.',voucher_cancelado:'Esse voucher foi CANCELADO.',conta_nao_encontrada_ou_ja_paga:'Essa conta não existe ou já foi paga.',
   convidada_nao_encontrada:'Convidada não encontrada.',sem_pulseira:'Ela ainda não tem pulseira.',
   pulseira_sem_dona:'Ninguém está com essa pulseira. Mande na entrada.',conta_ja_paga:'A conta dela já foi paga. Fale com o caixa.',
   evento_fechado:'Evento fechado.',item_invalido:'Item fora do cardápio.',sem_preco:'Item sem preço no Frest.',
-  codigo_errado:'Código errado. Confira com a gestão.',nome_em_uso:'Esse nome já é de outra pessoa da equipe. Ponha o sobrenome.',
-  muitas_tentativas:'Muitas tentativas erradas. Espere 10 minutos ou fale com a gestão.',sem_codigo:'Este evento não aceita código. Fale com a gestão.',
+  codigo_errado:'Código errado. Confira com a gerência.',nome_em_uso:'Esse nome já é de outra pessoa da equipe. Ponha o sobrenome.',
+  muitas_tentativas:'Muitas tentativas erradas. Espere 10 minutos ou fale com a gerência.',sem_codigo:'Este evento não aceita código. Fale com a gerência.',
   sem_nome:'Escreva seu nome.',papel_invalido:'Escolha onde você está hoje.'};
 const msgErro=e=>MSG[e.codigo]||'Falhou. Confira a internet e tente de novo.';
 
@@ -146,11 +146,12 @@ async function telaLogin(){
   $('#app').innerHTML='<p class="mut">Carregando…</p>';
   let nomes=[], temCod=false;
   try{ [nomes,temCod]=await Promise.all([rpc('ev_equipe_nomes',{p_slug:SLUG}), rpc('ev_equipe_tem_codigo',{p_slug:SLUG})]); }catch{}
-  const PAP={bar:'bar',garcom:'garçom',caixa:'caixa',porta:'porta',gestao:'gestão'};
+  const PAP={bar:'bar',garcom:'garçom',caixa:'caixa',porta:'porta',gestao:'gerência'};
   $('#app').innerHTML=`${temCod?`<button class="bt ouro grande" id="primeira" style="margin-top:6px">Primeira vez aqui</button>
       <p class="mut" style="margin-top:8px;text-align:center">Garçom, bar e porta: entre com o código da festa.</p>`:''}
-    <h2>${temCod?'Já entrou antes? Toque no seu nome':'Quem é você?'}</h2>
-    <div class="nomes">${nomes.map(n=>`<button data-n="${esc(n.nome)}">${esc(n.nome)}<span>${n.nome.toLowerCase()===PAP[n.papel]||n.papel==='gestao'&&/ger[eê]ncia/i.test(n.nome)?'':PAP[n.papel]}</span></button>`).join('')||'<p class="mut">Ninguém entrou ainda.</p>'}</div>`;
+    ${nomes.length?[['garcom','Garçom'],['bar','Bar'],['porta','Porta'],['caixa','Caixa'],['gestao','Gerência']].filter(([k])=>nomes.some(n=>n.papel===k)).map(([k,t])=>
+      `<h2>${t}</h2><div class="nomes">${nomes.filter(n=>n.papel===k).map(n=>`<button data-n="${esc(n.nome)}">${esc(n.nome)}<span></span></button>`).join('')}</div>`).join('')
+      :'<p class="mut">Ninguém cadastrado neste evento.</p>'}`;
   document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>telaPin(b.dataset.n, nomes.find(n=>n.nome===b.dataset.n)));
   const pv=$('#primeira'); if(pv) pv.onclick=telaPrimeira;
 }
@@ -220,8 +221,8 @@ function telaPin(nome, info){
 
 /* ---------------------------------------------------------------- painel */
 function iniciar(){
-  const pap={bar:'bar',garcom:'garçom',caixa:'caixa',porta:'porta',gestao:'gestão'}[S.papel];
-  $('#quem').innerHTML=`<b>${esc(S.nome)}</b>${S.nome.toLowerCase()===pap||S.papel==='gestao'?'':esc(pap)+' · '}<a href="#" id="sair" style="color:inherit">sair</a>`;
+  const pap={bar:'bar',garcom:'garçom',caixa:'caixa',porta:'porta',gestao:'gerência'}[S.papel];
+  $('#quem').innerHTML=`<b>${esc(S.nome)}</b>${S.nome.toLowerCase()===pap?'':esc(pap)+' · '}<a href="#" id="sair" style="color:inherit">sair</a>`;
   $('#sair').onclick=e=>{e.preventDefault(); localStorage.removeItem('festa_eq_'+SLUG); S=null; telaLogin();};
   $('#barra').classList.remove('oculto');
   atualizar(); clearInterval(timer); timer=setInterval(()=>{ if(!document.hidden && !$('#res')) atualizar(); },8000);
@@ -506,7 +507,7 @@ async function buscar(){
   }catch(e){ box.innerHTML=`<div class="aviso">${esc(msgErro(e))}</div>`; }
 }
 const MOTIVO={pulseira_ocupada:'Essa pulseira já é de outra convidada.',pulseira_invalida:'Número de pulseira inválido.',
-  ja_pediu:'Ela já pediu com a outra pulseira. Fale com a gestão.',ja_tem_pulseira:'Ela já tem outra pulseira.',
+  ja_pediu:'Ela já pediu com a outra pulseira. Fale com a gerência.',ja_tem_pulseira:'Ela já tem outra pulseira.',
   evento_fechado:'Evento fechado.',sem_nome:'Falta o nome.'};
 function telaLigar(c){
   if(c.pulseira!=null) return ligar(c, c.pulseira);
