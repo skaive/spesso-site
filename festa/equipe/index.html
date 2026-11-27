@@ -114,7 +114,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v18 27/11/2026';
+const VER='festa-equipe-v19 27/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -621,8 +621,14 @@ $('#scan-form').onsubmit=e=>{ e.preventDefault(); const t=$('#scan-cod').value.t
 $('#digitar').onclick=()=>{ const t=prompt('Código do voucher, da conta ou o número da pulseira:'); if(t){ ultimoCodigo=codigoDe(t); ler(t);} };
 window.addEventListener('hashchange',()=>{ const h=location.hash.slice(1); if(h&&S){ history.replaceState(null,'',location.pathname+location.search); ultimoCodigo=codigoDe(h); ler(h);} });
 
+// 27/11 (Rebecca, pulseira 23): a convidada tocou no QR do próprio voucher/conta e o celular dela abriu
+// esta tela, "como se fosse garçom". Sem sessão da equipe, QR de voucher ou de conta volta para a
+// página da convidada (o link dela fica no aparelho); a equipe abre esta tela logada e lê pelo leitor.
+if(!S && /^#[VC]-/i.test(location.hash)){ location.replace('/festa/'+location.search); }
+else {
 if(location.hash) ultimoCodigo=codigoDe(location.hash.slice(1));
 S ? iniciar() : telaLogin();
+}
 </script>
 </body>
 </html>
