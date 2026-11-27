@@ -110,7 +110,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v10 27/11/2026';
+const VER='festa-equipe-v11 27/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -146,7 +146,7 @@ async function telaLogin(){
   $('#app').innerHTML=`${temCod?`<button class="bt ouro grande" id="primeira" style="margin-top:6px">Primeira vez aqui</button>
       <p class="mut" style="margin-top:8px;text-align:center">Garçom, bar e porta: entre com o código da festa.</p>`:''}
     <h2>${temCod?'Já entrou antes? Toque no seu nome':'Quem é você?'}</h2>
-    <div class="nomes">${nomes.map(n=>`<button data-n="${esc(n.nome)}">${esc(n.nome)}<span>${PAP[n.papel]}</span></button>`).join('')||'<p class="mut">Ninguém entrou ainda.</p>'}</div>`;
+    <div class="nomes">${nomes.map(n=>`<button data-n="${esc(n.nome)}">${esc(n.nome)}<span>${n.nome.toLowerCase()===PAP[n.papel]||n.papel==='gestao'&&/ger[eê]ncia/i.test(n.nome)?'':PAP[n.papel]}</span></button>`).join('')||'<p class="mut">Ninguém entrou ainda.</p>'}</div>`;
   document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>telaPin(b.dataset.n, nomes.find(n=>n.nome===b.dataset.n)));
   const pv=$('#primeira'); if(pv) pv.onclick=telaPrimeira;
 }
@@ -195,9 +195,8 @@ function telaPrimeira(){
 }
 function telaPin(nome, info){
   let pin='';
-  const auto = info && ['garcom','bar','porta'].includes(info.papel);
   const pintar=(erro)=>{
-    $('#app').innerHTML=`<h2>${esc(nome)}</h2><p class="mut">${auto?'Digite o código da festa':'Digite seu PIN'}</p>
+    $('#app').innerHTML=`<h2>${esc(nome)}</h2><p class="mut">Digite o PIN</p>
       <div class="bolinhas">${[0,1,2,3].map(i=>`<i class="${i<pin.length?'on':''}"></i>`).join('')}</div>
       ${erro?`<div class="aviso">${esc(erro)}</div>`:''}
       <div class="pin">${[1,2,3,4,5,6,7,8,9,'←',0,'ok'].map(k=>`<button data-k="${k}">${k}</button>`).join('')}</div>
@@ -217,7 +216,8 @@ function telaPin(nome, info){
 
 /* ---------------------------------------------------------------- painel */
 function iniciar(){
-  $('#quem').innerHTML=`<b>${esc(S.nome)}</b>${esc({bar:'bar',garcom:'garçom',caixa:'caixa',porta:'porta',gestao:'gestão'}[S.papel])} · <a href="#" id="sair" style="color:inherit">sair</a>`;
+  const pap={bar:'bar',garcom:'garçom',caixa:'caixa',porta:'porta',gestao:'gestão'}[S.papel];
+  $('#quem').innerHTML=`<b>${esc(S.nome)}</b>${S.nome.toLowerCase()===pap||S.papel==='gestao'?'':esc(pap)+' · '}<a href="#" id="sair" style="color:inherit">sair</a>`;
   $('#sair').onclick=e=>{e.preventDefault(); localStorage.removeItem('festa_eq_'+SLUG); S=null; telaLogin();};
   $('#barra').classList.remove('oculto');
   atualizar(); clearInterval(timer); timer=setInterval(()=>{ if(!document.hidden && !$('#res')) atualizar(); },8000);
