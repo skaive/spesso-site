@@ -114,7 +114,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v13 27/11/2026';
+const VER='festa-equipe-v14 27/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -451,6 +451,7 @@ async function telaLancar(n, aviso, ladoIni){
     const itens=r.cardapio.filter(m=>m.tipo===lado), cats=[...new Set(itens.map(m=>m.categoria))];
     const m=sel&&r.cardapio.find(x=>x.id===sel), op=m&&m.opcoes.find(o=>o.cod===cod);
     resultado(`<div id="res">
+      <button class="bt linha" onclick="fechar()" style="width:100%;margin-bottom:10px">← Sair da mesa ${r.pulseira}</button>
       ${aviso?`<div class="aviso ok" style="margin:0 0 10px">${esc(aviso)}</div>`:''}
       <div class="card"><div class="lin"><div><div class="grande-txt">${esc(r.nome)}</div>
         <div class="mut">mesa ${r.mesa} · consumo ${brl(r.conta.consumo)}</div></div><div class="puls"><small>PULS.</small>${r.pulseira}</div></div></div>
@@ -465,7 +466,7 @@ async function telaLancar(n, aviso, ladoIni){
         ${(m.tipo==='comida'||bisEq)&&S.papel!=='bar'?`<div class="chips">${Array.from({length:15},(_,i)=>`<button data-bis="${i+1}" class="${bisEq===i+1?'on':''}">${i+1}</button>`).join('')}</div>`:''}
         <div class="qtd"><button id="menos">−</button><span>${qtd}</span><button id="mais">+</button></div>
         <div class="acoes"><button class="bt ok grande" id="lancar">${enviando?'Lançando…':'Lançar '+brl(op.preco*qtd)}</button></div></div>`:''}
-      <div class="acoes"><button class="bt linha" onclick="fechar()">Pronto</button></div></div>`);
+      <div class="acoes"><button class="bt linha" onclick="fechar()">← Sair da mesa ${r.pulseira}</button></div></div>`);
     document.querySelectorAll('[data-lado]').forEach(b=>b.onclick=()=>{ lado=b.dataset.lado; sel=null; pintar(); });
     document.querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>{ sel=+b.dataset.item; const mm=r.cardapio.find(x=>x.id===sel); cod=mm.opcoes[0].cod; qtd=1; pintar(); });
     document.querySelectorAll('[data-cod]').forEach(b=>b.onclick=()=>{ cod=b.dataset.cod; pintar(); });
