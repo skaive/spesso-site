@@ -114,7 +114,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v12 27/11/2026';
+const VER='festa-equipe-v13 27/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -299,6 +299,11 @@ function desenhar(){
   if(S.papel==='garcom') h+=`<h2>Minhas entregas (${meus.length})</h2>`+(meus.map(pedidoCard).join('')||'<p class="mut">Assuma uma entrega abaixo ou leia o voucher da cliente. Quando ela tocar em "Recebi", o pedido sai daqui.</p>');
   const tit={bar:'Bebidas a entregar'+(barEq?' no '+(barEq==='cima'?'2º':'1º')+' piso':''),garcom:'Para levar (sem garçom)',caixa:'Tudo que falta entregar',gestao:'Tudo que falta entregar',porta:'Tudo que falta entregar'}[S.papel];
   h+=`<h2>${tit} (${resto.length})</h2>`+(resto.map(pedidoCard).join('')||'<p class="mut">Nada pendente.</p>');
+  // sql/672: o que este perfil já entregou (some de "Minhas entregas" ao tocar em Entregar)
+  const ent=P.entregues||[];
+  if(ent.length) h+=`<h2>Já entregues (${ent.length})</h2><div class="card" style="padding:6px 14px">`+ent.map((e,i)=>`<div class="lin" style="padding:8px 0;border-top:${i?'1px solid var(--linha)':'0'}">
+      <div><b>${e.qtd}× ${esc(e.nome)}</b><div class="mut">${esc(e.cliente)}${e.bistro?' · bistrô '+e.bistro:''}${e.entregue_por&&e.entregue_por!==S.nome?' · entregue por '+esc(e.entregue_por):''}</div></div>
+      <div style="text-align:right;white-space:nowrap"><span class="tag ok">✓ ${hora(e.entregue_em)}</span><div class="mut">puls. ${e.pulseira}</div></div></div>`).join('')+'</div>';
   h+=`<p class="mut" style="text-align:center;margin-top:24px;font-size:11px">skv-versao ${VER}</p>`;
   $('#app').innerHTML=h;
   document.querySelectorAll('[data-conta]').forEach(b=>b.onclick=()=>ler('C-'+b.dataset.conta));
