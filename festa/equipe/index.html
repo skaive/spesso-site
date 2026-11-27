@@ -114,7 +114,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v19 27/11/2026';
+const VER='festa-equipe-v20 27/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -253,7 +253,10 @@ setInterval(()=>document.querySelectorAll('[data-ate]').forEach(b=>{
 function pedidoCard(p){
   const st = p.status==='erro' ? '<span class="tag erro">NÃO entrou no Frest</span>'
     : (p.status==='pedido'||p.status==='lancando') ? '<span class="tag vivo">indo pro Frest</span>'
+    : p.chegou_em ? `<span class="tag ok">cliente avisada ${hora(p.chegou_em)}</span>`
     : p.pronto ? '<span class="tag ok">pronto na cozinha</span>' : '<span class="tag">no Frest</span>';
+  // sql/690: comida que a convidada pediu para retirar no bar — quem está com ela na mão avisa (página + WhatsApp)
+  const podeAvisar=p.tipo==='comida'&&p.retirar&&!p.bistro&&!p.pedido_por&&!p.chegou_em&&p.status==='lancado'&&['garcom','gestao','caixa'].includes(S.papel);
   return `<div class="card"><div class="lin"><div><b>${p.qtd}× ${esc(p.nome)}</b>
     <div class="mut">${esc(p.cliente)} · mesa ${p.mesa}${p.local?' · '+esc(p.local):''} · há ${minutos(p.criado_em)} min</div>
     <div style="margin-top:4px">${p.bistro?`<span class="tag bistro">BISTRÔ ${p.bistro}</span> `:p.retirar?`<span class="tag${p.tipo==='comida'?' bistro':''}">${p.tipo==='comida'?'LEVAR AO BAR DO '+(p.retirar==='cima'?'2º':'1º')+' PISO':'pega no bar '+(p.retirar==='cima'?'2º':'1º')+' piso'}</span> `:''}${st}${p.garcom?` <span class="tag">${esc(p.garcom)}</span>`:''}</div>
@@ -261,6 +264,7 @@ function pedidoCard(p){
     <div class="puls"><small>PULS.</small>${p.pulseira}</div></div>
     ${S.papel==='garcom'&&p.bistro&&!p.garcom?`<div class="acoes"><button class="bt ouro" data-assumir="${p.voucher}">É meu: levo à bistrô ${p.bistro}</button></div>`:''}
     ${S.papel==='garcom'&&p.tipo==='comida'&&p.retirar&&!p.bistro&&!p.garcom?`<div class="acoes"><button class="bt ouro" data-assumir="${p.voucher}">É meu: levo ao bar do ${p.retirar==='cima'?'2º':'1º'} piso</button></div>`:''}
+    ${podeAvisar?`<div class="acoes"><button class="bt ok" data-chegou="${p.voucher}">Chegou no bar do ${p.retirar==='cima'?'2º':'1º'} piso: avisar a cliente</button></div>`:''}
     ${S.papel==='garcom'&&p.garcom===S.nome?`<div class="acoes"><button class="bt ok" data-entreguei="${p.voucher}">Entreguei${p.bistro?' na bistrô '+p.bistro:''}</button></div>`:''}
     ${restaCancelar(p)>0?`<div class="acoes"><button class="bt perigo" data-cancmeu="${p.voucher}" data-ate="${new Date(p.criado_em).getTime()+PRAZO}">Cancelar (${seg(restaCancelar(p))})</button></div>`:''}
     ${p.status==='erro'&&(S.papel==='gestao'||S.papel==='caixa')?`<div class="acoes"><button class="bt linha" data-relancar="${p.voucher}">Conferi no Frest: não está lá. Lançar de novo</button></div>`:''}
@@ -333,6 +337,14 @@ function desenhar(){
     try{ await rpc('ev_relancar',{p_sessao:S.sessao,p_voucher:b.dataset.relancar}); atualizar(); }catch(e){ alert(msgErro(e)); }
   });
   document.querySelectorAll('[data-cancmeu]').forEach(b=>b.onclick=async()=>{ if(await cancelarMeu(b.dataset.cancmeu,b)) atualizar(); });
+  document.querySelectorAll('[data-chegou]').forEach(b=>b.onclick=async()=>{
+    b.disabled=true;
+    try{ const x=await rpc('ev_voucher_acao',{p_sessao:S.sessao,p_voucher:b.dataset.chegou,p_acao:'chegou'});
+      if(x&&x.ok===false) alert({ja_entregue:'Já entregue.',ja_avisada:`Já avisada por ${x.por}.`}[x.motivo]||x.motivo);
+      else { b.textContent='Avisada ✓'; if(navigator.vibrate) navigator.vibrate(30); }
+      atualizar(); }
+    catch(e){ b.disabled=false; alert(msgErro(e)); }
+  });
   document.querySelectorAll('[data-assumir],[data-entreguei]').forEach(b=>b.onclick=async()=>{
     const v=b.dataset.assumir||b.dataset.entreguei, a=b.dataset.assumir?'assumir':'entregar';
     b.disabled=true;
