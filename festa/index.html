@@ -45,7 +45,7 @@
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v19 27/11/2026';
+const VER = 'festa-v20 27/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -165,6 +165,8 @@ document.addEventListener('click', e => {
 });
 /* bebida: a convidada escolhe em qual bar pega (o papel sai na impressora daquele bar) */
 const BARES = [['baixo', 'Bar do 1º piso'], ['cima', 'Bar do 2º piso']];
+/* Renato 27/11: comida também no Bar do 1º piso (a cozinha manda para o bar escolhido) */
+const retiraComida = r => r === 'baixo' ? 'no Bar do 1º piso' : 'ao lado do Bar do 2º piso';
 const nomeBar = k => (BARES.find(b => b[0] === k) || [k, 'bar'])[1];
 let bar = null; try { bar = localStorage.getItem('festa_bar'); } catch {}
 function telaErro(t, d, tentar) {
@@ -240,7 +242,7 @@ function desenharCardapio() {
     <nav class="cats">
       <div class="troca"><button data-troca="bebida" class="${lado==='bebida'?'on':''}">Beber</button><button data-troca="comida" class="${lado==='comida'?'on':''}">Comer</button></div>
       <div class="in">${cats.map(c => `<a href="#c-${slug(c)}">${esc(c)}</a>`).join('')}</div></nav>
-    ${lado === 'comida' && !D.vitrine ? `<p class="dica">A comida vai até a sua <b>mesa bistrô</b> ou você retira <b>ao lado do Bar do 2º piso</b> (a gente avisa quando ficar pronta).</p>` : ''}
+    ${lado === 'comida' && !D.vitrine ? `<p class="dica">A comida vai até a sua <b>mesa bistrô</b> ou você retira no <b>Bar do 1º piso</b> ou <b>ao lado do Bar do 2º piso</b> (a gente avisa quando ficar pronta).</p>` : ''}
     ${cats.map((c, i) => `<section class="secao" id="c-${slug(c)}"><h2>${esc(c)}</h2>
       ${itens.filter(m => m.categoria === c).map(itemHtml).join('')}</section>`).join('')}
     ${casaHtml(false)}`;
@@ -309,7 +311,8 @@ function onde(p) {
 const STATUS = p => {
   if (p.entregue) return [p.entregue_por === 'cliente' ? 'Você confirmou que recebeu' : 'Entregue', 'ok'];
   if (p.bistro) return [p.garcom ? `${p.garcom.split(' ')[0]} está levando até a bistrô ${p.bistro}` : `Preparando · o garçom leva até a bistrô ${p.bistro}`, 'vivo'];
-  if (p.tipo === 'comida' && p.retirar) return prontaJa(p) ? ['PRONTA! Retire ao lado do Bar do 2º piso', 'vivo']
+  if (p.tipo === 'comida' && p.pelo_garcom) return [p.garcom ? `Com ${p.garcom.split(' ')[0]}, que vai levar até você` : 'Na cozinha · o garçom leva até você', 'vivo'];
+  if (p.tipo === 'comida' && p.retirar) return prontaJa(p) ? [`PRONTA! Retire ${retiraComida(p.retirar)}`, 'vivo']
                                                         : ['Na cozinha · a gente avisa quando ficar pronta', 'vivo'];
   if (p.retirar) return [`Retire no ${nomeBar(p.retirar)} com o voucher`, 'vivo'];
   if (p.tipo === 'comida') return [p.garcom ? `Com ${p.garcom.split(' ')[0]}, que vai levar até você` : 'Na cozinha', 'vivo'];
@@ -346,7 +349,7 @@ const prontaJa = p => !!(p.pronto && Date.now() - new Date(p.pronto).getTime() >
 let avisados = []; try { avisados = JSON.parse(localStorage.getItem('festa_avisados') || '[]'); } catch {}
 function checarProntos() {
   if (!D || D.vitrine || !D.conta) return;
-  const p = D.conta.itens.find(i => i.tipo === 'comida' && i.retirar && !i.bistro && !i.entregue && prontaJa(i) && !avisados.includes(i.voucher));
+  const p = D.conta.itens.find(i => i.tipo === 'comida' && i.retirar && !i.pelo_garcom && !i.bistro && !i.entregue && prontaJa(i) && !avisados.includes(i.voucher));
   if (!p || document.querySelector('.alerta')) return;
   avisados.push(p.voucher); try { localStorage.setItem('festa_avisados', JSON.stringify(avisados)); } catch {}
   if (navigator.vibrate) navigator.vibrate([300, 120, 300, 120, 300]);
@@ -360,7 +363,7 @@ function checarProntos() {
   } catch {}
   const v = document.createElement('div'); v.className = 'alerta';
   v.innerHTML = `<div class="cx"><h2 class="it palavra">È pronto${comNome()}!</h2><p class="sub">${p.qtd}<span class="vz">×</span> ${esc(p.nome)}</p>
-    <p>Retire <b>ao lado do Bar do 2º piso</b>.</p>
+    <p>Retire <b>${retiraComida(p.retirar)}</b>.</p>
     <button class="bt ouro" id="al-v">Ver voucher</button><button class="bt linha" id="al-ok">Já vou</button></div>`;
   document.body.appendChild(v);
   v.querySelector('#al-ok').onclick = () => v.remove();
@@ -557,6 +560,7 @@ function abrirItem(id, codIni, qtdIni, respIni) {
     const b = bistroAtual();
     const opcoes = m.tipo === 'comida'
       ? [['bistro', b ? `Na bistrô ${b}` : 'Na minha mesa bistrô', 'o garçom leva até você'],
+         ['baixo', 'Retiro no Bar do 1º piso', 'a gente avisa aqui e no WhatsApp quando ficar pronta'],
          ['cima', 'Retiro ao lado do Bar do 2º piso', 'a gente avisa aqui e no WhatsApp quando ficar pronta']]
       : [['bistro', b ? `Na bistrô ${b}` : 'Na minha mesa bistrô', 'o garçom leva até você'],
          ['baixo', 'Pego no Bar do 1º piso', 'mostre o voucher no balcão'],
@@ -1445,7 +1449,8 @@ function qrSvg(texto) {
 function abrirVoucher(p, novo) {
   if (!p) return;
   const onde = p.bistro ? `O garçom leva até a bistrô ${p.bistro}`
-             : (p.tipo === 'comida' && p.retirar) ? 'Retire ao lado do Bar do 2º piso'
+             : (p.tipo === 'comida' && p.pelo_garcom) ? 'O garçom leva até você'
+             : (p.tipo === 'comida' && p.retirar) ? 'Retire ' + retiraComida(p.retirar)
              : p.retirar ? `Retire no ${nomeBar(p.retirar)}` : (p.tipo === 'bebida' ? 'Mostre no bar' : 'Mostre a um garçom');
   const instr = p.bistro ? 'Já está sendo preparado.' : (p.tipo === 'comida' ? 'A gente avisa quando ficar pronta.' : 'Mostre este bilhete no balcão.');
   abrirFolha(`<div class="voucher ${novo ? 'novo' : ''}">
