@@ -45,7 +45,7 @@
 <script>
 const SB = 'https://ujxdbktmbowtokrxxylb.supabase.co';
 const K  = 'sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER = 'festa-v20 27/11/2026';
+const VER = 'festa-v21 27/11/2026';
 const FOTOS_G = ['bruschette','ciabatta','fettuccine-fiorentina','gnocchi','insalata-foglie','insalata-mediterranea','pizza-4formaggi','pizza-calabresa','pizza-maiale','pizza-margherita','pizza-parma','risotto-baccala','risotto-coda','rosetta','tiramisu','giro-pizzette'];
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const EQUIPE = 'https://spesso.com.br/festa/equipe/#';
@@ -310,6 +310,7 @@ function onde(p) {
 }
 const STATUS = p => {
   if (p.entregue) return [p.entregue_por === 'cliente' ? 'Você confirmou que recebeu' : 'Entregue', 'ok'];
+  if (p.bistro && prontaJa(p)) return [`Pronta! Já está indo para a bistrô ${p.bistro}`, 'vivo'];   // sql/691
   if (p.bistro) return [p.garcom ? `${p.garcom.split(' ')[0]} está levando até a bistrô ${p.bistro}` : `Preparando · o garçom leva até a bistrô ${p.bistro}`, 'vivo'];
   if (p.tipo === 'comida' && p.pelo_garcom) return [p.garcom ? `Com ${p.garcom.split(' ')[0]}, que vai levar até você` : 'Na cozinha · o garçom leva até você', 'vivo'];
   if (p.tipo === 'comida' && p.retirar) return prontaJa(p) ? [`PRONTA! Retire ${retiraComida(p.retirar)}`, 'vivo']

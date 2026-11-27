@@ -114,7 +114,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v20 27/11/2026';
+const VER='festa-equipe-v21 27/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -226,6 +226,13 @@ function iniciar(){
   $('#sair').onclick=e=>{e.preventDefault(); localStorage.removeItem('festa_eq_'+SLUG); S=null; telaLogin();};
   $('#barra').classList.remove('oculto');
   atualizar(); clearInterval(timer); timer=setInterval(()=>{ if(!document.hidden && !$('#res')) atualizar(); },8000);
+  // versão nova no ar: a página recarrega sozinha (sem ninguém precisar sair e entrar)
+  clearInterval(window._verTimer); window._verTimer=setInterval(async()=>{
+    if(document.hidden||$('#res')) return;
+    const foco=document.activeElement; if(foco&&/INPUT|TEXTAREA|SELECT/.test(foco.tagName)) return;
+    try{ const t=await (await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'})).text();
+      const m=t.match(/const VER='([^']+)'/); if(m&&m[1]!==VER) location.reload(); }catch{}
+  },60000);
   const h=location.hash.slice(1); if(h){ history.replaceState(null,'',location.pathname+location.search); ler(h); }
 }
 async function atualizar(){
@@ -256,7 +263,10 @@ function pedidoCard(p){
     : p.chegou_em ? `<span class="tag ok">cliente avisada ${hora(p.chegou_em)}</span>`
     : p.pronto ? '<span class="tag ok">pronto na cozinha</span>' : '<span class="tag">no Frest</span>';
   // sql/690: comida que a convidada pediu para retirar no bar — quem está com ela na mão avisa (página + WhatsApp)
-  const podeAvisar=p.tipo==='comida'&&p.retirar&&!p.bistro&&!p.pedido_por&&!p.chegou_em&&p.status==='lancado'&&['garcom','gestao','caixa'].includes(S.papel);
+  // sql/691: bistrô também; o pronto pode vir do KDS (p.pronto) ou deste botão
+  const podeAvisar=p.tipo==='comida'&&(p.bistro||(p.retirar&&!p.pedido_por))&&!p.chegou_em&&p.status==='lancado'&&['garcom','gestao','caixa'].includes(S.papel);
+  const ondeLevar=p.bistro?`LEVAR À BISTRÔ ${p.bistro}`:`LEVAR AO BAR DO ${p.retirar==='cima'?'2º':'1º'} PISO`;
+  const prontoTag=p.tipo==='comida'&&(p.chegou_em||p.pronto)&&(p.bistro||p.retirar)?`<div class="aviso" style="margin-top:8px;background:rgba(63,185,107,.18);color:#8EE6AE"><b>PRONTO · ${ondeLevar}</b>${p.chegou_em||!p.pedido_por||p.bistro?' · cliente avisada':''}</div>`:'';
   return `<div class="card"><div class="lin"><div><b>${p.qtd}× ${esc(p.nome)}</b>
     <div class="mut">${esc(p.cliente)} · mesa ${p.mesa}${p.local?' · '+esc(p.local):''} · há ${minutos(p.criado_em)} min</div>
     <div style="margin-top:4px">${p.bistro?`<span class="tag bistro">BISTRÔ ${p.bistro}</span> `:p.retirar?`<span class="tag${p.tipo==='comida'?' bistro':''}">${p.tipo==='comida'?'LEVAR AO BAR DO '+(p.retirar==='cima'?'2º':'1º')+' PISO':'pega no bar '+(p.retirar==='cima'?'2º':'1º')+' piso'}</span> `:''}${st}${p.garcom?` <span class="tag">${esc(p.garcom)}</span>`:''}</div>
@@ -264,7 +274,8 @@ function pedidoCard(p){
     <div class="puls"><small>PULS.</small>${p.pulseira}</div></div>
     ${S.papel==='garcom'&&p.bistro&&!p.garcom?`<div class="acoes"><button class="bt ouro" data-assumir="${p.voucher}">É meu: levo à bistrô ${p.bistro}</button></div>`:''}
     ${S.papel==='garcom'&&p.tipo==='comida'&&p.retirar&&!p.bistro&&!p.garcom?`<div class="acoes"><button class="bt ouro" data-assumir="${p.voucher}">É meu: levo ao bar do ${p.retirar==='cima'?'2º':'1º'} piso</button></div>`:''}
-    ${podeAvisar?`<div class="acoes"><button class="bt ok" data-chegou="${p.voucher}">Chegou no bar do ${p.retirar==='cima'?'2º':'1º'} piso: avisar a cliente</button></div>`:''}
+    ${prontoTag}
+    ${podeAvisar?`<div class="acoes"><button class="bt ok" data-chegou="${p.voucher}">${p.bistro?`Pronto: avisar a cliente (levar à bistrô ${p.bistro})`:`Pronto: avisar a cliente (ela busca no bar do ${p.retirar==='cima'?'2º':'1º'} piso)`}</button></div>`:''}
     ${S.papel==='garcom'&&p.garcom===S.nome?`<div class="acoes"><button class="bt ok" data-entreguei="${p.voucher}">Entreguei${p.bistro?' na bistrô '+p.bistro:''}</button></div>`:''}
     ${restaCancelar(p)>0?`<div class="acoes"><button class="bt perigo" data-cancmeu="${p.voucher}" data-ate="${new Date(p.criado_em).getTime()+PRAZO}">Cancelar (${seg(restaCancelar(p))})</button></div>`:''}
     ${p.status==='erro'&&(S.papel==='gestao'||S.papel==='caixa')?`<div class="acoes"><button class="bt linha" data-relancar="${p.voucher}">Conferi no Frest: não está lá. Lançar de novo</button></div>`:''}
@@ -341,7 +352,8 @@ function desenhar(){
     b.disabled=true;
     try{ const x=await rpc('ev_voucher_acao',{p_sessao:S.sessao,p_voucher:b.dataset.chegou,p_acao:'chegou'});
       if(x&&x.ok===false) alert({ja_entregue:'Já entregue.',ja_avisada:`Já avisada por ${x.por}.`}[x.motivo]||x.motivo);
-      else { b.textContent='Avisada ✓'; if(navigator.vibrate) navigator.vibrate(30); }
+      else { if(navigator.vibrate) navigator.vibrate(30);
+        alert(x&&x.bistro?`Cliente avisada. Leve à BISTRÔ ${x.bistro}.`:`Cliente avisada. Ela vai buscar no BAR DO ${x&&x.retirar==='cima'?'2º':'1º'} PISO: deixe lá.`); }
       atualizar(); }
     catch(e){ b.disabled=false; alert(msgErro(e)); }
   });
