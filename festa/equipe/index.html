@@ -299,7 +299,7 @@ function desenhar(){
   if(S.papel==='garcom') h+=`<h2>Minhas entregas (${meus.length})</h2>`+(meus.map(pedidoCard).join('')||'<p class="mut">Assuma uma entrega abaixo ou leia o voucher da cliente. Quando ela tocar em "Recebi", o pedido sai daqui.</p>');
   const tit={bar:'Bebidas a entregar'+(barEq?' no '+(barEq==='cima'?'2º':'1º')+' piso':''),garcom:'Para levar (sem garçom)',caixa:'Tudo que falta entregar',gestao:'Tudo que falta entregar',porta:'Tudo que falta entregar'}[S.papel];
   h+=`<h2>${tit} (${resto.length})</h2>`+(resto.map(pedidoCard).join('')||'<p class="mut">Nada pendente.</p>');
-  // sql/672: o que este perfil já entregou (some de "Minhas entregas" ao tocar em Entregar)
+  // sql/675: o que este perfil já entregou (some de "Minhas entregas" ao tocar em Entregar)
   const ent=P.entregues||[];
   if(ent.length) h+=`<h2>Já entregues (${ent.length})</h2><div class="card" style="padding:6px 14px">`+ent.map((e,i)=>`<div class="lin" style="padding:8px 0;border-top:${i?'1px solid var(--linha)':'0'}">
       <div><b>${e.qtd}× ${esc(e.nome)}</b><div class="mut">${esc(e.cliente)}${e.bistro?' · bistrô '+e.bistro:''}${e.entregue_por&&e.entregue_por!==S.nome?' · entregue por '+esc(e.entregue_por):''}</div></div>
