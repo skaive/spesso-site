@@ -114,7 +114,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v21 27/11/2026';
+const VER='festa-equipe-v22 27/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -445,10 +445,16 @@ function telaConta(r){
   const c=r.cliente, k=r.conta;
   const pode=S.papel==='caixa'||S.papel==='gestao';
   const paga=!!c.liberada_em;
-  const div = c.frest_total!=null && Math.abs(Number(c.frest_total)-(k.consumo+k.servico))>0.05;
+  const base=k.consumo+k.servico, ft=c.frest_total!=null?Number(c.frest_total):null;
+  // complemento: produto COMPLEMENTO CONSUMAÇÃO de R$ 0,10, SEM os 12% (Renato 27/11)
+  const complLancado = ft!=null && k.falta_minimo>0 && Math.abs(ft-(base+k.falta_minimo))<=0.05;
+  const servNoCompl  = ft!=null && k.falta_minimo>0 && !complLancado && Math.abs(ft-(base+k.falta_minimo*(1+k.servico_pct/100)))<=0.06;
+  let div = ft!=null && Math.abs(ft-base)>0.05 && !complLancado && !servNoCompl;
   // o Frest é o livro: se ele tem mais do que o app (garçom lançou direto), cobra pelo Frest
   let cobrar=k.total, compl=k.falta_minimo;
-  if(c.frest_total!=null && Number(c.frest_total)>k.consumo+k.servico+0.05){
+  if(complLancado){ cobrar=ft; }
+  else if(servNoCompl){ cobrar=k.total; }
+  else if(ft!=null && ft>base+0.05){
     const consumoFrest=Number(c.frest_total)/(1+k.servico_pct/100);
     compl=Math.max(0, Math.round((k.minimo-consumoFrest)*100)/100);
     cobrar=Number(c.frest_total)+compl;
@@ -466,7 +472,9 @@ function telaConta(r){
     ${cobrar!==k.total?`<p class="mut">Pelo Frest (tem item lançado direto na mesa ${c.mesa}).</p>`:''}
     ${c.frest_total!=null?`<p class="mut" style="margin-top:6px">Frest (lido ${hora(c.frest_lido_em)}): ${brl(c.frest_total)}</p>`:'<p class="mut" style="margin-top:6px">Total do Frest ainda não lido. <a href="#" id="reler" style="color:var(--ouro-2)">Ler de novo</a> ou confira a mesa '+c.mesa+'.</p>'}
     ${div?`<div class="aviso">O Frest e o app estão diferentes. Confira a mesa ${c.mesa} no Frest antes de cobrar.</div>`:''}
-    ${compl>0?`<div class="aviso" style="background:rgba(224,169,63,.14);color:var(--ouro-2)">Lance no Frest o complemento de ${brl(compl)} na mesa ${c.mesa}.</div>`:''}
+    ${compl>0&&complLancado?`<div class="aviso" style="background:rgba(80,170,110,.16);color:var(--creme)">Complemento já lançado no Frest ✓ Cobre ${brl(cobrar)}.</div>`:''}
+    ${compl>0&&servNoCompl?`<div class="aviso">O Frest pôs ${k.servico_pct}% no complemento. Tire o serviço desse item na mesa ${c.mesa}. Cobre ${brl(cobrar)}.</div>`:''}
+    ${compl>0&&!complLancado&&!servNoCompl?`<div class="aviso" style="background:rgba(224,169,63,.14);color:var(--ouro-2)">Lance no Frest <b>${Math.round(compl*10)} × COMPLEMENTO CONSUMAÇÃO</b> (R$ 0,10, sem serviço) na mesa ${c.mesa} = ${brl(compl)}.</div>`:''}
     ${pode&&!paga?`<div class="formas">${['Crédito','Débito','Pix','Dinheiro'].map(f=>`<button class="bt linha" data-f="${f}">${f}</button>`).join('')}</div>
       <div class="acoes"><button class="bt ok grande" id="liberar" disabled>Recebi: liberar</button></div>`:''}
     ${!pode?'<p class="mut" style="margin-top:10px">Leve ao caixa para cobrar.</p>':''}
