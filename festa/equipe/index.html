@@ -114,7 +114,7 @@ h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const SB='https://ujxdbktmbowtokrxxylb.supabase.co', K='sb_publishable_esAA71xiJkVOowMYoH0iEg_PPcb6xiP';
-const VER='festa-equipe-v22 27/11/2026';
+const VER='festa-equipe-v23 27/11/2026';
 const SLUG = new URLSearchParams(location.search).get('e') || 'jardim-eder';
 const CLIENTE = 'https://spesso.com.br/festa/?t=';
 const $=s=>document.querySelector(s);
@@ -474,7 +474,7 @@ function telaConta(r){
     ${div?`<div class="aviso">O Frest e o app estão diferentes. Confira a mesa ${c.mesa} no Frest antes de cobrar.</div>`:''}
     ${compl>0&&complLancado?`<div class="aviso" style="background:rgba(80,170,110,.16);color:var(--creme)">Complemento já lançado no Frest ✓ Cobre ${brl(cobrar)}.</div>`:''}
     ${compl>0&&servNoCompl?`<div class="aviso">O Frest pôs ${k.servico_pct}% no complemento. Tire o serviço desse item na mesa ${c.mesa}. Cobre ${brl(cobrar)}.</div>`:''}
-    ${compl>0&&!complLancado&&!servNoCompl?`<div class="aviso" style="background:rgba(224,169,63,.14);color:var(--ouro-2)">Lance no Frest <b>${Math.round(compl*10)} × COMPLEMENTO CONSUMAÇÃO</b> (R$ 0,10, sem serviço) na mesa ${c.mesa} = ${brl(compl)}.</div>`:''}
+    ${compl>0&&!complLancado&&!servNoCompl?`<div class="aviso" style="background:rgba(224,169,63,.14);color:var(--ouro-2)">Lance no Frest <b>${Math.round(compl*10)} × 0390 COMPLEMENTO DE CONSUMO</b> (R$ 0,10, sem serviço) na mesa ${c.mesa} = ${brl(compl)}.</div>`:''}
     ${pode&&!paga?`<div class="formas">${['Crédito','Débito','Pix','Dinheiro'].map(f=>`<button class="bt linha" data-f="${f}">${f}</button>`).join('')}</div>
       <div class="acoes"><button class="bt ok grande" id="liberar" disabled>Recebi: liberar</button></div>`:''}
     ${!pode?'<p class="mut" style="margin-top:10px">Leve ao caixa para cobrar.</p>':''}
